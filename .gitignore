@@ -1,0 +1,64 @@
+# Ignore project-specific files
+*.sln
+*.suo
+*.vcxproj
+*.vcxproj.*
+*.opensdf
+*.sdf
+*.tmp
+*.log
+*.user
+*.userprefs
+*.uo
+*.o
+*.obj
+*.pdb
+*.pch
+*.idb
+*.ipdb
+*.iobj
+*.ilk
+*.dmp
+*.exp
+*.lib
+*.dll
+*.exe
+
+# Ignore build folders
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+Build/
+
+# Ignore config files that are user-specific
+*.ini
+!Default*.ini
+
+# Ignore compiled assets
+*.uasset
+*.umap
+
+# Ignore auto-generated files
+.vscode/
+.idea/
+*.opensdf
+*.sdf
+*.suo
+*.user
+*.userosscache
+*.userprefs
+*.pidb
+*.pdb
+*.opendb
+*.VC.db
+
+# Ignore Mac-specific files
+.DS_Store
+
+# Ignore Linux-specific files
+*.swp
+*.swm
+
+# Ignore temp
+.vs/
