@@ -16,10 +16,15 @@ public:
 	// Sets default values for this character's properties
 	AMainCharacter();
 
+	bool IsSprinting;
+
 private:
 	UPROPERTY(EditAnywhere, Category = "Assets", meta = (AllowPrivateAccess = "true"))
 	USkeletalMesh* DragonMeshAsset;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* MeshRoot;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* DragonMesh;
 
@@ -37,6 +42,8 @@ protected:
 	void MoveRight(float Value);
 	void StartJump();
 	void StopJump();
+	void StartSprint();
+	void StopSprint();
 
 	void LookHorizontal(float Value);
 	void LookVertical(float Value);

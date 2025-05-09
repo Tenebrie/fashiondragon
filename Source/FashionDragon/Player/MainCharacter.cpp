@@ -18,24 +18,15 @@ AMainCharacter::AMainCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	GetCapsuleComponent()->InitCapsuleSize(50.f, 50.0f);
-
-	GetCharacterMovement()->bOrientRotationToMovement = false;
-	GetCharacterMovement()->JumpZVelocity = 600.f;
-	GetCharacterMovement()->AirControl = 0.2f;
-    GetCharacterMovement()->MaxWalkSpeed = 200.f;
-    GetCharacterMovement()->MaxAcceleration = 50.f;
-    GetCharacterMovement()->BrakingDecelerationWalking = 40.f;
+    
+    MeshRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DragonMeshRoot"));
+    MeshRoot->SetupAttachment(GetCapsuleComponent());
+    MeshRoot->SetRelativeLocation(FVector(0.f, 0.f, 85.f));
 
     DragonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("DragonMesh"));
-    DragonMesh->SetupAttachment(GetCapsuleComponent());
-    
+    DragonMesh->SetupAttachment(MeshRoot);
+    DragonMesh->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
     DragonMesh->SetSkeletalMeshAsset(DragonMeshAsset);
-    
-    // Create the skeletal mesh component
-    // SkeletalMeshComponent->SetEnableGravity(true);
-    // SkeletalMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-    // SkeletalMeshComponent->SetCollisionObjectType(ECollisionChannel::ECC_PhysicsBody);
-    // SkeletalMeshComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 
     PhysicalAnimation = CreateDefaultSubobject<UPhysicalAnimationComponent>(TEXT("PhysicalAnimationComponent"));
     PhysicalAnimation->SetSkeletalMeshComponent(DragonMesh);
@@ -58,6 +49,13 @@ void AMainCharacter::BeginPlay()
     DragonMesh->SetAllBodiesBelowSimulatePhysics(TEXT("Tail_001"), true, true);
     DragonMesh->SetAllBodiesBelowSimulatePhysics(TEXT("Wing_001_R"), true, true);
     DragonMesh->SetAllBodiesBelowSimulatePhysics(TEXT("Wing_001_L"), true, true);
+
+    GetCharacterMovement()->bOrientRotationToMovement = false;
+    GetCharacterMovement()->JumpZVelocity = 600.f;
+    GetCharacterMovement()->AirControl = 0.2f;
+    GetCharacterMovement()->MaxWalkSpeed = 800.f;
+    GetCharacterMovement()->MaxAcceleration = 1000.f;
+    GetCharacterMovement()->BrakingDecelerationWalking = 1000.f;
 }
 
 // Called every frame
@@ -66,22 +64,16 @@ void AMainCharacter::Tick(const float DeltaTime)
 	Super::Tick(DeltaTime);
 
     const auto AnimInstance = Cast<UDragonAnimInstance>(DragonMesh->GetAnimInstance());
+    if (!AnimInstance)
+        return;
 
-    const auto CurrentSpeed = GetVelocity().Size();
-    const auto SpeedMultiplier = IsMovingBackward() ? -1.0f : 1.0f;
+    const auto TargetBobCycle = AnimInstance->WalkingBobCycle;
 
-    const auto AdvanceValue = DeltaTime * 0.0035f * CurrentSpeed * SpeedMultiplier;
-    AnimInstance->Advance(AdvanceValue, DeltaTime);
-
-    // const auto Location = DragonMesh->GetBoneLocation(TEXT("Tail_001"), EBoneSpaces::WorldSpace);
-    // UE_LOG(LogTemp, Display, TEXT("Location: %f"), Location.Z);
-}
-
-bool AMainCharacter::IsMovingBackward() const
-{
-    const FVector Velocity = GetVelocity();
-    const FVector ForwardVector = GetActorForwardVector();
-    return FVector::DotProduct(Velocity.GetSafeNormal(), ForwardVector) < 0.0f;
+    const auto BobCycle =
+        FMath::FInterpTo(DragonMesh->GetRelativeLocation().Z, TargetBobCycle, DeltaTime, 50.f);
+    const auto BobOffset = FVector(-BobCycle * 1.0f, 0.f, BobCycle);
+    
+    DragonMesh->SetRelativeLocation(BobOffset);
 }
 
 // Called to bind functionality to input
@@ -96,13 +88,14 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
     PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMainCharacter::StartJump);
     PlayerInputComponent->BindAction("Jump", IE_Released, this, &AMainCharacter::StopJump);
+    PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMainCharacter::StartSprint);
+    PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AMainCharacter::StopSprint);
 }
 
 void AMainCharacter::MoveForward(const float Value)
 {
     if (Controller && Value != 0.0f)
     {
-        // find out which way is forward
         const FRotator Rotation = Controller->GetControlRotation();
         const FRotator YawRot(0, Rotation.Yaw, 0);
         const FVector Direction = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
@@ -139,6 +132,18 @@ void AMainCharacter::StartJump()
 void AMainCharacter::StopJump()
 {
     StopJumping();
+}
+
+void AMainCharacter::StartSprint()
+{
+    GetCharacterMovement()->MaxWalkSpeed = 2500.f;
+    IsSprinting = true;
+}
+
+void AMainCharacter::StopSprint()
+{
+    GetCharacterMovement()->MaxWalkSpeed = 800.f;
+    IsSprinting = false;
 }
 
 void AMainCharacter::LookHorizontal(const float Value)
