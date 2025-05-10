@@ -1,8 +1,14 @@
-	#pragma once
+#pragma once
 
 #include "CoreMinimal.h"
-#include "MainCharacter.h"
+#include "AbstractProceduralPose.h"
+#include "ControlledLeg.h"
+#include "../MainCharacter.h"
 #include "Animation/AnimInstance.h"
+#include "Poses/DragonIdlePose.h"
+#include "Poses/DragonJumpPose.h"
+#include "Poses/DragonTrotPose.h"
+#include "Poses/DragonWalkPose.h"
 #include "DragonAnimInstance.generated.h"
 
 const enum EAnimationState
@@ -19,21 +25,29 @@ class FASHIONDRAGON_API UDragonAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 
-private:
-	class FControlledLeg;
-
 	TArray<FControlledLeg*> ControlledLegs;
+	TArray<FAbstractProceduralPose*> PoseDrivers;
 
+	FDragonIdlePose* IdlePoseDriver;
+	FDragonWalkPose* WalkPoseDriver;
+	FDragonTrotPose* TrotPoseDriver;
+	FDragonJumpPose* JumpPoseDriver;
+
+	void BlendDrivers(float DeltaTime) const;
 	void UpdateWalkingBobCycle();
 
-public:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaTime) override;
 
 	float WalkingBobCycle;
 
-	EAnimationState AnimationState;
+public:
+	float AnimationLockout = 0.0f;
+	
+	EAnimationState AnimationState = Idle;
 	void SetState(EAnimationState);
+	
+	float GetWalkingBobCycle() const { return WalkingBobCycle; }
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
 	TArray<FVector> LegPositions;

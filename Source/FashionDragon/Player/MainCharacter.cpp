@@ -2,7 +2,7 @@
 
 
 #include "MainCharacter.h"
-#include "DragonAnimInstance.h"
+#include "Animation/DragonAnimInstance.h"
 
 #include "GameFramework/Character.h"
 #include "GameFramework/PlayerController.h"
@@ -67,7 +67,7 @@ void AMainCharacter::Tick(const float DeltaTime)
     if (!AnimInstance)
         return;
 
-    const auto TargetBobCycle = AnimInstance->WalkingBobCycle;
+    const auto TargetBobCycle = AnimInstance->GetWalkingBobCycle();
 
     const auto BobCycle =
         FMath::FInterpTo(DragonMesh->GetRelativeLocation().Z, TargetBobCycle, DeltaTime, 50.f);
@@ -87,14 +87,14 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
     PlayerInputComponent->BindAxis("LookVertical", this, &AMainCharacter::LookVertical);
 
     PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMainCharacter::StartJump);
-    PlayerInputComponent->BindAction("Jump", IE_Released, this, &AMainCharacter::StopJump);
+    PlayerInputComponent->BindAction("Jump", IE_Released, this, &AMainCharacter::ReleaseJump);
     PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMainCharacter::StartSprint);
     PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AMainCharacter::StopSprint);
 }
 
 void AMainCharacter::MoveForward(const float Value)
 {
-    if (Controller && Value != 0.0f)
+    if (Controller && Value != 0.0f && !IsChargingJump)
     {
         const FRotator Rotation = Controller->GetControlRotation();
         const FRotator YawRot(0, Rotation.Yaw, 0);
@@ -105,7 +105,7 @@ void AMainCharacter::MoveForward(const float Value)
 
 void AMainCharacter::MoveRight(const float Value)
 {
-    if (Controller && Value != 0.0f)
+    if (Controller && Value != 0.0f && !IsChargingJump)
     {
         const FRotator Rotation = Controller->GetControlRotation();
         const FRotator YawRot(0, Rotation.Yaw, 0);
@@ -116,22 +116,18 @@ void AMainCharacter::MoveRight(const float Value)
 
 void AMainCharacter::StartJump()
 {
-    const float JumpZVelocity = GetCharacterMovement()->JumpZVelocity;
-    // Add physical impulse up manually (without using Jump())
     if (GetCharacterMovement()->IsMovingOnGround())
     {
+        const float JumpZVelocity = GetCharacterMovement()->JumpZVelocity;
         LaunchCharacter(FVector(0, 0, JumpZVelocity), false, true);
+        const auto AnimInstance = Cast<UDragonAnimInstance>(DragonMesh->GetAnimInstance());
+        AnimInstance->SetState(Jumping);
+        AnimInstance->AnimationLockout = 0.5f;
     }
-    else
-    {
-        LaunchCharacter(FVector(0, 0, JumpZVelocity * 0.5f), false, true);
-    }
-    
 }
 
-void AMainCharacter::StopJump()
+void AMainCharacter::ReleaseJump()
 {
-    StopJumping();
 }
 
 void AMainCharacter::StartSprint()

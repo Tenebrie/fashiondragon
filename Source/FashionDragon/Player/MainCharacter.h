@@ -17,6 +17,8 @@ public:
 	AMainCharacter();
 
 	bool IsSprinting;
+	bool IsChargingJump;
+	float JumpCharge = 0.0f;
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Assets", meta = (AllowPrivateAccess = "true"))
@@ -41,7 +43,7 @@ protected:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 	void StartJump();
-	void StopJump();
+	void ReleaseJump();
 	void StartSprint();
 	void StopSprint();
 
