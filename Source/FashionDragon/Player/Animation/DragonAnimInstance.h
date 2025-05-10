@@ -1,24 +1,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbstractProceduralPose.h"
 #include "ControlledLeg.h"
+#include "DragonAnimStateMachine.h"
 #include "../MainCharacter.h"
 #include "Animation/AnimInstance.h"
-#include "Poses/DragonIdlePose.h"
-#include "Poses/DragonJumpPose.h"
-#include "Poses/DragonTrotPose.h"
-#include "Poses/DragonWalkPose.h"
 #include "DragonAnimInstance.generated.h"
-
-const enum EAnimationState
-{
-	Idle = 0,
-	Walking = 1,
-	Running = 3,
-	Jumping = 4,
-};
-
 
 UCLASS()
 class FASHIONDRAGON_API UDragonAnimInstance : public UAnimInstance
@@ -26,14 +13,7 @@ class FASHIONDRAGON_API UDragonAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 
 	TArray<FControlledLeg*> ControlledLegs;
-	TArray<FAbstractProceduralPose*> PoseDrivers;
 
-	FDragonIdlePose* IdlePoseDriver;
-	FDragonWalkPose* WalkPoseDriver;
-	FDragonTrotPose* TrotPoseDriver;
-	FDragonJumpPose* JumpPoseDriver;
-
-	void BlendDrivers(float DeltaTime) const;
 	void UpdateWalkingBobCycle();
 
 	virtual void NativeInitializeAnimation() override;
@@ -42,11 +22,7 @@ class FASHIONDRAGON_API UDragonAnimInstance : public UAnimInstance
 	float WalkingBobCycle;
 
 public:
-	float AnimationLockout = 0.0f;
-	
-	EAnimationState AnimationState = Idle;
-	void SetState(EAnimationState);
-	
+	FDragonAnimStateMachine* StateMachine;
 	float GetWalkingBobCycle() const { return WalkingBobCycle; }
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")

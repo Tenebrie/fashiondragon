@@ -13,10 +13,12 @@ FDragonWalkLegDriver::FDragonWalkLegDriver(UDragonAnimInstance* AnimInstance, FC
 // ============================================================================
 void FDragonWalkLegDriver::Tick(const float DeltaTime)
 {
-	ArticulationPosition = FVector(0.f, 0.f, 0.f);
 	// If we're stepping forward, add some vertical offset
 	if (WalkingState == ELegWalkingState::Stepping)
+	{
 		ArticulationPosition.Z = 100.f;
+		ArticulationRotation.Z = 50.0f;
+	}
 	
 	// Advance time forward. Adjusted by character's movement speed.
 	const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
@@ -25,6 +27,12 @@ void FDragonWalkLegDriver::Tick(const float DeltaTime)
 	const float AdvanceValue = DeltaTime + MovementSpeed * 0.001f * DeltaTime;
 	
 	FAbstractProceduralLegDriver::Tick(AdvanceValue);
+
+	// If the leg is stretched too far, disconnect
+	if (WalkingState == ELegWalkingState::Planted && Leg->Position.Size() > 300.0f && Leg->Position.Y < 0.0f)
+	{
+		SetWalkingState(ELegWalkingState::Inertia, true);
+	}
 }
 
 void FDragonWalkLegDriver::AdvanceState()
@@ -44,6 +52,7 @@ void FDragonWalkLegDriver::AdvanceState()
 		SetWalkingState(ELegWalkingState::Stepping);
 		break;
 	case ELegWalkingState::Stepping:
+		LockTargetWorldPosition();
 		SetWalkingState(ELegWalkingState::Planted);
 		break;
 	}
@@ -65,11 +74,23 @@ std::pair<FVector, FRotator> FDragonWalkLegDriver::GetTargetPosition() const
 
 FDragonWalkPose::FDragonWalkPose(UDragonAnimInstance* AnimInstance, FControlledLeg* LeftLeg, FControlledLeg* RightLeg): FAbstractProceduralPose(AnimInstance)
 {
-	const auto LeftDriver = new FDragonWalkLegDriver(AnimInstance, LeftLeg);
-	const auto RightDriver = new FDragonWalkLegDriver(AnimInstance, RightLeg);
+	LeftLegDriver = new FDragonWalkLegDriver(AnimInstance, LeftLeg);
+	RightLegDriver = new FDragonWalkLegDriver(AnimInstance, RightLeg);
 	LegDrivers = {
-		LeftDriver,
-		RightDriver,
+		LeftLegDriver,
+		RightLegDriver,
 	};
-	LeftDriver->SetWalkingState(Planted);
+}
+
+void FDragonWalkPose::SyncStateFrom(const FDragonTrotPose* TargetPose) const
+{
+	LeftLegDriver->SyncStateFrom(TargetPose->LeftLegDriver);
+	RightLegDriver->SyncStateFrom(TargetPose->RightLegDriver);
+}
+
+void FDragonWalkPose::ResetState()
+{
+	LeftLegDriver->LockRealWorldPosition();
+	LeftLegDriver->SetWalkingState(Planted);
+	RightLegDriver->SetWalkingState(Stepping);
 }

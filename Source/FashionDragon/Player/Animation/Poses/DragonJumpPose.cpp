@@ -72,8 +72,8 @@ void FDragonJumpLegDriver::SetJumpState(const ELegJumpState NewJumpState)
 	JumpingState = NewJumpState;
 	VisualCyclePosition = 0.0f;
 	CyclePosition = 0.0f;
-	PositionFrom = Position;
-	RotationFrom = Rotation;
+	PositionFrom = Leg->Position;
+	RotationFrom = Leg->Rotation;
 }
 
 FDragonJumpPose::FDragonJumpPose(UDragonAnimInstance* AnimInstance, FControlledLeg* LeftLeg, FControlledLeg* RightLeg):

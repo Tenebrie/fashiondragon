@@ -121,8 +121,8 @@ void AMainCharacter::StartJump()
         const float JumpZVelocity = GetCharacterMovement()->JumpZVelocity;
         LaunchCharacter(FVector(0, 0, JumpZVelocity), false, true);
         const auto AnimInstance = Cast<UDragonAnimInstance>(DragonMesh->GetAnimInstance());
-        AnimInstance->SetState(Jumping);
-        AnimInstance->AnimationLockout = 0.5f;
+        AnimInstance->StateMachine->SetState(Jumping);
+        AnimInstance->StateMachine->AnimationLockout = 0.5f;
     }
 }
 

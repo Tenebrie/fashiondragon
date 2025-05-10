@@ -2,6 +2,8 @@
 #include "FashionDragon/Player/Animation/AbstractProceduralLegDriver.h"
 #include "FashionDragon/Player/Animation/AbstractProceduralPose.h"
 
+class FDragonWalkPose;
+
 /**
  * @brief Fast walk (trot) animation leg driver
  */
@@ -26,4 +28,9 @@ public:
 			FControlledLeg* LeftLeg,
 			FControlledLeg* RightLeg
 		);
+
+	FDragonTrotLegDriver* LeftLegDriver;
+	FDragonTrotLegDriver* RightLegDriver;
+	void SyncStateFrom(const FDragonWalkPose* TargetPose) const;
+	virtual void ResetState() override;
 };

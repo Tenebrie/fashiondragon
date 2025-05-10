@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "FashionDragon/Player/Animation/AbstractProceduralPose.h"
 
+class FDragonTrotPose;
+
 /**
  * @brief Relaxed walk animation leg driver
  */
@@ -25,4 +27,9 @@ public:
 			FControlledLeg* LeftLeg,
 			FControlledLeg* RightLeg
 		);
+
+	FDragonWalkLegDriver* LeftLegDriver;
+	FDragonWalkLegDriver* RightLegDriver;
+	void SyncStateFrom(const FDragonTrotPose* TargetPose) const;
+	virtual void ResetState() override;
 };
