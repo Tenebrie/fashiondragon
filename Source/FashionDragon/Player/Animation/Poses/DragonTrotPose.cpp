@@ -71,10 +71,11 @@ std::pair<FVector, FRotator> FDragonTrotLegDriver::GetTargetPosition() const
 	return LegStateToPosition.at(WalkingState);
 }
 
-FDragonTrotPose::FDragonTrotPose(UDragonAnimInstance* AnimInstance, FControlledLeg* LeftLeg, FControlledLeg* RightLeg): FAbstractProceduralPose(AnimInstance)
+FDragonTrotPose::FDragonTrotPose(UDragonAnimInstance* Anim): FAbstractProceduralPose(Anim)
 {
-	LeftLegDriver = new FDragonTrotLegDriver(AnimInstance, LeftLeg);
-	RightLegDriver = new FDragonTrotLegDriver(AnimInstance, RightLeg);
+	BodyDriver = new FDragonWalkBodyDriver(AnimInstance, Anim->ControlledBody, Anim->BackLeftLeg, Anim->BackRightLeg);
+	LeftLegDriver = new FDragonTrotLegDriver(AnimInstance, Anim->BackLeftLeg);
+	RightLegDriver = new FDragonTrotLegDriver(AnimInstance, Anim->BackRightLeg);
 	LegDrivers = {
 		LeftLegDriver,
 		RightLegDriver,

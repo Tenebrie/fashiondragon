@@ -32,11 +32,7 @@ public:
 class FDragonJumpPose final : public FAbstractProceduralPose
 {
 public:
-	explicit FDragonJumpPose(
-			UDragonAnimInstance* AnimInstance,
-			FControlledLeg* LeftLeg,
-			FControlledLeg* RightLeg
-		);
+	explicit FDragonJumpPose(UDragonAnimInstance* Anim);
 
 	virtual void ResetState() override;
 };

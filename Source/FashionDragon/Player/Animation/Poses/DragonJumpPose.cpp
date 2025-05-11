@@ -76,12 +76,11 @@ void FDragonJumpLegDriver::SetJumpState(const ELegJumpState NewJumpState)
 	RotationFrom = Leg->Rotation;
 }
 
-FDragonJumpPose::FDragonJumpPose(UDragonAnimInstance* AnimInstance, FControlledLeg* LeftLeg, FControlledLeg* RightLeg):
-	FAbstractProceduralPose(AnimInstance)
+FDragonJumpPose::FDragonJumpPose(UDragonAnimInstance* Anim): FAbstractProceduralPose(Anim)
 {
 	LegDrivers = {
-		new FDragonJumpLegDriver(AnimInstance, LeftLeg),
-		new FDragonJumpLegDriver(AnimInstance, RightLeg)
+		new FDragonJumpLegDriver(Anim, Anim->BackLeftLeg),
+		new FDragonJumpLegDriver(Anim, Anim->BackRightLeg)
 	};
 }
 

@@ -2,8 +2,10 @@
 
 #include <string>
 
+#include "Constraint.h"
 #include "ControlledLeg.h"
 #include "FashionDragon/DebugTools/QuickDebug.h"
+#include "PhysicsEngine/PhysicsAsset.h"
 #include "Poses/DragonIdlePose.h"
 #include "Poses/DragonTrotPose.h"
 #include "Poses/DragonWalkPose.h"
@@ -14,6 +16,7 @@
  */
 void UDragonAnimInstance::NativeInitializeAnimation()
 {
+	HipRotation = FRotator();
 	LegPositions = TArray<FVector>();
 	LegRotations = TArray<FRotator>();
 	for (int i = 0; i < 4; i++)
@@ -21,18 +24,20 @@ void UDragonAnimInstance::NativeInitializeAnimation()
 		LegPositions.Add(FVector(0.0f, 0.0f, 0.0f));
 		LegRotations.Add(FRotator(0.0f, 0.0f, 0.0f));
 	}
-	
+
+	ControlledBody = new FControlledBone();
+	ControlledHips = new FControlledBone();
 	ControlledLegs = TArray<FControlledLeg*>();
-	// BackLeftPaw
-	ControlledLegs.Add(new FControlledLeg(this, 0));
-	// BackRightPaw
-	ControlledLegs.Add(new FControlledLeg(this, 1));
+	BackLeftLeg = new FControlledLeg(this, 0);
+	BackRightLeg = new FControlledLeg(this, 1);
+	ControlledLegs.Add(BackLeftLeg);
+	ControlledLegs.Add(BackRightLeg);
 
 	StateMachine = new FDragonAnimStateMachine(
-		new FDragonIdlePose(this, ControlledLegs[0], ControlledLegs[1]),
-		new FDragonWalkPose(this, ControlledLegs[0], ControlledLegs[1]),
-		new FDragonTrotPose(this, ControlledLegs[0], ControlledLegs[1]),
-		new FDragonJumpPose(this, ControlledLegs[0], ControlledLegs[1])
+		new FDragonIdlePose(this),
+		new FDragonWalkPose(this),
+		new FDragonTrotPose(this),
+		new FDragonJumpPose(this)
 	);
 }
 
@@ -48,13 +53,36 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 		return;
 	
 	StateMachine->Tick(DeltaTime, OwningActor);
-	UpdateWalkingBobCycle();
 
+	// Apply body driver
+	auto CumulativeEffector = FPoseEffector(ControlledBody->Position, ControlledBody->Rotation);
+	for (const auto PoseDriver : StateMachine->PoseDrivers)
+	{
+		CumulativeEffector = PoseDriver->ToBodyEffector(CumulativeEffector, ControlledBody);
+	}
+	ControlledBody->Position = CumulativeEffector.Position;
+	ControlledBody->Rotation = CumulativeEffector.Rotation;
+	GetSkelMeshComponent()->SetRelativeLocation(ControlledBody->Position);
+	GetSkelMeshComponent()->SetRelativeRotation(ControlledBody->Rotation);
+
+	// Apply hips driver
+	CumulativeEffector = FPoseEffector(ControlledHips->Position, ControlledHips->Rotation);
+	for (const auto PoseDriver : StateMachine->PoseDrivers)
+	{
+		CumulativeEffector = PoseDriver->ToHipsEffector(CumulativeEffector, ControlledHips);
+	}
+	ControlledHips->Position = CumulativeEffector.Position;
+	ControlledHips->Rotation = CumulativeEffector.Rotation;
+
+	// SetBoneOffset("Tail_001", FVector(0, 0, 0), FRotator(10, 0, 0));
+	SetBoneOffset("Root", "Tail_001", ControlledHips->Position, ControlledHips->Rotation);
+
+	// Apply leg drivers
 	for (int i = 0; i < ControlledLegs.Num(); i++)
 	{
 		const auto Leg = ControlledLegs[i];
 
-		auto CumulativeEffector = FPoseEffector(Leg->Position, Leg->Rotation);
+		CumulativeEffector = FPoseEffector(Leg->Position, Leg->Rotation);
 		for (const auto PoseDriver : StateMachine->PoseDrivers)
 		{
 			CumulativeEffector = PoseDriver->ToLegEffector(CumulativeEffector, ControlledLegs[i]);
@@ -68,32 +96,20 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 	}
 }
 
-/**
- * @brief Update the walking bob cycle based on the leg's position.
- */
-void UDragonAnimInstance::UpdateWalkingBobCycle()
+void UDragonAnimInstance::SetBoneOffset(const FName ParentBone, const FName ChildName, FVector Position, FRotator Rotation)
 {
-	// TODO: Rewrite bobbing
-	// if (AnimationState != Walking)
-	// {
-	// 	WalkingBobCycle = 0.0f;
-	// 	return;
-	// }
-	//
-	// FControlledLeg* Leg;
-	// if (ControlledLegs[1]->GetState() == ELegWalkingState::Planted)
-	// 	Leg = ControlledLegs[1];
-	// else if (ControlledLegs[0]->GetState() == ELegWalkingState::Planted)
-	// 	Leg = ControlledLegs[0];
-	// else
-	// {
-	// 	return;
-	// }
-	//
-	// const auto OffsetFromOrigin = std::min(1.0, Leg->Position.Size() / 300.0f);
-	// // Print offset
-	// GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Red,
-	// 	FString::Printf(TEXT("Offset: %s"), *FString::SanitizeFloat(OffsetFromOrigin)));
-	//
-	// WalkingBobCycle = (1.0f - OffsetFromOrigin * 2.0f) * 15.0f;
+	FRotator FixedRotation = FRotator(Rotation.Yaw, Rotation.Roll, -Rotation.Pitch + 90);
+	USkeletalMeshComponent* SkelComp = GetSkelMeshComponent();
+	const auto Constraints = GetSkelMeshComponent()->Constraints;
+	for (FConstraintInstance* Constraint : Constraints)
+	{
+		if (Constraint->GetParentBoneName() == ParentBone && Constraint->GetChildBoneName() == ChildName)
+		{
+			Constraint->SetRefPosition(EConstraintFrame::Frame1, Position);
+
+			FVector PriAxis = FixedRotation.RotateVector(FVector::ForwardVector);
+			FVector SecAxis = FixedRotation.RotateVector(FVector::UpVector);
+			Constraint->SetRefOrientation(EConstraintFrame::Frame1, PriAxis, SecAxis);
+		}
+	}
 }

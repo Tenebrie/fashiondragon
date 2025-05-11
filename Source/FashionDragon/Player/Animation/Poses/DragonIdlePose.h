@@ -1,6 +1,15 @@
 ﻿#pragma once
 #include "FashionDragon/Player/Animation/AbstractProceduralPose.h"
 
+class FDragonIdleBodyDriver final : public FAbstractProceduralDriver
+{
+public:
+	FDragonIdleBodyDriver(
+		UDragonAnimInstance* AnimInstance,
+		FControlledBone* ControlledBone
+	): FAbstractProceduralDriver(AnimInstance, ControlledBone) {}
+};
+
 /**
  * @brief Idle animation driver
  */
@@ -18,9 +27,5 @@ public:
 class FDragonIdlePose final : public FAbstractProceduralPose
 {
 public:
-	explicit FDragonIdlePose(
-			UDragonAnimInstance* AnimInstance,
-			FControlledLeg* LeftLeg,
-			FControlledLeg* RightLeg
-		);
+	explicit FDragonIdlePose(UDragonAnimInstance* Anim);
 };

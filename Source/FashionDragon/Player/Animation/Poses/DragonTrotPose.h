@@ -23,11 +23,7 @@ public:
 class FDragonTrotPose final : public FAbstractProceduralPose
 {
 public:
-	explicit FDragonTrotPose(
-			UDragonAnimInstance* AnimInstance,
-			FControlledLeg* LeftLeg,
-			FControlledLeg* RightLeg
-		);
+	explicit FDragonTrotPose(UDragonAnimInstance* Anim);
 
 	FDragonTrotLegDriver* LeftLegDriver;
 	FDragonTrotLegDriver* RightLegDriver;

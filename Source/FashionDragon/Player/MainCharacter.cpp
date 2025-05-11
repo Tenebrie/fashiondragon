@@ -63,17 +63,6 @@ void AMainCharacter::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-    const auto AnimInstance = Cast<UDragonAnimInstance>(DragonMesh->GetAnimInstance());
-    if (!AnimInstance)
-        return;
-
-    const auto TargetBobCycle = AnimInstance->GetWalkingBobCycle();
-
-    const auto BobCycle =
-        FMath::FInterpTo(DragonMesh->GetRelativeLocation().Z, TargetBobCycle, DeltaTime, 50.f);
-    const auto BobOffset = FVector(-BobCycle * 1.0f, 0.f, BobCycle);
-    
-    DragonMesh->SetRelativeLocation(BobOffset);
 }
 
 // Called to bind functionality to input

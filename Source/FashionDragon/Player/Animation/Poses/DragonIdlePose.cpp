@@ -1,4 +1,5 @@
 ﻿#include "DragonIdlePose.h"
+#include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 
 // ============================================================================
 // Leg Driver
@@ -12,10 +13,11 @@ std::pair<FVector, FRotator> FDragonIdleLegDriver::GetTargetPosition() const
 	return LEG_POSE((0.f, 0.f, 0.f), (0.f, 0.f, 0.f));
 }
 
-FDragonIdlePose::FDragonIdlePose(UDragonAnimInstance* AnimInstance, FControlledLeg* LeftLeg, FControlledLeg* RightLeg): FAbstractProceduralPose(AnimInstance)
+FDragonIdlePose::FDragonIdlePose(UDragonAnimInstance* Anim): FAbstractProceduralPose(Anim)
 {
+	BodyDriver = new FDragonIdleBodyDriver(Anim, Anim->ControlledBody);
 	LegDrivers = {
-		new FDragonIdleLegDriver(AnimInstance, LeftLeg),
-		new FDragonIdleLegDriver(AnimInstance, RightLeg)
+		new FDragonIdleLegDriver(Anim, Anim->BackLeftLeg),
+		new FDragonIdleLegDriver(Anim, Anim->BackRightLeg)
 	};
 }

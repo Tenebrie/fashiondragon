@@ -11,20 +11,27 @@ UCLASS()
 class FASHIONDRAGON_API UDragonAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
-
+	
 	TArray<FControlledLeg*> ControlledLegs;
-
-	void UpdateWalkingBobCycle();
 
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaTime) override;
+
+	TMap<FName, FTransform> LastBoneOffsets;
+	void SetBoneOffset(FName ParentBone, FName ChildName, FVector Position, FRotator Rotation);
 
 	float WalkingBobCycle;
 
 public:
 	FDragonAnimStateMachine* StateMachine;
-	float GetWalkingBobCycle() const { return WalkingBobCycle; }
-	
+	FControlledBone* ControlledBody;
+	FControlledBone* ControlledHips;
+	FControlledLeg* BackLeftLeg;
+	FControlledLeg* BackRightLeg;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
+	FRotator HipRotation;
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
 	TArray<FVector> LegPositions;
 

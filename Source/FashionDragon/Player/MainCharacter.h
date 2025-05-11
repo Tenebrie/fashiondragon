@@ -20,20 +20,18 @@ public:
 	bool IsChargingJump;
 	float JumpCharge = 0.0f;
 
-private:
-	UPROPERTY(EditAnywhere, Category = "Assets", meta = (AllowPrivateAccess = "true"))
-	USkeletalMesh* DragonMeshAsset;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	USceneComponent* MeshRoot;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* DragonMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UPhysicalAnimationComponent* PhysicalAnimation;
 
-	bool IsMovingBackward() const;
+private:
+	UPROPERTY(EditAnywhere, Category = "Assets", meta = (AllowPrivateAccess = "true"))
+	USkeletalMesh* DragonMeshAsset;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* MeshRoot;
 
 protected:
 	// Called when the game starts or when spawned
