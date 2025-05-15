@@ -1,6 +1,8 @@
 ﻿#include "DragonIdlePose.h"
 
+#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
+#include "FashionDragon/Utils/Utils.h"
 
 // ============================================================================
 // Leg Driver
@@ -12,9 +14,21 @@ FDragonIdleLegDriver::FDragonIdleLegDriver(UDragonAnimInstance* AnimInstance, FC
 void FDragonIdleLegDriver::Tick(const float DeltaTime)
 {
 	FProceduralLegDriver::Tick(DeltaTime);
+	if (IdleState == ELegIdleState::Relaxed)
+	{
+		LockWorldGroundPosition();
+		SetIdleState(ELegIdleState::Planted);
+	}
 	if (IdleState == ELegIdleState::ArticulatedReturn && Leg->Position.Size() < 5.f)
 	{
-		SetIdleState(ELegIdleState::Relaxed);
+		LockWorldGroundPosition();
+		SetIdleState(ELegIdleState::Planted);
+	}
+
+	const auto ShouldLeftDisconnect = Leg->Position.Size() > 150.0f || FUtils::GetRotatorDistance(Leg->Rotation) > 50.0f;
+	if (IdleState != ELegIdleState::ArticulatedReturn && IdleState == ELegIdleState::Planted && ShouldLeftDisconnect)
+	{
+		SetIdleState(ELegIdleState::ArticulatedReturn);
 	}
 }
 
@@ -37,15 +51,15 @@ void FDragonIdleLegDriver::SyncIdleStateFrom(const FDragonWalkLegDriver* TargetD
 	if (TargetDriver->WalkingState == ELegWalkingState::Planted)
 	{
 		LockWorldGroundPosition();
-		SetIdleState(ELegIdleState::Planted);
+		SetIdleState(ELegIdleState::NeedsReturn);
 	}
 	else
 		SetIdleState(ELegIdleState::ArticulatedReturn);
 }
 
-void FDragonIdleLegDriver::SetIdleState(const ELegIdleState NewState)
+void FDragonIdleLegDriver::SetIdleState(const ELegIdleState NewState, const bool SkipBroadcast)
 {
-	if (NewState == ELegIdleState::Planted)
+	if (NewState == ELegIdleState::Planted || NewState == ELegIdleState::NeedsReturn)
 		SetWalkingState(ELegWalkingState::Planted);
 	else
 		SetWalkingState(ELegWalkingState::Relaxed);
@@ -65,7 +79,10 @@ void FDragonIdleLegDriver::SetIdleState(const ELegIdleState NewState)
 			.EndArticulationPosition = FVector(0.0f, 0.0f, 35.f),
 		};
 	}
-	OnIdleStateChanged.Broadcast(IdleState, NewState);
+	if (!SkipBroadcast)
+	{
+		OnIdleStateChanged.Broadcast(IdleState, NewState);
+	}
 	IdleState = NewState;
 }
 
@@ -89,18 +106,38 @@ FDragonIdlePose::FDragonIdlePose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 
 	LeftLegDriver->OnIdleStateChanged.AddLambda([this](const ELegIdleState OldState, const ELegIdleState)
 	{
-		if (OldState == ELegIdleState::ArticulatedReturn && RightLegDriver->IdleState == ELegIdleState::Planted)
+		if (OldState == ELegIdleState::ArticulatedReturn && RightLegDriver->IdleState == ELegIdleState::NeedsReturn)
 		{
 			RightLegDriver->SetIdleState(ELegIdleState::ArticulatedReturn);
 		}
 	});
 	RightLegDriver->OnIdleStateChanged.AddLambda([this](const ELegIdleState OldState, const ELegIdleState)
 	{
-		if (OldState == ELegIdleState::ArticulatedReturn && LeftLegDriver->IdleState == ELegIdleState::Planted)
+		if (OldState == ELegIdleState::ArticulatedReturn && LeftLegDriver->IdleState == ELegIdleState::NeedsReturn)
 		{
 			LeftLegDriver->SetIdleState(ELegIdleState::ArticulatedReturn);
 		}
 	});
+}
+
+void FDragonIdlePose::Tick(const float DeltaTime)
+{
+	FProceduralPose::Tick(DeltaTime);
+
+	const auto LeftLeg = LeftLegDriver->GetLeg();
+	const auto RightLeg = RightLegDriver->GetLeg();
+	
+	const auto ShouldLeftDisconnect = LeftLeg->Position.Size() > 25.0f || FUtils::GetRotatorDistance(LeftLeg->Rotation) > 15.0f;
+	if (RightLegDriver->IdleState != ELegIdleState::ArticulatedReturn && LeftLegDriver->IdleState == ELegIdleState::Planted && ShouldLeftDisconnect)
+	{
+		LeftLegDriver->SetIdleState(ELegIdleState::ArticulatedReturn);
+	}
+
+	const auto ShouldRightDisconnect = RightLeg->Position.Size() > 25.0f || FUtils::GetRotatorDistance(RightLeg->Rotation) > 15.0f;
+	if (LeftLegDriver->IdleState != ELegIdleState::ArticulatedReturn && RightLegDriver->IdleState == ELegIdleState::Planted && ShouldRightDisconnect)
+	{
+		RightLegDriver->SetIdleState(ELegIdleState::ArticulatedReturn);
+	}
 }
 
 void FDragonIdlePose::SyncStateFrom(const FDragonWalkPose* TargetPose) const

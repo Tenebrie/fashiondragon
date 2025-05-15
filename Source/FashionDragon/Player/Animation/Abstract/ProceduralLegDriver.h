@@ -4,8 +4,8 @@
 
 struct FDragonWalkStateData
 {
-	FVector TargetPosition;
-	FRotator TargetRotation;
+	mutable FVector TargetPosition;
+	mutable FRotator TargetRotation;
 	/**
 	 * Maximum force an effector may apply to the bone in this state.
 	 * Effectively, maximum speed per second.

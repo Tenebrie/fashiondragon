@@ -16,6 +16,7 @@ public:
 enum class ELegIdleState
 {
 	Relaxed,
+	NeedsReturn,
 	Planted,
 	ArticulatedReturn,
 };
@@ -43,7 +44,7 @@ public:
 	void SyncIdleStateFrom(const FDragonWalkLegDriver* TargetDriver);
 
 	ELegIdleState IdleState = ELegIdleState::Relaxed;
-	void SetIdleState(ELegIdleState NewState);
+	void SetIdleState(ELegIdleState NewState, bool SkipBroadcast = false);
 };
 
 /**
@@ -53,6 +54,8 @@ class FDragonIdlePose final : public FProceduralPose
 {
 public:
 	explicit FDragonIdlePose(UDragonAnimInstance* Anim);
+
+	virtual void Tick(float DeltaTime) override;
 
 	FDragonIdleBodyDriver* BodyDriver;
 	FDragonIdleBodyDriver* HipsDriver;
