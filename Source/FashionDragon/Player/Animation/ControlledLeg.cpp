@@ -10,10 +10,10 @@ FControlledLeg::FControlledLeg(UDragonAnimInstance* AnimInstance, const FName IK
 
 FVector FControlledLeg::GetWorldPosition() const
 {
-	return AnimInstance->GetSkelMeshComponent()->GetComponentTransform().TransformPosition(Position + IKBoneOffset);
+	return AnimInstance->GetSkelMeshComponent()->GetAttachParent()->GetComponentTransform().TransformPosition(Position + IKBoneOffset);
 }
 
 FVector FControlledLeg::GetWorldPosition(const FPoseEffector& WithEffector) const
 {
-	return AnimInstance->GetSkelMeshComponent()->GetComponentTransform().TransformPosition(WithEffector.Position + IKBoneOffset);
+	return AnimInstance->GetSkelMeshComponent()->GetAttachParent()->GetComponentTransform().TransformPosition(WithEffector.Position + IKBoneOffset);
 }

@@ -43,11 +43,11 @@ public:
 		FootPlacementDriver(FootPlacementDriver)
 	{
 		PoseDrivers = {
-			// IdlePoseDriver,
-			// WalkPoseDriver,
-			// TrotPoseDriver,
-			// JumpPoseDriver,
-			// FootPlacementDriver,
+			IdlePoseDriver,
+			WalkPoseDriver,
+			TrotPoseDriver,
+			JumpPoseDriver,
+			FootPlacementDriver,
 		};
 		InitTransitions();
 	}

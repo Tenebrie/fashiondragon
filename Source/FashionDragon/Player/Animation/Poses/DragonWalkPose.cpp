@@ -2,7 +2,6 @@
 
 #include <map>
 
-#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 
@@ -145,8 +144,8 @@ FDragonWalkStateData FDragonWalkLegDriver::GetTargetPosition() const
 				.StateDuration = 0.8f,
 				.StartArticulationPosition = FVector(0.0f, 0.0f, 150.0f),
 				.StartArticulationRotation = FVector(0.0f, 0.0f, 60.0f),
-				.EndArticulationPosition = FVector(0.0f, 0.0f, 0.0f),
-				.EndArticulationRotation = FVector(0.0f, 0.0f, 0.0f),
+				.EndArticulationPosition = FVector(0.0f, 0.0f, 30.0f),
+				.EndArticulationRotation = FVector(0.0f, 0.0f, 10.0f),
 			}
 		},
 		{ ELegWalkingState::Inertia,
@@ -184,7 +183,7 @@ FDragonWalkPose::FDragonWalkPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 {
 	BodyDriver = new FDragonWalkBodyDriver(Anim, Anim->ControlledBody, Anim->BackLeftLeg, Anim->BackRightLeg);
 	HipsDriver = new FDragonWalkHipSwayDriver(Anim, Anim->ControlledHips, Anim->BackLeftLeg, Anim->BackRightLeg);
-	// FAbstractProceduralPose::BodyDriver = BodyDriver;
+	FProceduralPose::BodyDriver = BodyDriver;
 	FProceduralPose::HipsDriver = HipsDriver;
 
 	LeftLegDriver = new FDragonWalkLegDriver(Anim, Anim->BackLeftLeg);

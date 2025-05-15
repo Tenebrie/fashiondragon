@@ -29,12 +29,12 @@ void UDragonAnimInstance::NativeInitializeAnimation()
 	BackLeftLeg = new FControlledLeg(
 		this,
 		"Foot_Back_L",
-		FVector(99.491309, -175.161837, -309.933643),
+		FVector(99.491356, -147.297687, -331.874477),
 				0);
 	BackRightLeg = new FControlledLeg(
 		this,
 		"Foot_Back_R",
-		FVector(-99.491309, -175.161837, -309.933643),
+		FVector(-99.491317, -147.297662, -331.874409),
 				1);
 	ControlledLegs.Add(BackLeftLeg);
 	ControlledLegs.Add(BackRightLeg);
@@ -81,7 +81,7 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 	ControlledHips->Position = CumulativeEffector.Position;
 	ControlledHips->Rotation = CumulativeEffector.Rotation;
 
-	SetBoneOffset("Root", "Tail_001", ControlledHips->Position, ControlledHips->Rotation);
+	SetBoneOffset("Hip", "Tail_001", ControlledHips->Position, ControlledHips->Rotation);
 
 	// Apply leg drivers
 	for (int i = 0; i < ControlledLegs.Num(); i++)
@@ -99,7 +99,7 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 		CumulativeEffector = FPoseEffector(Leg->Position, Leg->Rotation);
 		for (const auto PoseDriver : StateMachine->PoseDrivers)
 			CumulativeEffector = PoseDriver->ToPostProcessLegEffector(CumulativeEffector, ControlledLegs[i], DeltaTime);
-		
+
 		LegPositions[i] = CumulativeEffector.Position;
 		LegRotations[i] = CumulativeEffector.Rotation;
 		Leg->VisualPosition = CumulativeEffector.Position;
