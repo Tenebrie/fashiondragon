@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <map>
 
+#include "Poses/DragonFootPlacementPose.h"
 #include "Poses/DragonIdlePose.h"
 #include "Poses/DragonJumpPose.h"
 #include "Poses/DragonTrotPose.h"
@@ -23,25 +24,30 @@ public:
 	FDragonWalkPose* WalkPoseDriver;
 	FDragonTrotPose* TrotPoseDriver;
 	FDragonJumpPose* JumpPoseDriver;
+	FDragonFootPlacementPose* FootPlacementDriver;
 
-	TArray<FAbstractProceduralPose*> PoseDrivers;
+	TArray<FProceduralPose*> PoseDrivers;
 	std::map<EAnimationState, std::map<EAnimationState, std::function<void()>>> Transitions;
 
 	FDragonAnimStateMachine(
 		FDragonIdlePose* IdlePoseDriver,
 		FDragonWalkPose* WalkPoseDriver,
 		FDragonTrotPose* TrotPoseDriver,
-		FDragonJumpPose* JumpPoseDriver):
+		FDragonJumpPose* JumpPoseDriver,
+		FDragonFootPlacementPose* FootPlacementDriver
+	):
 		IdlePoseDriver(IdlePoseDriver),
 		WalkPoseDriver(WalkPoseDriver),
 		TrotPoseDriver(TrotPoseDriver),
-		JumpPoseDriver(JumpPoseDriver)
+		JumpPoseDriver(JumpPoseDriver),
+		FootPlacementDriver(FootPlacementDriver)
 	{
 		PoseDrivers = {
-			IdlePoseDriver,
-			WalkPoseDriver,
-			TrotPoseDriver,
-			JumpPoseDriver
+			// IdlePoseDriver,
+			// WalkPoseDriver,
+			// TrotPoseDriver,
+			// JumpPoseDriver,
+			// FootPlacementDriver,
 		};
 		InitTransitions();
 	}

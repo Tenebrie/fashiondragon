@@ -18,7 +18,7 @@ class FASHIONDRAGON_API UDragonAnimInstance : public UAnimInstance
 	virtual void NativeUpdateAnimation(float DeltaTime) override;
 
 	TMap<FName, FTransform> LastBoneOffsets;
-	void SetBoneOffset(FName ParentBone, FName ChildName, FVector Position, FRotator Rotation);
+	void SetBoneOffset(FName ParentBone, FName ChildName, const FVector& Position, const FRotator& Rotation) const;
 
 	float WalkingBobCycle;
 

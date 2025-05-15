@@ -1,8 +1,5 @@
 # Ignore project-specific files
-*.sln
 *.suo
-*.vcxproj
-*.vcxproj.*
 *.opensdf
 *.sdf
 *.tmp
@@ -34,10 +31,6 @@ Build/
 # Ignore config files that are user-specific
 *.ini
 !Default*.ini
-
-# Ignore compiled assets
-*.uasset
-*.umap
 
 # Ignore auto-generated files
 .vscode/

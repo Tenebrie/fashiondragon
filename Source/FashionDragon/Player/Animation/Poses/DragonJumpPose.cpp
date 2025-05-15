@@ -6,7 +6,7 @@
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 
 FDragonJumpLegDriver::FDragonJumpLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg)
-	: FAbstractProceduralLegDriver(AnimInstance, ControlledLeg)
+	: FProceduralLegDriver(AnimInstance, ControlledLeg)
 {
 }
 
@@ -33,7 +33,7 @@ void FDragonJumpLegDriver::Tick(float DeltaTime)
 		DeltaTime *= 3.0f;
 	}
 	
-	FAbstractProceduralLegDriver::Tick(DeltaTime);
+	FProceduralLegDriver::Tick(DeltaTime);
 }
 
 void FDragonJumpLegDriver::AdvanceState()
@@ -54,18 +54,18 @@ void FDragonJumpLegDriver::AdvanceState()
 	}
 }
 
-std::pair<FVector, FRotator> FDragonJumpLegDriver::GetTargetPosition() const
-{
-	const std::map<ELegJumpState, std::pair<FVector, FRotator>> LegStateToPosition =
-	{
-		{ Charging, LEG_POSE((0.0f, 0.0f, 150.0f), (0.0f, 0.0f, 0.0f)) },
-		{ Pushing, LEG_POSE((0.0f, 0.0f, -150.0f), (0.0f, 0.0f, 30.0f)) },
-		{ Retracting, LEG_POSE((0.0f, 0.0f, 150.0f), (0.0f, 0.0f, 60.0f)) },
-		{ Landing, LEG_POSE((0.0f, 0.0f, 0.0f), (0.0f, 0.0f, 0.0f)) },
-	};
-	
-	return LegStateToPosition.at(JumpingState);
-}
+// std::pair<FVector, FRotator> FDragonJumpLegDriver::GetTargetPosition() const
+// {
+// 	const std::map<ELegJumpState, std::pair<FVector, FRotator>> LegStateToPosition =
+// 	{
+// 		{ Charging, LEG_POSE((0.0f, 0.0f, 150.0f), (0.0f, 0.0f, 0.0f)) },
+// 		{ Pushing, LEG_POSE((0.0f, 0.0f, -150.0f), (0.0f, 0.0f, 30.0f)) },
+// 		{ Retracting, LEG_POSE((0.0f, 0.0f, 150.0f), (0.0f, 0.0f, 60.0f)) },
+// 		{ Landing, LEG_POSE((0.0f, 0.0f, 0.0f), (0.0f, 0.0f, 0.0f)) },
+// 	};
+// 	
+// 	return LegStateToPosition.at(JumpingState);
+// }
 
 void FDragonJumpLegDriver::SetJumpState(const ELegJumpState NewJumpState)
 {
@@ -76,7 +76,7 @@ void FDragonJumpLegDriver::SetJumpState(const ELegJumpState NewJumpState)
 	RotationFrom = Leg->Rotation;
 }
 
-FDragonJumpPose::FDragonJumpPose(UDragonAnimInstance* Anim): FAbstractProceduralPose(Anim)
+FDragonJumpPose::FDragonJumpPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
 	LegDrivers = {
 		new FDragonJumpLegDriver(Anim, Anim->BackLeftLeg),

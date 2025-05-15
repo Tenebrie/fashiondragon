@@ -2,6 +2,7 @@
 
 #include <map>
 
+#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 
@@ -17,8 +18,7 @@ void FDragonWalkBodyDriver::Tick(float DeltaTime)
 	const auto LegState = std::min(LeftLegOffset, RightLegOffset);
 	const auto VerticalOffset = LegState * -50.0f;
 
-	Position = FVector(0.0f, 0.0f, VerticalOffset);
-
+	DesiredPosition = FVector(0.0f, 0.0f, VerticalOffset);
 
 	// Lerp current value to target value
 	auto TargetLean = 10.0f + (LegState - 0.5f) * 5.f;
@@ -31,7 +31,18 @@ void FDragonWalkBodyDriver::Tick(float DeltaTime)
 
 	const auto Lean = FMath::Lerp(Bone->Rotation.Roll, TargetLean, DeltaTime);
 	
-	Rotation = FRotator(0.0f, 0.0f, Lean);
+	// Rotation = FRotator(0.0f, 0.0f, Lean);
+	DesiredRotation = FRotator(0.0f, 0.0f, 0.0f);
+}
+
+void FDragonWalkBodyDriver::SyncStateFrom(const FDragonWalkBodyDriver* TargetDriver)
+{
+	DesiredPosition = TargetDriver->DesiredPosition;
+	DesiredRotation = TargetDriver->DesiredRotation;
+	CyclePosition = TargetDriver->CyclePosition;
+	VisualCyclePosition = TargetDriver->VisualCyclePosition;
+	ArticulationPosition = TargetDriver->ArticulationPosition;
+	ArticulationRotation = TargetDriver->ArticulationRotation;
 }
 
 // ============================================================================
@@ -40,48 +51,36 @@ void FDragonWalkBodyDriver::Tick(float DeltaTime)
 
 void FDragonWalkHipSwayDriver::Tick(const float DeltaTime)
 {
-	FAbstractProceduralDriver::Tick(DeltaTime);
+	const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
+	const auto MovementSpeed = OwningActor->GetVelocity().Size();
+	const float AdvanceValue = DeltaTime + MovementSpeed * 0.001f * DeltaTime;
+	
+	FProceduralBoneDriver::Tick(AdvanceValue);
 
 	// TODO: Calculate the sway value based on the position of each leg.
 	// Specifically, a leg that's in Planted state contributes negative weight, while a leg in Stepping state is positive.
 	const auto LeftLegOffset = std::min(1.0, LeftLeg->Position.Size() / 750.0f);
 	const auto RightLegOffset = std::min(1.0, RightLeg->Position.Size() / 750.0f);
 
-	const auto Sway = FMath::Sin(CyclePosition * 2.0f * PI) * 10.0f;
+	const auto Sway = FMath::Sin((-CyclePosition + 0.5) * PI) * 10.0f;
 	
-	Rotation = FRotator(0.0f, Sway, 0.0f);
+	DesiredRotation = FRotator(0.0f, Sway, 0.0f);
+}
+
+void FDragonWalkHipSwayDriver::SyncStateFrom(const FDragonWalkHipSwayDriver* TargetDriver)
+{
+	DesiredPosition = TargetDriver->DesiredPosition;
+	DesiredRotation = TargetDriver->DesiredRotation;
+	CyclePosition = TargetDriver->CyclePosition;
+	VisualCyclePosition = TargetDriver->VisualCyclePosition;
 }
 
 // ============================================================================
 // Leg Driver
 // ============================================================================
 
-FDragonWalkLegDriver::FDragonWalkLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg): FAbstractProceduralLegDriver(AnimInstance, ControlledLeg)
+FDragonWalkLegDriver::FDragonWalkLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg): FProceduralLegDriver(AnimInstance, ControlledLeg)
 {}
-
-void FDragonWalkLegDriver::Tick(const float DeltaTime)
-{
-	// If we're stepping forward, add some vertical offset
-	if (WalkingState == ELegWalkingState::Stepping)
-	{
-		ArticulationPosition.Z = 100.f;
-		ArticulationRotation.Z = 50.0f;
-	}
-	
-	// Advance time forward. Adjusted by character's movement speed.
-	const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
-	const auto MovementSpeed = OwningActor->GetVelocity().Size();
-
-	const float AdvanceValue = DeltaTime + MovementSpeed * 0.001f * DeltaTime;
-	
-	FAbstractProceduralLegDriver::Tick(AdvanceValue);
-
-	// If the leg is stretched too far, disconnect
-	if (WalkingState == ELegWalkingState::Planted && Leg->Position.Size() > 300.0f && Leg->Position.Y < 0.0f)
-	{
-		SetWalkingState(ELegWalkingState::Inertia, true);
-	}
-}
 
 void FDragonWalkLegDriver::AdvanceState()
 {
@@ -100,32 +99,93 @@ void FDragonWalkLegDriver::AdvanceState()
 		SetWalkingState(ELegWalkingState::Stepping);
 		break;
 	case ELegWalkingState::Stepping:
-		LockTargetWorldPosition();
+		LockRealWorldPosition();
 		SetWalkingState(ELegWalkingState::Planted);
 		break;
 	}
 }
 
-std::pair<FVector, FRotator> FDragonWalkLegDriver::GetTargetPosition() const
+FDragonWalkStateData FDragonWalkLegDriver::GetTargetPosition() const
 {
-	const std::map<ELegWalkingState, std::pair<FVector, FRotator>> LegStateToPosition =
+	const std::map<ELegWalkingState, FDragonWalkStateData> AnimData =
 	{
-		{ ELegWalkingState::Relaxed, LEG_POSE((0.0f, 0.0f, 0.0f), (0.0f, 0.0f, 0.0f)) },
-		{ ELegWalkingState::Raised, LEG_POSE((0.0f, 0.0f, 150.0f), (0.0f, 0.0f, 60.0f)) },
-		{ ELegWalkingState::Planted, LEG_POSE((0.0f, -350.0f, 0.0f), (0.0f, 0.0f, 0.0f)) },
-		{ ELegWalkingState::Stepping, LEG_POSE((0.0f, 500.0f, 0.0f), (0.0f, 0.0f, 0.0f)) },
-		{ ELegWalkingState::Inertia, LEG_POSE((0.0f, -350.0f, 200.0f), (0.0f, 0.0f, 60.0f)) },
+		{ ELegWalkingState::Relaxed,
+			{
+				.TargetPosition = FVector(0.0f, 0.0f, 0.0f),
+				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
+				.LinearForce = 2500.f,
+				.AngularForce = 360.0f,
+				.StateDuration = 1.0f
+			}
+		},
+		{ ELegWalkingState::Raised,
+			{
+				.TargetPosition = FVector(0.0f, 0.0f, 150.0f),
+				.TargetRotation = FRotator(0.0f, 0.0f, 60.0f),
+				.LinearForce = 2500.f,
+				.AngularForce = 360.0f,
+				.StateDuration = 1.0f
+			}
+		},
+		{ ELegWalkingState::Planted,
+			{
+				.TargetPosition = FVector(0.0f, -350.0f, 0.0f),
+				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
+				.LinearForce = 2500.f,
+				.AngularForce = 360.0f,
+				.StateDuration = 0.8f
+			}
+		},
+		{ ELegWalkingState::Stepping,
+			{
+				.TargetPosition = FVector(0.0f, 400.0f, 0.0f),
+				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
+				.LinearForce = 2500.f,
+				.AngularForce = 360.0f,
+				.StateDuration = 0.8f,
+				.StartArticulationPosition = FVector(0.0f, 0.0f, 150.0f),
+				.StartArticulationRotation = FVector(0.0f, 0.0f, 60.0f),
+				.EndArticulationPosition = FVector(0.0f, 0.0f, 0.0f),
+				.EndArticulationRotation = FVector(0.0f, 0.0f, 0.0f),
+			}
+		},
+		{ ELegWalkingState::Inertia,
+			{
+				.TargetPosition = FVector(0.0f, -250.0f, 200.0f),
+				.TargetRotation = FRotator(0.0f, 0.0f, 60.0f),
+				.LinearForce = 2000.0f,
+				.AngularForce = 360.0f,
+				.StateDuration = 0.5f
+			}
+		},
 	};
-	
-	return LegStateToPosition.at(WalkingState);
+	return AnimData.at(WalkingState);
 }
 
-FDragonWalkPose::FDragonWalkPose(UDragonAnimInstance* Anim): FAbstractProceduralPose(Anim)
+void FDragonWalkLegDriver::Tick(const float DeltaTime)
+{
+	// Advance time forward. Adjusted by character's movement speed.
+	const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
+	const auto MovementSpeed = OwningActor->GetVelocity().Size();
+
+	const float AdvanceValue = DeltaTime + MovementSpeed * 0.001f * DeltaTime;
+
+	FProceduralLegDriver::Tick(AdvanceValue);
+	
+	// If the leg is stretched too far, disconnect
+	const auto ShouldDisconnect = FMath::Abs(Leg->Position.X) > 200.f || Leg->Position.Z < -150.0f || Leg->Position.Y > 600.0f || Leg->Position.Y < -300.0f;
+	if (WalkingState == ELegWalkingState::Planted && ShouldDisconnect)
+	{
+		SetWalkingState(ELegWalkingState::Inertia, true);
+	}
+}
+
+FDragonWalkPose::FDragonWalkPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
 	BodyDriver = new FDragonWalkBodyDriver(Anim, Anim->ControlledBody, Anim->BackLeftLeg, Anim->BackRightLeg);
 	HipsDriver = new FDragonWalkHipSwayDriver(Anim, Anim->ControlledHips, Anim->BackLeftLeg, Anim->BackRightLeg);
-	FAbstractProceduralPose::BodyDriver = BodyDriver;
-	FAbstractProceduralPose::HipsDriver = HipsDriver;
+	// FAbstractProceduralPose::BodyDriver = BodyDriver;
+	FProceduralPose::HipsDriver = HipsDriver;
 
 	LeftLegDriver = new FDragonWalkLegDriver(Anim, Anim->BackLeftLeg);
 	RightLegDriver = new FDragonWalkLegDriver(Anim, Anim->BackRightLeg);
@@ -137,13 +197,17 @@ FDragonWalkPose::FDragonWalkPose(UDragonAnimInstance* Anim): FAbstractProcedural
 
 void FDragonWalkPose::SyncStateFrom(const FDragonTrotPose* TargetPose) const
 {
+	BodyDriver->SyncStateFrom(TargetPose->BodyDriver);
+	HipsDriver->SyncStateFrom(TargetPose->HipsDriver);
 	LeftLegDriver->SyncStateFrom(TargetPose->LeftLegDriver);
 	RightLegDriver->SyncStateFrom(TargetPose->RightLegDriver);
 }
 
 void FDragonWalkPose::ResetState()
 {
+	BodyDriver->ResetState();
+	HipsDriver->ResetState();
 	LeftLegDriver->LockRealWorldPosition();
-	LeftLegDriver->SetWalkingState(Planted);
-	RightLegDriver->SetWalkingState(Stepping);
+	LeftLegDriver->SetWalkingState(ELegWalkingState::Planted);
+	RightLegDriver->SetWalkingState(ELegWalkingState::Stepping);
 }

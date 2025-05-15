@@ -1,10 +1,10 @@
 ﻿#pragma once
-#include "FashionDragon/Player/Animation/AbstractProceduralDriver.h"
-#include "FashionDragon/Player/Animation/AbstractProceduralPose.h"
+#include "FashionDragon/Player/Animation/Abstract/ProceduralBoneDriver.h"
+#include "FashionDragon/Player/Animation/Abstract/ProceduralPose.h"
 
 class FDragonTrotPose;
 
-class FDragonWalkBodyDriver final : public FAbstractProceduralDriver
+class FDragonWalkBodyDriver final : public FProceduralBoneDriver
 {
 	FControlledLeg* LeftLeg;
 	FControlledLeg* RightLeg;
@@ -15,14 +15,15 @@ public:
 		FControlledBone* ControlledBone,
 		FControlledLeg* LeftLeg,
 		FControlledLeg* RightLeg
-	): FAbstractProceduralDriver(AnimInstance, ControlledBone),
+	): FProceduralBoneDriver(AnimInstance, ControlledBone),
 		LeftLeg(LeftLeg), RightLeg(RightLeg)
 	{}
 
 	virtual void Tick(float DeltaTime) override;
+	void SyncStateFrom(const FDragonWalkBodyDriver* TargetDriver);
 };
 
-class FDragonWalkHipSwayDriver final : public FAbstractProceduralDriver
+class FDragonWalkHipSwayDriver final : public FProceduralBoneDriver
 {
 	FControlledBone* Hips;
 	FControlledLeg* LeftLeg;
@@ -34,29 +35,30 @@ public:
 		FControlledBone* ControlledBone,
 		FControlledLeg* LeftLeg,
 		FControlledLeg* RightLeg
-	): FAbstractProceduralDriver(AnimInstance, ControlledBone),
+	): FProceduralBoneDriver(AnimInstance, ControlledBone),
 		Hips(ControlledBone), LeftLeg(LeftLeg), RightLeg(RightLeg) {}
 
 	virtual void Tick(float DeltaTime) override;
+	void SyncStateFrom(const FDragonWalkHipSwayDriver* TargetDriver);
 };
 
 /**
  * @brief Relaxed walk animation leg driver
  */
-class FDragonWalkLegDriver final : public FAbstractProceduralLegDriver
+class FDragonWalkLegDriver final : public FProceduralLegDriver
 {
 public:
 	FDragonWalkLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg);
 
 	virtual void Tick(float DeltaTime) override;
 	virtual void AdvanceState() override;
-	virtual std::pair<FVector, FRotator> GetTargetPosition() const override;
+	virtual FDragonWalkStateData GetTargetPosition() const override;
 };
 
 /**
  * @brief Relaxed walk animation pose
  */
-class FDragonWalkPose final : public FAbstractProceduralPose
+class FDragonWalkPose final : public FProceduralPose
 {
 public:
 	explicit FDragonWalkPose(UDragonAnimInstance* Anim);

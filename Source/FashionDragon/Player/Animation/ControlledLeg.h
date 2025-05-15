@@ -1,26 +1,41 @@
 ﻿#pragma once
+#include "Structs/PoseEffector.h"
 
 class UDragonAnimInstance;
 
-const enum ELegWalkingState
+enum class ELegWalkingState
 {
-	Relaxed = 0,
-	Raised = 1,
-	Stepping = 3,
-	Planted = 4,
-	Inertia = 5,
+	Relaxed,
+	Raised,
+	Stepping,
+	Planted,
+	Inertia,
 };
 
-class FControlledLeg
+class FControlledBone
 {
 public:
-	FControlledLeg(UDragonAnimInstance* AnimInstance, const int Idx);
+	FVector Position = FVector(0.0f, 0.0f, 0.0f);
+	FRotator Rotation = FRotator(0.0f, 0.0f, 0.0f);
+};
+
+class FControlledLeg : public FControlledBone
+{
+public:
+	FControlledLeg(UDragonAnimInstance* AnimInstance, FName IKBoneName, const FVector& IKBoneOffset, const int Idx);
 
 private:
 	UDragonAnimInstance* AnimInstance;
 	int Idx;
 
 public:
+	FName IKBoneName;
+	FVector IKBoneOffset = FVector(0.0f, 0.0f, 0.0f);
 	FVector Position = FVector(0.0f, 0.0f, 0.0f);
 	FRotator Rotation = FRotator(0.0f, 0.0f, 0.0f);
+	FVector VisualPosition = FVector(0.0f, 0.0f, 0.0f);
+	FRotator VisualRotation = FRotator(0.0f, 0.0f, 0.0f);
+
+	FVector GetWorldPosition() const;
+	FVector GetWorldPosition(const FPoseEffector& WithEffector) const;
 };

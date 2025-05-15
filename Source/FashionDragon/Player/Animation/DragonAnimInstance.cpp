@@ -2,10 +2,8 @@
 
 #include <string>
 
-#include "Constraint.h"
 #include "ControlledLeg.h"
 #include "FashionDragon/DebugTools/QuickDebug.h"
-#include "PhysicsEngine/PhysicsAsset.h"
 #include "Poses/DragonIdlePose.h"
 #include "Poses/DragonTrotPose.h"
 #include "Poses/DragonWalkPose.h"
@@ -28,8 +26,16 @@ void UDragonAnimInstance::NativeInitializeAnimation()
 	ControlledBody = new FControlledBone();
 	ControlledHips = new FControlledBone();
 	ControlledLegs = TArray<FControlledLeg*>();
-	BackLeftLeg = new FControlledLeg(this, 0);
-	BackRightLeg = new FControlledLeg(this, 1);
+	BackLeftLeg = new FControlledLeg(
+		this,
+		"Foot_Back_L",
+		FVector(99.491309, -175.161837, -309.933643),
+				0);
+	BackRightLeg = new FControlledLeg(
+		this,
+		"Foot_Back_R",
+		FVector(-99.491309, -175.161837, -309.933643),
+				1);
 	ControlledLegs.Add(BackLeftLeg);
 	ControlledLegs.Add(BackRightLeg);
 
@@ -37,7 +43,8 @@ void UDragonAnimInstance::NativeInitializeAnimation()
 		new FDragonIdlePose(this),
 		new FDragonWalkPose(this),
 		new FDragonTrotPose(this),
-		new FDragonJumpPose(this)
+		new FDragonJumpPose(this),
+		new FDragonFootPlacementPose(this)
 	);
 }
 
@@ -58,7 +65,7 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 	auto CumulativeEffector = FPoseEffector(ControlledBody->Position, ControlledBody->Rotation);
 	for (const auto PoseDriver : StateMachine->PoseDrivers)
 	{
-		CumulativeEffector = PoseDriver->ToBodyEffector(CumulativeEffector, ControlledBody);
+		CumulativeEffector = PoseDriver->ToBodyEffector(CumulativeEffector, ControlledBody, DeltaTime);
 	}
 	ControlledBody->Position = CumulativeEffector.Position;
 	ControlledBody->Rotation = CumulativeEffector.Rotation;
@@ -69,12 +76,11 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 	CumulativeEffector = FPoseEffector(ControlledHips->Position, ControlledHips->Rotation);
 	for (const auto PoseDriver : StateMachine->PoseDrivers)
 	{
-		CumulativeEffector = PoseDriver->ToHipsEffector(CumulativeEffector, ControlledHips);
+		CumulativeEffector = PoseDriver->ToHipsEffector(CumulativeEffector, ControlledHips, DeltaTime);
 	}
 	ControlledHips->Position = CumulativeEffector.Position;
 	ControlledHips->Rotation = CumulativeEffector.Rotation;
 
-	// SetBoneOffset("Tail_001", FVector(0, 0, 0), FRotator(10, 0, 0));
 	SetBoneOffset("Root", "Tail_001", ControlledHips->Position, ControlledHips->Rotation);
 
 	// Apply leg drivers
@@ -84,24 +90,27 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 
 		CumulativeEffector = FPoseEffector(Leg->Position, Leg->Rotation);
 		for (const auto PoseDriver : StateMachine->PoseDrivers)
-		{
-			CumulativeEffector = PoseDriver->ToLegEffector(CumulativeEffector, ControlledLegs[i]);
-		}
+			CumulativeEffector = PoseDriver->ToLegEffector(CumulativeEffector, ControlledLegs[i], DeltaTime);
 
 		// Merge the positions and rotations of all effectors
 		Leg->Position = CumulativeEffector.Position;
 		Leg->Rotation = CumulativeEffector.Rotation;
-		LegPositions[i] = Leg->Position;
-		LegRotations[i] = Leg->Rotation;
+
+		CumulativeEffector = FPoseEffector(Leg->Position, Leg->Rotation);
+		for (const auto PoseDriver : StateMachine->PoseDrivers)
+			CumulativeEffector = PoseDriver->ToPostProcessLegEffector(CumulativeEffector, ControlledLegs[i], DeltaTime);
+		
+		LegPositions[i] = CumulativeEffector.Position;
+		LegRotations[i] = CumulativeEffector.Rotation;
+		Leg->VisualPosition = CumulativeEffector.Position;
+		Leg->VisualRotation = CumulativeEffector.Rotation;
 	}
 }
 
-void UDragonAnimInstance::SetBoneOffset(const FName ParentBone, const FName ChildName, FVector Position, FRotator Rotation)
+void UDragonAnimInstance::SetBoneOffset(const FName ParentBone, const FName ChildName, const FVector& Position, const FRotator& Rotation) const
 {
-	FRotator FixedRotation = FRotator(Rotation.Yaw, Rotation.Roll, -Rotation.Pitch + 90);
-	USkeletalMeshComponent* SkelComp = GetSkelMeshComponent();
-	const auto Constraints = GetSkelMeshComponent()->Constraints;
-	for (FConstraintInstance* Constraint : Constraints)
+	const FRotator FixedRotation = FRotator(Rotation.Yaw, Rotation.Roll, -Rotation.Pitch + 90);
+	for (const auto Constraints = GetSkelMeshComponent()->Constraints; FConstraintInstance* Constraint : Constraints)
 	{
 		if (Constraint->GetParentBoneName() == ParentBone && Constraint->GetChildBoneName() == ChildName)
 		{

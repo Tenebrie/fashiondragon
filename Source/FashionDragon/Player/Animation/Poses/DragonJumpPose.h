@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "FashionDragon/Player/Animation/AbstractProceduralPose.h"
+#include "FashionDragon/Player/Animation/Abstract/ProceduralPose.h"
 
 const enum ELegJumpState
 {
@@ -12,7 +12,7 @@ const enum ELegJumpState
 /**
  * @brief Jump preparation animation leg driver
  */
-class FDragonJumpLegDriver final : public FAbstractProceduralLegDriver
+class FDragonJumpLegDriver final : public FProceduralLegDriver
 {
 public:
 	FDragonJumpLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg);
@@ -20,7 +20,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	
 	virtual void AdvanceState() override;
-	virtual std::pair<FVector, FRotator> GetTargetPosition() const override;
 
 	ELegJumpState JumpingState = Charging;
 	void SetJumpState(ELegJumpState NewJumpState);
@@ -29,7 +28,7 @@ public:
 /**
  * @brief Jump preparation pose (jump button held)
  */
-class FDragonJumpPose final : public FAbstractProceduralPose
+class FDragonJumpPose final : public FProceduralPose
 {
 public:
 	explicit FDragonJumpPose(UDragonAnimInstance* Anim);

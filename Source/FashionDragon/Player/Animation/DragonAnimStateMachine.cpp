@@ -43,6 +43,7 @@ void FDragonAnimStateMachine::InitTransitions()
 			}},
 		}},
 		{ Walking, {
+			{ Idle, [this]() { IdlePoseDriver->SyncStateFrom(WalkPoseDriver); } },
 			{ Running, [this]() { TrotPoseDriver->SyncStateFrom(WalkPoseDriver); } },
 			{ Jumping, [this]()
 			{
@@ -116,7 +117,7 @@ void FDragonAnimStateMachine::Tick(const float DeltaTime, const AMainCharacter* 
  */
 void FDragonAnimStateMachine::BlendDrivers(const float DeltaTime) const
 {
-	FAbstractProceduralPose* DominantDriver = IdlePoseDriver;
+	FProceduralPose* DominantDriver = IdlePoseDriver;
 	if (AnimationState == Jumping)
 	{
 		DominantDriver = JumpPoseDriver;
@@ -134,19 +135,22 @@ void FDragonAnimStateMachine::BlendDrivers(const float DeltaTime) const
 		DominantDriver = TrotPoseDriver;
 	}
 
-	DominantDriver->BlendAlpha += DeltaTime * 1.0f;
+	DominantDriver->BlendAlpha += DeltaTime * 100.0f;
 	if (DominantDriver->BlendAlpha > 1.0f)
 		DominantDriver->BlendAlpha = 1.0f;
 	
-	for (FAbstractProceduralPose* PoseDriver : PoseDrivers)
+	for (FProceduralPose* PoseDriver : PoseDrivers)
 	{
 		if (PoseDriver != DominantDriver)
 		{
-			PoseDriver->BlendAlpha -= DeltaTime * 1.0f;
+			PoseDriver->BlendAlpha -= DeltaTime * 1000.0f;
 			if (PoseDriver->BlendAlpha < 0.0f)
 				PoseDriver->BlendAlpha = 0.0f;
 		}
 	}
+
+	// Foot placement always applies
+	FootPlacementDriver->BlendAlpha = 1.0f;
 }
 
 /**

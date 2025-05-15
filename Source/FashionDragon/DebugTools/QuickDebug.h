@@ -29,9 +29,9 @@ class FASHIONDRAGON_API Debug
 {
 public:
 	template<typename... Args>
-	static void Print(const char* First, Args... Rest)
+	static void Print(Args... Rest)
 	{
-		FString Message = UTF8_TO_TCHAR(First);
+		FString Message = UTF8_TO_TCHAR("");
     
 		(AppendArg(Message, Rest), ...);
     
@@ -42,10 +42,10 @@ public:
 	}
 
 	template<typename... Args>
-	static void PrintStable(const int32 Key, const char* First, Args... Rest)
+	static void PrintStable(const int32 Key, Args... Rest)
 	{
-		FString Message = UTF8_TO_TCHAR(First);
-    
+		FString Message = UTF8_TO_TCHAR("");
+
 		(AppendArg(Message, Rest), ...);
     
 		if (GEngine)
@@ -74,13 +74,21 @@ private:
 	{
 		if constexpr (std::is_enum_v<T>)
 			Message.Append(FString::Printf(TEXT("%d"), static_cast<int>(Arg)));
-		else if constexpr (std::is_arithmetic_v<T>)
-			Message.Append(FString::Printf(TEXT("%d"), Arg));
+		else if constexpr (std::is_same_v<T, float>)
+			Message.Append(FString::Printf(TEXT("%f"), Arg));
+		else if constexpr (std::is_same_v<T, double>)
+			Message.Append(FString::Printf(TEXT("%lf"), Arg));
+		else if constexpr (std::is_integral_v<T>)
+			Message.Append(FString::Printf(TEXT("%lld"), static_cast<int64>(Arg)));
 		else if constexpr (std::is_same_v<T, FVector>)
 			Message.Append(FString::Printf(TEXT("FVector(%f; %f; %f)"), Arg.X, Arg.Y, Arg.Z));
+		else if constexpr (std::is_same_v<T, FRotator>)
+			Message.Append(FString::Printf(TEXT("FRotator(%f; %f; %f)"), Arg.Pitch, Arg.Yaw, Arg.Roll));
 		else if constexpr (std::is_same_v<T, std::string>)
 			Message.Append(UTF8_TO_TCHAR(Arg.c_str()));
 		else
 			Message.Append(TEXT("[Unknown Type]"));
+
+		Message.Append(TEXT(" "));
 	}
 };
