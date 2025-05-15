@@ -45,8 +45,7 @@ void FDragonTrotLegDriver::AdvanceState()
 		SetWalkingState(ELegWalkingState::Stepping);
 		break;
 	case ELegWalkingState::Stepping:
-		LockRealWorldPosition();
-		SetWalkingState(ELegWalkingState::Planted);
+		LockWorldGroundPosition();
 		break;
 	}
 }
@@ -93,7 +92,6 @@ void FDragonTrotPose::ResetState()
 {
 	BodyDriver->ResetState();
 	HipsDriver->ResetState();
-	LeftLegDriver->LockRealWorldPosition();
-	LeftLegDriver->SetWalkingState(ELegWalkingState::Planted);
+	LeftLegDriver->LockWorldGroundPosition();
 	RightLegDriver->SetWalkingState(ELegWalkingState::Stepping);
 }

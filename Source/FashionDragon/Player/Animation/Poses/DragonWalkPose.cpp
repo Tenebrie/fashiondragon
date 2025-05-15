@@ -2,6 +2,7 @@
 
 #include <map>
 
+#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "FashionDragon/Utils/Utils.h"
@@ -99,8 +100,9 @@ void FDragonWalkLegDriver::AdvanceState()
 		SetWalkingState(ELegWalkingState::Stepping);
 		break;
 	case ELegWalkingState::Stepping:
-		LockRealWorldPosition();
-		SetWalkingState(ELegWalkingState::Planted);
+		LockWorldGroundPosition();
+		break;
+	default:
 		break;
 	}
 }
@@ -127,11 +129,20 @@ FDragonWalkStateData FDragonWalkLegDriver::GetTargetPosition() const
 				.StateDuration = 1.0f
 			}
 		},
+		{ ELegWalkingState::SeekingGround,
+			{
+				.TargetPosition = FVector(0.0f, 0.0f, 0.0f),
+				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
+				.LinearForce = 500.f,
+				.AngularForce = 10.0f,
+				.StateDuration = 0.2f
+			}
+		},
 		{ ELegWalkingState::Planted,
 			{
-				.TargetPosition = FVector(0.0f, -350.0f, 0.0f),
+				.TargetPosition = FVector(0.0f, 0.0f, 0.0f),
 				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
-				.LinearForce = 2500.f,
+				.LinearForce = 10000.f,
 				.AngularForce = 360.0f,
 				.StateDuration = 0.8f
 			}
@@ -140,7 +151,7 @@ FDragonWalkStateData FDragonWalkLegDriver::GetTargetPosition() const
 			{
 				.TargetPosition = FVector(0.0f, 400.0f, 0.0f),
 				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
-				.LinearForce = 2500.f,
+				.LinearForce = 25000.f,
 				.AngularForce = 360.0f,
 				.StateDuration = 0.8f,
 				.StartArticulationPosition = FVector(0.0f, 0.0f, 150.0f),
@@ -204,11 +215,17 @@ void FDragonWalkPose::SyncStateFrom(const FDragonTrotPose* TargetPose) const
 	RightLegDriver->SyncStateFrom(TargetPose->RightLegDriver);
 }
 
+// TODO: If it's not been enough time since we have been here, don't reset, but continue the previous state
 void FDragonWalkPose::ResetState()
 {
 	BodyDriver->ResetState();
 	HipsDriver->ResetState();
-	LeftLegDriver->LockRealWorldPosition();
-	LeftLegDriver->SetWalkingState(ELegWalkingState::Planted);
-	RightLegDriver->SetWalkingState(ELegWalkingState::Stepping);
+
+	const auto PushingLeg = SwitchStartingLeg ? RightLegDriver : LeftLegDriver;
+	const auto SteppingLeg = SwitchStartingLeg ? LeftLegDriver : RightLegDriver;
+
+	PushingLeg->LockWorldGroundPosition();
+	SteppingLeg->SetWalkingState(ELegWalkingState::Stepping);
+
+	SwitchStartingLeg = !SwitchStartingLeg;
 }

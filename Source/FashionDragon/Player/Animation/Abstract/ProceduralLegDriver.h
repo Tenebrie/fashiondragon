@@ -10,16 +10,16 @@ struct FDragonWalkStateData
 	 * Maximum force an effector may apply to the bone in this state.
 	 * Effectively, maximum speed per second.
 	 */
-	float LinearForce;
+	float LinearForce = 10000.0f;
 	/**
 	 * Maximum force an effector may apply to the bone's rotation in this state.
 	 * Effectively, maximum speed (angles) per second.
 	 */
-	float AngularForce;
+	float AngularForce = 360.0f;
 	/**
 	 * Duration of the state in seconds.
 	 */
-	float StateDuration;
+	float StateDuration = 1.0f;
 
 	FVector StartArticulationPosition = FVector(0.0f, 0.0f, 0.0f);
 	FVector StartArticulationRotation = FVector(0.0f, 0.0f, 0.0f);
@@ -50,8 +50,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void RecalculatePose(const float DeltaTime);
 
-	void LockRealWorldPosition();
-	void LockTargetWorldPosition();
+	bool LockWorldGroundPosition();
 
 	/**
 	 * @brief Syncs the current state of the leg driver with another.

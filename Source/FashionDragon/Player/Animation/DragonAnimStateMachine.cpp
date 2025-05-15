@@ -20,7 +20,7 @@ void FDragonAnimStateMachine::InitTransitions()
 			{ Jumping, [this]()
 			{
 				JumpPoseDriver->ResetState();
-				JumpPoseDriver->BlendAlpha = 1.0f;
+				// JumpPoseDriver->BlendAlpha = 1.0f;
 			}},
 		}},
 		{ Jumping, {

@@ -1,12 +1,12 @@
 ﻿#pragma once
 #include "FashionDragon/Player/Animation/Abstract/ProceduralPose.h"
 
-const enum ELegJumpState
+enum class ELegJumpState
 {
-	Charging = 0,
-	Pushing = 1,
-	Retracting = 2,
-	Landing = 3,
+	Charging,
+	Pushing,
+	Retracting,
+	Landing,
 };
 
 /**
@@ -21,7 +21,9 @@ public:
 	
 	virtual void AdvanceState() override;
 
-	ELegJumpState JumpingState = Charging;
+	virtual FDragonWalkStateData GetTargetPosition() const override;
+
+	ELegJumpState JumpingState = ELegJumpState::Charging;
 	void SetJumpState(ELegJumpState NewJumpState);
 };
 

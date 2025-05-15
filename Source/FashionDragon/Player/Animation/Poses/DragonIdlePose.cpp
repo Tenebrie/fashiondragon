@@ -36,7 +36,7 @@ void FDragonIdleLegDriver::SyncIdleStateFrom(const FDragonWalkLegDriver* TargetD
 	ResetState();
 	if (TargetDriver->WalkingState == ELegWalkingState::Planted)
 	{
-		LockRealWorldPosition();
+		LockWorldGroundPosition();
 		SetIdleState(ELegIdleState::Planted);
 	}
 	else

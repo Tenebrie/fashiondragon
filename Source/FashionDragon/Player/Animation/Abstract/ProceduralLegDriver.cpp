@@ -17,19 +17,33 @@ void FProceduralLegDriver::SetWalkingState(const ELegWalkingState NewState, cons
 	RotationFrom = Leg->Rotation;
 }
 
-void FProceduralLegDriver::LockRealWorldPosition()
+/**
+ * Attempts to find the ground directly under the leg and mark it as the locked position.
+ * @return Whether ground is detected
+ */
+bool FProceduralLegDriver::LockWorldGroundPosition()
 {
+	SetWalkingState(ELegWalkingState::Planted);
+	SetWalkingState(ELegWalkingState::SeekingGround, true);
+	
 	const auto Transform = AnimInstance->GetSkelMeshComponent()->GetAttachParent()->GetComponentTransform();
-	LockedWorldPosition = Transform.TransformPosition(Leg->Position);
-	LockedWorldRotation = Transform.TransformRotation(FQuat(Leg->Rotation)).Rotator();
-}
+	const auto PlantedPosition = Leg->GetPlantedWorldPosition(300.0f);
 
-void FProceduralLegDriver::LockTargetWorldPosition()
-{
-	const auto Transform = AnimInstance->GetSkelMeshComponent()->GetAttachParent()->GetComponentTransform();
-	const auto Target = GetTargetPosition();
-	LockedWorldPosition = Transform.TransformPosition(Target.TargetPosition);
-	LockedWorldRotation = Transform.TransformRotation(FQuat(Target.TargetRotation)).Rotator();
+	const FRotator LockedRotation = FRotator(Leg->Rotation.Pitch, Leg->Rotation.Yaw, 0);
+	if (!PlantedPosition.GroundHit)
+	{
+		SetWalkingState(ELegWalkingState::Raised, true);
+		LockedWorldPosition = Transform.TransformPosition(Leg->Position);
+		LockedWorldRotation = Transform.TransformRotation(LockedRotation.Quaternion()).Rotator();
+		return false;
+	}
+
+	if (PlantedPosition.DeltaPosition.Size() > 5.0f)
+		SetWalkingState(ELegWalkingState::SeekingGround, true);
+	
+	LockedWorldPosition = Transform.TransformPosition(Leg->Position + PlantedPosition.DeltaPosition);
+	LockedWorldRotation = Transform.TransformRotation(LockedRotation.Quaternion()).Rotator();
+	return true;
 }
 
 void FProceduralLegDriver::SnapToLockedPosition()
@@ -37,6 +51,9 @@ void FProceduralLegDriver::SnapToLockedPosition()
 	const auto Transform = AnimInstance->GetSkelMeshComponent()->GetAttachParent()->GetComponentTransform().Inverse();
 	DesiredPosition = Transform.TransformPosition(LockedWorldPosition);
 	DesiredRotation = Transform.TransformRotation(FQuat(LockedWorldRotation)).Rotator();
+
+	if (const auto GroundData = Leg->GetPlantedWorldPosition(5.0f); GroundData.GroundHit)
+		SetWalkingState(ELegWalkingState::Planted, true);
 }
 
 FProceduralLegDriver::FProceduralLegDriver(UDragonAnimInstance* AnimInstance,
@@ -57,7 +74,7 @@ void FProceduralLegDriver::Tick(const float DeltaTime)
 		AdvanceState();
 	}
 	
-	if (WalkingState == ELegWalkingState::Planted)
+	if (WalkingState == ELegWalkingState::Planted || WalkingState == ELegWalkingState::SeekingGround)
 	{
 		SnapToLockedPosition();
 	}
@@ -110,19 +127,16 @@ void FProceduralLegDriver::SyncStateFrom(FProceduralLegDriver* TargetDriver)
 FPoseEffector FProceduralLegDriver::ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context)
 {
 	const auto State = GetTargetPosition();
-	
-	auto TargetPosition = DesiredPosition;
-	auto TargetRotation = DesiredRotation;
-	auto LinearSpeed = State.LinearForce * Context.BlendAlpha;
+
+	const auto TargetPosition = DesiredPosition;
+	const auto TargetRotation = DesiredRotation;
+	auto LinearSpeed = State.LinearForce * Context.BlendAlpha * Context.DeltaTime;
 	auto RotationSpeed = State.AngularForce * Context.BlendAlpha;
 
 	if (WalkingState == ELegWalkingState::Planted)
 	{
-		const auto Transform = AnimInstance->GetSkelMeshComponent()->GetAttachParent()->GetComponentTransform().Inverse();
-		LinearSpeed *= 250.f;
+		LinearSpeed *= 1.f;
 		RotationSpeed *= 0.1f;
-		TargetPosition = Transform.TransformPosition(LockedWorldPosition);
-		TargetRotation = Transform.TransformRotation(FQuat(LockedWorldRotation)).Rotator();
 	}
 	
 	const auto Direction = (TargetPosition - BaseEffector.Position).GetSafeNormal();
@@ -144,5 +158,8 @@ void FProceduralLegDriver::AdvanceState()
 
 FDragonWalkStateData FProceduralLegDriver::GetTargetPosition() const
 {
-	return FDragonWalkStateData {};
+	return FDragonWalkStateData
+	{
+		.StateDuration = 0.5f
+	};
 }
