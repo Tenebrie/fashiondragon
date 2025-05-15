@@ -4,6 +4,7 @@
 
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
+#include "FashionDragon/Utils/Utils.h"
 
 // ============================================================================
 // Body Driver
@@ -122,7 +123,7 @@ FDragonWalkStateData FDragonWalkLegDriver::GetTargetPosition() const
 				.TargetPosition = FVector(0.0f, 0.0f, 150.0f),
 				.TargetRotation = FRotator(0.0f, 0.0f, 60.0f),
 				.LinearForce = 2500.f,
-				.AngularForce = 360.0f,
+				.AngularForce = 720.0f,
 				.StateDuration = 1.0f
 			}
 		},
@@ -172,10 +173,11 @@ void FDragonWalkLegDriver::Tick(const float DeltaTime)
 	FProceduralLegDriver::Tick(AdvanceValue);
 	
 	// If the leg is stretched too far, disconnect
-	const auto ShouldDisconnect = FMath::Abs(Leg->Position.X) > 200.f || Leg->Position.Z < -150.0f || Leg->Position.Y > 600.0f || Leg->Position.Y < -300.0f;
+	const auto ShouldDisconnect = FMath::Abs(Leg->Position.X) > 200.f || Leg->Position.Z < -150.0f || Leg->Position.Y > 600.0f || Leg->Position.Y < -300.0f
+		|| FUtils::GetRotatorDistance(Leg->Rotation) > 60.0f;
 	if (WalkingState == ELegWalkingState::Planted && ShouldDisconnect)
 	{
-		SetWalkingState(ELegWalkingState::Inertia, true);
+		SetWalkingState(ELegWalkingState::Raised, true);
 	}
 }
 
