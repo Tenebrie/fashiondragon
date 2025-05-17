@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InputAction.h"
+#include "InputActionValue.h"
 #include "GameFramework/Character.h"
 #include "PhysicsEngine/PhysicalAnimationComponent.h"
 #include "MainCharacter.generated.h"
@@ -38,17 +40,13 @@ protected:
 	virtual void BeginPlay() override;
 
 	// Input callbacks
-	void MoveForward(float Value);
-	void MoveRight(float Value);
+	void GroundMovement(const FInputActionValue& Value);
+	void CameraMove(const FInputActionValue& Value);
 	void StartJump();
 	void ReleaseJump();
 	void StartSprint();
 	void StopSprint();
-
-	void LookHorizontal(float Value);
-	void LookVertical(float Value);
-
-	void UpdateBoneTransforms();
+	void CastSomeSpell();
 
 public:
 	virtual void PostInitializeComponents() override;

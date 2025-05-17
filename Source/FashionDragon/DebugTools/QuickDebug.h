@@ -82,6 +82,8 @@ private:
 			Message.Append(FString::Printf(TEXT("%lld"), static_cast<int64>(Arg)));
 		else if constexpr (std::is_same_v<T, FVector>)
 			Message.Append(FString::Printf(TEXT("FVector(%f; %f; %f)"), Arg.X, Arg.Y, Arg.Z));
+		else if constexpr (std::is_same_v<T, FVector2D>)
+			Message.Append(FString::Printf(TEXT("FVector2D(%f; %f)"), Arg.X, Arg.Y));
 		else if constexpr (std::is_same_v<T, FRotator>)
 			Message.Append(FString::Printf(TEXT("FRotator(%f; %f; %f)"), Arg.Pitch, Arg.Yaw, Arg.Roll));
 		else if constexpr (std::is_same_v<T, std::string>)

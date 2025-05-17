@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "MainCharacter.h"
+
 #include "Animation/DragonAnimInstance.h"
 
 #include "GameFramework/Character.h"
@@ -11,6 +10,14 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "PhysicsEngine/PhysicalAnimationComponent.h"
+#include "EnhancedInputComponent.h"
+#include "FashionDragon/DebugTools/QuickDebug.h"
+#include "Input/Actions.h"
+
+#include <iostream>
+#include <vector>
+#include <string>
+#include <chrono>
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -69,37 +76,53 @@ void AMainCharacter::Tick(const float DeltaTime)
 void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+    
+    UEnhancedInputComponent* Input = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
+    if (!Input) return;
+    
+    Input->BindAction(UActions::GroundMovement, ETriggerEvent::Triggered, this, &AMainCharacter::GroundMovement);
+    Input->BindAction(UActions::CameraMove, ETriggerEvent::Triggered, this, &AMainCharacter::CameraMove);
+    
+    Input->BindAction(UActions::Jump, ETriggerEvent::Started, this, &AMainCharacter::StartJump);
+    Input->BindAction(UActions::Jump, ETriggerEvent::Completed & ETriggerEvent::Canceled, this, &AMainCharacter::ReleaseJump);
 
-    PlayerInputComponent->BindAxis("MoveForward", this, &AMainCharacter::MoveForward);
-    PlayerInputComponent->BindAxis("MoveRight", this, &AMainCharacter::MoveRight);
-    PlayerInputComponent->BindAxis("LookHorizontal", this, &AMainCharacter::LookHorizontal);
-    PlayerInputComponent->BindAxis("LookVertical", this, &AMainCharacter::LookVertical);
-
-    PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMainCharacter::StartJump);
-    PlayerInputComponent->BindAction("Jump", IE_Released, this, &AMainCharacter::ReleaseJump);
-    PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMainCharacter::StartSprint);
-    PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AMainCharacter::StopSprint);
+    Input->BindAction(UActions::Sprint, ETriggerEvent::Started, this, &AMainCharacter::StartSprint);
+    Input->BindAction(UActions::Sprint, ETriggerEvent::Completed & ETriggerEvent::Canceled, this, &AMainCharacter::StopSprint);
+    
+    Input->BindAction(UActions::CastASpell, ETriggerEvent::Started, this, &AMainCharacter::CastSomeSpell);
 }
 
-void AMainCharacter::MoveForward(const float Value)
+void AMainCharacter::GroundMovement(const FInputActionValue& Value)
 {
-    if (Controller && Value != 0.0f && !IsChargingJump)
+    if (!Controller) { return; }
+
+    const FVector2D MovementVector = Value.Get<FVector2D>();
+    const FRotator Rotation = Controller->GetControlRotation();
+    const FRotator YawRot(0, Rotation.Yaw, 0);
+    const FVector ForwardDirection = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
+    const FVector RightDirection = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
+    AddMovementInput(ForwardDirection, MovementVector.Y);
+    AddMovementInput(RightDirection, MovementVector.X);
+}
+
+void AMainCharacter::CameraMove(const FInputActionValue& Value)
+{
+    const auto SpringArmComponent = FindComponentByClass<USpringArmComponent>();
+    if (!Controller || !SpringArmComponent) { return; }
+
+    const FVector2D RotationDelta = Value.Get<FVector2D>();
+
+    if (!FMath::IsNearlyZero(RotationDelta.X))
     {
-        const FRotator Rotation = Controller->GetControlRotation();
-        const FRotator YawRot(0, Rotation.Yaw, 0);
-        const FVector Direction = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
-        AddMovementInput(Direction, Value);
+        AddControllerYawInput(RotationDelta.X * 0.5f);
     }
-}
 
-void AMainCharacter::MoveRight(const float Value)
-{
-    if (Controller && Value != 0.0f && !IsChargingJump)
+    if (!FMath::IsNearlyZero(RotationDelta.Y))
     {
-        const FRotator Rotation = Controller->GetControlRotation();
-        const FRotator YawRot(0, Rotation.Yaw, 0);
-        const FVector Direction = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
-        AddMovementInput(Direction, Value);
+        FRotator NewRotation = SpringArmComponent->GetRelativeRotation();
+        NewRotation.Pitch += RotationDelta.Y;
+        NewRotation.Pitch = FMath::Clamp(NewRotation.Pitch, -80.f, 80.f);
+        SpringArmComponent->SetRelativeRotation(NewRotation);
     }
 }
 
@@ -131,25 +154,7 @@ void AMainCharacter::StopSprint()
     IsSprinting = false;
 }
 
-void AMainCharacter::LookHorizontal(const float Value)
+void AMainCharacter::CastSomeSpell()
 {
-    if (!Controller || Value == 0.0f) return;
-
-    FRotator NewRotation = Controller->GetControlRotation();
-    NewRotation.Yaw += Value;
-    Controller->SetControlRotation(NewRotation);
-}
-
-void AMainCharacter::LookVertical(const float Value)
-{
-    if (!Controller || Value == 0.0f) return;
-
-    // Rotate the camera up and down
-    if (const auto SpringArmComponent = FindComponentByClass<USpringArmComponent>())
-    {
-        FRotator NewRotation = SpringArmComponent->GetRelativeRotation();
-        NewRotation.Pitch += Value;
-        NewRotation.Pitch = FMath::Clamp(NewRotation.Pitch, -80.f, 80.f);
-        SpringArmComponent->SetRelativeRotation(NewRotation);
-    }
+    Debug::Print("We are casting a speeeeeell~");
 }
