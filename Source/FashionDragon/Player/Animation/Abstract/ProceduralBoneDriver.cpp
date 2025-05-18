@@ -1,5 +1,7 @@
 ﻿#include "ProceduralBoneDriver.h"
 
+#include "FashionDragon/Player/Animation/Structs/PoseEffectorContext.h"
+
 FProceduralBoneDriver::FProceduralBoneDriver(UDragonAnimInstance* AnimInstance, FControlledBone* ControlledBone): 
 	AnimInstance(AnimInstance), Bone(ControlledBone)
 {

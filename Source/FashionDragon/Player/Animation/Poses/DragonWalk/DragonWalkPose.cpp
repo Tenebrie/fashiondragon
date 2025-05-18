@@ -118,7 +118,7 @@ FDragonWalkStateData FDragonWalkLegDriver::GetTargetPosition() const
 				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
 				.LinearForce = 2500.f,
 				.AngularForce = 360.0f,
-				.StateDuration = 1.0f
+				.Duration = 1.0f
 			}
 		},
 		{ ELegWalkingState::Raised,
@@ -127,7 +127,7 @@ FDragonWalkStateData FDragonWalkLegDriver::GetTargetPosition() const
 				.TargetRotation = FRotator(0.0f, 0.0f, 60.0f),
 				.LinearForce = 2500.f,
 				.AngularForce = 720.0f,
-				.StateDuration = 1.0f
+				.Duration = 1.0f
 			}
 		},
 		{ ELegWalkingState::SeekingGround,
@@ -136,7 +136,7 @@ FDragonWalkStateData FDragonWalkLegDriver::GetTargetPosition() const
 				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
 				.LinearForce = 500.f,
 				.AngularForce = 10.0f,
-				.StateDuration = 0.2f
+				.Duration = 0.2f
 			}
 		},
 		{ ELegWalkingState::Planted,
@@ -145,7 +145,7 @@ FDragonWalkStateData FDragonWalkLegDriver::GetTargetPosition() const
 				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
 				.LinearForce = 10000.f,
 				.AngularForce = 360.0f,
-				.StateDuration = 0.7f
+				.Duration = 0.7f
 			}
 		},
 		{ ELegWalkingState::Stepping,
@@ -154,7 +154,7 @@ FDragonWalkStateData FDragonWalkLegDriver::GetTargetPosition() const
 				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
 				.LinearForce = 25000.f,
 				.AngularForce = 360.0f,
-				.StateDuration = 0.7f,
+				.Duration = 0.7f,
 				.StartArticulationPosition = FVector(0.0f, 0.0f, 150.0f),
 				.StartArticulationRotation = FVector(0.0f, 0.0f, 60.0f),
 				.EndArticulationPosition = FVector(0.0f, 0.0f, 30.0f),
@@ -167,35 +167,67 @@ FDragonWalkStateData FDragonWalkLegDriver::GetTargetPosition() const
 				.TargetRotation = FRotator(0.0f, 0.0f, 60.0f),
 				.LinearForce = 2000.0f,
 				.AngularForce = 360.0f,
-				.StateDuration = 0.5f
+				.Duration = 0.5f
 			}
 		},
 	};
 	
 	const auto Data = FDragonWalkStateData(AnimData.at(WalkingState));
-
-	if (const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor()))
-	{
-		// const auto WorldInputVector = OwningActor->GetCharacterMovement()->GetLastInputVector();
-		auto VelocityVector = OwningActor->GetCharacterMovement()->GetLastUpdateVelocity();
-		VelocityVector.Normalize();
-		if (!VelocityVector.IsNearlyZero())
-		{
-			// Get normalized input vector in local space
-			const auto InputVector = OwningActor->GetActorRotation().UnrotateVector(VelocityVector).GetSafeNormal2D();
-        
-			// Calculate the angle between input vector and forward vector directly
-			const float AngleRadians = FMath::Atan2(InputVector.Y, InputVector.X);
-        
-			// Create rotation matrix around Z axis using the angle
-			const FRotator Rotation(0, FMath::RadiansToDegrees(AngleRadians), 0);
-			const FRotationMatrix RotMatrix(Rotation);
-        
-			// Apply rotation to target position
-			Data.TargetPosition = RotMatrix.TransformPosition(Data.TargetPosition);
-		}
-	}
+	Data.TargetPosition = RotateVectorToInputRotation(Data.TargetPosition);
+	const auto InputRotation = FMath::Abs(FMath::Cos(GetInputRotation()));
+	const auto OriginalZ = Data.TargetPosition.Z;
+	const auto StepScale = ((InputRotation + 2.0f) / 3.0f);
+	Data.TargetPosition *= StepScale;
+	Data.TargetPosition.Z = OriginalZ;
+	Data.PlaybackSpeed = 1.0f / StepScale;
 	return Data;
+}
+
+float FDragonWalkLegDriver::GetInputRotation() const
+{
+	const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
+	if (!OwningActor) { return 0; }
+	
+	auto VelocityVector = OwningActor->GetCharacterMovement()->GetLastUpdateVelocity();
+	VelocityVector.Normalize();
+	if (VelocityVector.IsNearlyZero()) { return 0; }
+	
+	// Get normalized input vector in local space
+	const auto InputVector = OwningActor->GetActorRotation().UnrotateVector(VelocityVector).GetSafeNormal2D();
+
+	// Calculate the angle between input vector and forward vector directly
+	const float AngleRadians = FMath::Atan2(InputVector.Y, InputVector.X);
+
+	return AngleRadians;
+	// return FMath::RadiansToDegrees(AngleRadians);
+}
+
+FVector FDragonWalkLegDriver::RotateVectorToInputRotation(const FVector& VectorToRotate, const bool Inverted) const
+{
+	const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
+	if (!OwningActor) { return VectorToRotate; }
+	
+	auto VelocityVector = OwningActor->GetCharacterMovement()->GetLastUpdateVelocity();
+	VelocityVector.Normalize();
+	if (VelocityVector.IsNearlyZero()) { return VectorToRotate; }
+	
+	// Get normalized input vector in local space
+	const auto ActorRotation = OwningActor->GetActorRotation();
+	const auto InputVector = ActorRotation.UnrotateVector(VelocityVector).GetSafeNormal2D();
+
+	// Calculate the angle between input vector and forward vector directly
+	float AngleRadians = FMath::Atan2(InputVector.Y, InputVector.X);
+	if (Inverted)
+	{
+		AngleRadians = -AngleRadians;
+	}
+
+	// Create rotation matrix around Z axis using the angle
+	const FRotator Rotation(0, FMath::RadiansToDegrees(AngleRadians), 0);
+	const FRotationMatrix RotMatrix(Rotation);
+
+	// Apply rotation to target position
+	return RotMatrix.TransformPosition(VectorToRotate);
 }
 
 void FDragonWalkLegDriver::Tick(const float DeltaTime)
@@ -209,12 +241,13 @@ void FDragonWalkLegDriver::Tick(const float DeltaTime)
 	FProceduralLegDriver::Tick(AdvanceValue);
 	
 	// If the leg is stretched too far, disconnect
-	const auto ShouldDisconnect = FMath::Abs(Leg->Position.X) > 200.f || Leg->Position.Z < -150.0f || Leg->Position.Y > 600.0f || Leg->Position.Y < -300.0f
-		|| FUtils::GetRotatorDistance(Leg->Rotation) > 60.0f;
-	// if (WalkingState == ELegWalkingState::Planted && ShouldDisconnect)
-	// {
-	// 	SetWalkingState(ELegWalkingState::Raised, true);
-	// }
+	const auto LegReference = RotateVectorToInputRotation(Leg->Position, true);
+	const auto ShouldDisconnect = FMath::Abs(LegReference.X) > 200.f || LegReference.Z < -150.0f || LegReference.Y > 600.0f || LegReference.Y < -300.0f
+		|| FUtils::GetRotatorDistance(Leg->Rotation) > 50.0f;
+	if (WalkingState == ELegWalkingState::Planted && ShouldDisconnect)
+	{
+		SetWalkingState(ELegWalkingState::Raised, true);
+	}
 }
 
 FDragonWalkPose::FDragonWalkPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)

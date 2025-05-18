@@ -12,7 +12,7 @@ void FProceduralLegDriver::SetWalkingState(const ELegWalkingState NewState, cons
 	if (!KeepCycle)
 	{
 		CyclePosition = 0.0f;
-		CycleDuration = GetTargetPosition().StateDuration;
+		CycleDuration = GetTargetPosition().Duration;
 	}
 	PositionFrom = Leg->Position;
 	RotationFrom = Leg->Rotation;
@@ -64,9 +64,11 @@ FProceduralLegDriver::FProceduralLegDriver(UDragonAnimInstance* AnimInstance,
 
 void FProceduralLegDriver::Tick(const float DeltaTime)
 {
-	const auto Duration = GetTargetPosition().StateDuration;
-	CyclePosition = std::min(CycleDuration, CyclePosition + DeltaTime);
-	VisualCyclePosition = std::min(Duration, VisualCyclePosition + DeltaTime);
+	const auto StateData = GetTargetPosition();
+	const auto AdvanceTime = DeltaTime * StateData.PlaybackSpeed;
+	
+	CyclePosition = std::min(CycleDuration, CyclePosition + AdvanceTime);
+	VisualCyclePosition = std::min(StateData.Duration, VisualCyclePosition + AdvanceTime);
 
 	// Check if state machine needs to be advanced
 	if (CyclePosition >= CycleDuration)
@@ -81,7 +83,7 @@ void FProceduralLegDriver::Tick(const float DeltaTime)
 	}
 	else
 	{
-		RecalculatePose(DeltaTime);
+		RecalculatePose(AdvanceTime);
 	}
 }
 
@@ -89,7 +91,7 @@ void FProceduralLegDriver::RecalculatePose(const float DeltaTime)
 {
 	// Calculate the desired position of the current state
 	const auto Direction = GetTargetPosition();
-	auto Duration = Direction.StateDuration;
+	auto Duration = Direction.Duration;
 	if (FMath::Abs(Duration) < 0.001f)
 		Duration = 0.001f;
 	
@@ -122,7 +124,7 @@ void FProceduralLegDriver::SyncStateFrom(FProceduralLegDriver* TargetDriver)
 	LockedWorldRotation = TargetDriver->LockedWorldRotation;
 	DesiredPosition = TargetDriver->GetDesiredPosition();
 	DesiredRotation = TargetDriver->GetDesiredRotation();
-	CycleDuration = GetTargetPosition().StateDuration;
+	CycleDuration = GetTargetPosition().Duration;
 }
 
 FPoseEffector FProceduralLegDriver::ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context)
@@ -161,6 +163,6 @@ FDragonWalkStateData FProceduralLegDriver::GetTargetPosition() const
 {
 	return FDragonWalkStateData
 	{
-		.StateDuration = 0.5f
+		.Duration = 0.5f
 	};
 }

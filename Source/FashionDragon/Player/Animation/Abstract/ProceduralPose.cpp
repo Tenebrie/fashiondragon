@@ -1,5 +1,7 @@
 ﻿#include "ProceduralPose.h"
 
+#include "FashionDragon/Player/Animation/Structs/PoseWingEffector.h"
+
 FProceduralPose::FProceduralPose(UDragonAnimInstance* AnimInstance):
 	AnimInstance(AnimInstance)
 {}
@@ -13,6 +15,9 @@ void FProceduralPose::Tick(const float DeltaTime)
 	
 	for (const auto& LegDriver : LegDrivers)
 		LegDriver->Tick(DeltaTime);
+
+	for (const auto& WingDriver : WingDrivers)
+		WingDriver->Tick(DeltaTime);
 }
 
 FPoseEffector FProceduralPose::ToBodyEffector(const FPoseEffector& BaseEffector, const FControlledBone* Body, const float DeltaTime) const
@@ -56,6 +61,19 @@ FPoseEffector FProceduralPose::ToPostProcessLegEffector(const FPoseEffector& Bas
 		{
 			const auto Context = FPoseEffectorContext(DeltaTime, BlendAlpha);
 			return LegDriver->ToPostProcessEffector(BaseEffector, Context);
+		}
+	}
+	return BaseEffector;
+}
+
+FPoseWingEffector FProceduralPose::ToWingEffector(const FPoseWingEffector& BaseEffector, const FControlledWing* Wing, const float DeltaTime) const
+{
+	for (const auto& WingDriver : WingDrivers)
+	{
+		if (WingDriver && WingDriver->GetWing() == Wing)
+		{
+			const auto Context = FPoseEffectorContext(DeltaTime, BlendAlpha);
+			return WingDriver->ToEffector(BaseEffector, Context);
 		}
 	}
 	return BaseEffector;

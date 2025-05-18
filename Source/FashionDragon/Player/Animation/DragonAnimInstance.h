@@ -1,9 +1,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ControlledLeg.h"
+#include "Limbs/ControlledLeg.h"
 #include "DragonAnimStateMachine.h"
 #include "../MainCharacter.h"
+#include "Adapters/DragonWingPoseAdapter.h"
 #include "Animation/AnimInstance.h"
 #include "DragonAnimInstance.generated.h"
 
@@ -13,6 +14,7 @@ class FASHIONDRAGON_API UDragonAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 	
 	TArray<FControlledLeg*> ControlledLegs;
+	TArray<FControlledWing*> ControlledWings;
 
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaTime) override;
@@ -28,6 +30,10 @@ public:
 	FControlledBone* ControlledHips;
 	FControlledLeg* BackLeftLeg;
 	FControlledLeg* BackRightLeg;
+	FControlledWing* LeftWing;
+	FControlledWing* RightWing;
+
+	FDragonWingPoseAdapter* WingPoseAdapter;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
 	FRotator HipRotation;
@@ -37,10 +43,4 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
 	TArray<FRotator> LegRotations;
-	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
-	UCurveVector* BackLegMoveCurve;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
-	UCurveFloat* BackLegRotateCurve;
 };

@@ -1,9 +1,6 @@
 ﻿#include "DragonFootPlacementPose.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 
-#include "DragonIdlePose.h"
-#include "FashionDragon/DebugTools/QuickDebug.h"
-
 FDragonFootPlacementLegDriver::FDragonFootPlacementLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg)
 	: FProceduralLegDriver(AnimInstance, ControlledLeg)
 {

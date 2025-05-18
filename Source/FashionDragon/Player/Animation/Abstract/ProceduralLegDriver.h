@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "ProceduralBoneDriver.h"
-#include "FashionDragon/Player/Animation/ControlledLeg.h"
+#include "FashionDragon/Player/Animation/Limbs/ControlledLeg.h"
 
 struct FDragonWalkStateData
 {
@@ -18,8 +18,14 @@ struct FDragonWalkStateData
 	float AngularForce = 360.0f;
 	/**
 	 * Duration of the state in seconds.
+	 * Should not be modified dynamically.
 	 */
-	float StateDuration = 1.0f;
+	float Duration = 1.0f;
+
+	/**
+	 * Playback speed. Can be safely modified dynamically.
+	 */
+	mutable float PlaybackSpeed = 1.0f;
 
 	FVector StartArticulationPosition = FVector(0.0f, 0.0f, 0.0f);
 	FVector StartArticulationRotation = FVector(0.0f, 0.0f, 0.0f);

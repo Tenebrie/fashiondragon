@@ -1,5 +1,9 @@
 ﻿#pragma once
-#include "FashionDragon/Player/Animation/ControlledLeg.h"
+#include "FashionDragon/Player/Animation/Structs/PoseEffectorContext.h"
+
+class UDragonAnimInstance;
+
+#include "FashionDragon/Player/Animation/Limbs/ControlledBone.h"
 #include "FashionDragon/Player/Animation/Structs/PoseEffector.h"
 
 /**

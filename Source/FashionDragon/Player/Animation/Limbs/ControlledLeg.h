@@ -1,5 +1,6 @@
 ﻿#pragma once
-#include "Structs/PoseEffector.h"
+#include "ControlledBone.h"
+#include "../Structs/PoseEffector.h"
 
 class UDragonAnimInstance;
 
@@ -20,13 +21,6 @@ struct FPlantedPositionData
 	bool GroundHit;
 	FVector DeltaPosition;
 	FQuat DeltaRotation;
-};
-
-class FControlledBone
-{
-public:
-	FVector Position = FVector(0.0f, 0.0f, 0.0f);
-	FRotator Rotation = FRotator(0.0f, 0.0f, 0.0f);
 };
 
 class FControlledLeg : public FControlledBone

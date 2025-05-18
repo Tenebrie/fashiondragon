@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include <map>
 
-#include "Poses/DragonFootPlacementPose.h"
-#include "Poses/DragonIdlePose.h"
-#include "Poses/DragonJumpPose.h"
-#include "Poses/DragonTrotPose.h"
-#include "Poses/DragonWalkPose.h"
+#include "Poses/DragonFootPlacement/DragonFootPlacementPose.h"
+#include "Poses/DragonIdle/DragonIdlePose.h"
+#include "Poses/DragonJump/DragonJumpPose.h"
+#include "Poses/DragonTrot/DragonTrotPose.h"
+#include "Poses/DragonWalk/DragonWalkPose.h"
 
 class AMainCharacter;
 

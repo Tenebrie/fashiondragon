@@ -53,6 +53,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void AdvanceState() override;
 	virtual FDragonWalkStateData GetTargetPosition() const override;
+
+	float GetInputRotation() const;
+	FVector RotateVectorToInputRotation(const FVector& VectorToRotate, const bool Inverted = false) const;
 };
 
 /**

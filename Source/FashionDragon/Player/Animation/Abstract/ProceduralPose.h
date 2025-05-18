@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "ProceduralBoneDriver.h"
 #include "ProceduralLegDriver.h"
+#include "ProceduralWingDriver.h"
+#include "FashionDragon/Player/Animation/Structs/PoseWingEffector.h"
 
 class FProceduralBoneDriver;
 
@@ -12,6 +14,7 @@ protected:
 	FProceduralBoneDriver* BodyDriver = nullptr;
 	FProceduralBoneDriver* HipsDriver = nullptr;
 	TArray<FProceduralLegDriver*> LegDrivers;
+	TArray<FProceduralWingDriver*> WingDrivers;
 	
 public:
 	virtual ~FProceduralPose() = default;
@@ -25,4 +28,5 @@ public:
 	FPoseEffector ToHipsEffector(const FPoseEffector& BaseEffector, const FControlledBone* Hips, const float DeltaTime) const;
 	FPoseEffector ToLegEffector(const FPoseEffector& BaseEffector, const FControlledLeg* Leg, const float DeltaTime) const;
 	FPoseEffector ToPostProcessLegEffector(const FPoseEffector& BaseEffector, const FControlledLeg* Leg, const float DeltaTime) const;
+	FPoseWingEffector ToWingEffector(const FPoseWingEffector& BaseEffector, const FControlledWing* Wing, const float DeltaTime) const;
 };

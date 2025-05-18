@@ -2,12 +2,12 @@
 
 #include <string>
 
-#include "ControlledLeg.h"
-#include "FashionDragon/DebugTools/QuickDebug.h"
-#include "Poses/DragonIdlePose.h"
-#include "Poses/DragonTrotPose.h"
-#include "Poses/DragonWalkPose.h"
-#include "Poses/DragonJumpPose.h"
+#include "Adapters/DragonWingPoseAdapter.h"
+#include "Limbs/ControlledLeg.h"
+#include "Poses/DragonIdle/DragonIdlePose.h"
+#include "Poses/DragonTrot/DragonTrotPose.h"
+#include "Poses/DragonWalk/DragonWalkPose.h"
+#include "Poses/DragonJump/DragonJumpPose.h"
 
 /**
  * @brief Init
@@ -22,9 +22,11 @@ void UDragonAnimInstance::NativeInitializeAnimation()
 		LegPositions.Add(FVector(0.0f, 0.0f, 0.0f));
 		LegRotations.Add(FRotator(0.0f, 0.0f, 0.0f));
 	}
+	WingPoseAdapter = new FDragonWingPoseAdapter(this);
 
 	ControlledBody = new FControlledBone();
 	ControlledHips = new FControlledBone();
+	
 	ControlledLegs = TArray<FControlledLeg*>();
 	BackLeftLeg = new FControlledLeg(
 		this,
@@ -38,6 +40,13 @@ void UDragonAnimInstance::NativeInitializeAnimation()
 				1);
 	ControlledLegs.Add(BackLeftLeg);
 	ControlledLegs.Add(BackRightLeg);
+	
+	LeftWing = new FControlledWing(this, 0);
+	RightWing = new FControlledWing(this, 1);
+	ControlledWings = {
+		LeftWing,
+		RightWing
+	};
 
 	StateMachine = new FDragonAnimStateMachine(
 		new FDragonIdlePose(this),
@@ -104,6 +113,21 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 		LegRotations[i] = CumulativeEffector.Rotation;
 		Leg->VisualPosition = CumulativeEffector.Position;
 		Leg->VisualRotation = CumulativeEffector.Rotation;
+	}
+
+	// Apply wing drivers
+	for (int i = 0; i < ControlledWings.Num(); i++)
+	{
+		const auto Wing = ControlledWings[i];
+
+		auto CumulativeWingEffector = FPoseWingEffector(Wing->Flap, Wing->Openness);
+		for (const auto PoseDriver : StateMachine->PoseDrivers)
+			CumulativeWingEffector = PoseDriver->ToWingEffector(CumulativeWingEffector, ControlledWings[i], DeltaTime);
+
+		Wing->Flap = CumulativeWingEffector.Flap;
+		Wing->Openness = CumulativeWingEffector.Openness;
+
+		WingPoseAdapter->ApplyEffector(Wing, CumulativeWingEffector);
 	}
 }
 
