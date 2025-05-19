@@ -1,6 +1,8 @@
 ﻿#include "DragonWalkPose.h"
 
 #include <map>
+
+#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "FashionDragon/Utils/Utils.h"
@@ -20,18 +22,19 @@ void FDragonWalkBodyDriver::Tick(const float DeltaTime)
 	DesiredPosition = FVector(0.0f, 0.0f, VerticalOffset);
 
 	// Lerp current value to target value
-	// auto TargetLean = 10.0f + (LegState - 0.5f) * 5.f;
+	auto TargetLean = -5.0f + (LegState - 0.5f) * 5.f;
 
-	// const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
-	// if (OwningActor->IsSprinting)
-	// {
-		// TargetLean += 10.0f;
-	// }
+	const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
+	if (OwningActor->IsSprinting)
+	{
+		TargetLean += 10.0f;
+	}
 
-	// const auto Lean = FMath::Lerp(Bone->Rotation.Roll, TargetLean, DeltaTime);
+	const auto Lean = FMath::Lerp(Bone->Rotation.Roll, TargetLean, DeltaTime);
+	const auto Bank = FMath::Min(GetInputRotation(), 1.0f) * 10.0f;
 	
-	// DesiredRotation = FRotator(0.0f, 0.0f, Lean);
-	DesiredRotation = FRotator(0.0f, 0.0f, 0.0f);
+	DesiredRotation = FRotator(-Bank * 2, -Bank * 0.25, Lean);
+	// DesiredRotation = FRotator(0.0f, 0.0f, 0.0f);
 }
 
 void FDragonWalkBodyDriver::SyncStateFrom(const FDragonWalkBodyDriver* TargetDriver)

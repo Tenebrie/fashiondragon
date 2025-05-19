@@ -72,6 +72,7 @@ void FDragonIdlePose::Tick(const float DeltaTime)
  */
 void FDragonIdlePose::SyncStateFrom(const FDragonWalkPose* TargetPose) const
 {
+	BodyDriver->ResetState();
 	LeftLegDriver->SyncIdleStateFrom(TargetPose->LeftLegDriver);
 	RightLegDriver->SyncIdleStateFrom(TargetPose->RightLegDriver);
 }

@@ -8,4 +8,6 @@ public:
 		UDragonAnimInstance* AnimInstance,
 		FControlledBone* ControlledBone
 	): FProceduralBoneDriver(AnimInstance, ControlledBone) {}
+
+	virtual void Tick(float DeltaTime) override;
 };
