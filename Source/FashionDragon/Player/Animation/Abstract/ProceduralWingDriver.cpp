@@ -15,14 +15,15 @@ void FProceduralWingDriver::Tick(const float DeltaTime)
 	const auto State = GetTargetPosition();
 
 	const auto AdvanceValue = Inverted ? -DeltaTime : DeltaTime;
-	
+
+	CycleDuration = State.Duration;
 	CyclePosition = std::min(CycleDuration, CyclePosition + AdvanceValue);
 	VisualCyclePosition = std::min(State.Duration, VisualCyclePosition + AdvanceValue);
-	if (CyclePosition >= 1.0f)
+	if (CyclePosition >= State.Duration)
 	{
 		Inverted = true;
-		CyclePosition = 1.0f;
-		VisualCyclePosition = 1.0f;
+		CyclePosition = State.Duration;
+		VisualCyclePosition = State.Duration;
 	}
 	else if (CyclePosition <= 0.0f)
 	{

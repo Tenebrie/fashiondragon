@@ -73,19 +73,14 @@ void FDragonAnimStateMachine::Tick(const float DeltaTime, const AMainCharacter* 
 		OwningActor->GetLastMovementInputVector().Y,
 		0.0f
 	);
-	if (AnimationState != Jumping && OwningActor->IsChargingJump)
-	{
-		SetState(Jumping);
-		AnimationLockout = 0.5f;
-	}
-	else if (AnimationState == Jumping && OwningActor->IsChargingJump)
-	{
-		AnimationLockout = 0.5f;
-	}
+	// if (AnimationState == Jumping)
+	// {
+	// 	AnimationLockout = 0.5f;
+	// }
 
 	if (AnimationLockout <= 0.0f)
 	{
-		if (AnimationState == Jumping && !OwningActor->IsChargingJump && !OwningActor->GetCharacterMovement()->IsFalling())
+		if (AnimationState == Jumping && !OwningActor->GetCharacterMovement()->IsFalling())
 		{
 			SetState(Idle);
 		}

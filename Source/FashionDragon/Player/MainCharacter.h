@@ -18,8 +18,7 @@ public:
 	AMainCharacter();
 
 	bool IsSprinting;
-	bool IsChargingJump;
-	float JumpCharge = 0.0f;
+	bool IsFlapping = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* DragonMesh;

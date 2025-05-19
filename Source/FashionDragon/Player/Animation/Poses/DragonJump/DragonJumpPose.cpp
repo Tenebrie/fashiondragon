@@ -2,7 +2,6 @@
 
 #include <map>
 
-#include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 
 FDragonJumpLegDriver::FDragonJumpLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg)
@@ -12,27 +11,6 @@ FDragonJumpLegDriver::FDragonJumpLegDriver(UDragonAnimInstance* AnimInstance, FC
 
 void FDragonJumpLegDriver::Tick(float DeltaTime)
 {
-	const auto Player = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
-	if (Player->IsChargingJump && JumpingState == ELegJumpState::Charging)
-	{
-		DeltaTime = 0.f;
-		CyclePosition = Player->JumpCharge;
-		VisualCyclePosition = Player->JumpCharge;
-	}
-
-	if (!Player->IsChargingJump && JumpingState == ELegJumpState::Charging)
-	{
-		SetJumpState(ELegJumpState::Pushing);
-	}
-	if (JumpingState == ELegJumpState::Pushing)
-	{
-		DeltaTime *= 5.0f;
-	}
-	if (JumpingState == ELegJumpState::Retracting)
-	{
-		DeltaTime *= 3.0f;
-	}
-	
 	FProceduralLegDriver::Tick(DeltaTime);
 }
 
@@ -81,12 +59,14 @@ FDragonWalkStateData FDragonJumpLegDriver::GetRawWalkStateData() const
 			{
 				.TargetPosition = FVector(0.0f, 0.0f, -150.0f),
 				.TargetRotation = FRotator(0.0f, 0.0f, 30.0f),
+				.PlaybackSpeed = 5.0f,
 			}
 		},
 		{ ELegJumpState::Retracting,
 			{
 				.TargetPosition = FVector(0.0f, 0.0f, 150.0f),
 				.TargetRotation = FRotator(0.0f, 0.0f, 60.0f),
+				.PlaybackSpeed = 3.0f,
 			}
 		},
 		{ ELegJumpState::Landing,

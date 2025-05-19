@@ -82,6 +82,7 @@ void AMainCharacter::Tick(const float DeltaTime)
 
     const FRotator NewRot = FRotator(0.f, NewYaw, 0.f);
     MeshRoot->SetWorldRotation(NewRot);
+    IsFlapping = false;
 }
 
 // Called to bind functionality to input
@@ -101,7 +102,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
     Input->BindAction(UActions::Sprint, ETriggerEvent::Started, this, &AMainCharacter::StartSprint);
     Input->BindAction(UActions::Sprint, ETriggerEvent::Completed & ETriggerEvent::Canceled, this, &AMainCharacter::StopSprint);
     
-    Input->BindAction(UActions::CastASpell, ETriggerEvent::Started, this, &AMainCharacter::CastSomeSpell);
+    Input->BindAction(UActions::CastASpell, ETriggerEvent::Triggered, this, &AMainCharacter::CastSomeSpell);
 }
 
 void AMainCharacter::GroundMovement(const FInputActionValue& Value)
@@ -168,5 +169,5 @@ void AMainCharacter::StopSprint()
 
 void AMainCharacter::CastSomeSpell()
 {
-    
+    IsFlapping = true;
 }
