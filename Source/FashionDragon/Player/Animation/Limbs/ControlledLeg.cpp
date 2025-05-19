@@ -5,7 +5,7 @@
 FControlledLeg::FControlledLeg(UDragonAnimInstance* AnimInstance, const FName IKBoneName, const FVector& IKBoneOffset, const int Idx):
 	AnimInstance(AnimInstance), Idx(Idx), IKBoneName(IKBoneName), IKBoneOffset(IKBoneOffset)
 {
-	
+	MirrorScalar = Idx == 1 ? -1.0f : 1.0f;
 }
 
 /**

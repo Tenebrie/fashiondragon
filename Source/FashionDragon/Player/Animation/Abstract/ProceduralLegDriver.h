@@ -27,10 +27,10 @@ struct FDragonWalkStateData
 	 */
 	mutable float PlaybackSpeed = 1.0f;
 
-	FVector StartArticulationPosition = FVector(0.0f, 0.0f, 0.0f);
-	FVector StartArticulationRotation = FVector(0.0f, 0.0f, 0.0f);
-	FVector EndArticulationPosition = FVector(0.0f, 0.0f, 0.0f);
-	FVector EndArticulationRotation = FVector(0.0f, 0.0f, 0.0f);
+	mutable FVector StartArticulationPosition = FVector(0.0f, 0.0f, 0.0f);
+	mutable FVector StartArticulationRotation = FVector(0.0f, 0.0f, 0.0f);
+	mutable FVector EndArticulationPosition = FVector(0.0f, 0.0f, 0.0f);
+	mutable FVector EndArticulationRotation = FVector(0.0f, 0.0f, 0.0f);
 };
 
 /**
@@ -56,7 +56,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void RecalculatePose(const float DeltaTime);
 
-	bool LockWorldGroundPosition();
+	bool LockWorldGroundPosition(const bool KeepCycle = false);
 
 	/**
 	 * @brief Syncs the current state of the leg driver with another.

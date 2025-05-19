@@ -34,6 +34,7 @@ private:
 
 public:
 	FName IKBoneName;
+	float MirrorScalar;
 	FVector IKBoneOffset = FVector(0.0f, 0.0f, 0.0f);
 	FVector Position = FVector(0.0f, 0.0f, 0.0f);
 	FRotator Rotation = FRotator(0.0f, 0.0f, 0.0f);

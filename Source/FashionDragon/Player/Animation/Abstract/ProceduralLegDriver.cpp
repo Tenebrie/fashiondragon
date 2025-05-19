@@ -22,9 +22,9 @@ void FProceduralLegDriver::SetWalkingState(const ELegWalkingState NewState, cons
  * Attempts to find the ground directly under the leg and mark it as the locked position.
  * @return Whether ground is detected
  */
-bool FProceduralLegDriver::LockWorldGroundPosition()
+bool FProceduralLegDriver::LockWorldGroundPosition(const bool KeepCycle)
 {
-	SetWalkingState(ELegWalkingState::Planted);
+	SetWalkingState(ELegWalkingState::Planted, KeepCycle);
 	SetWalkingState(ELegWalkingState::SeekingGround, true);
 	
 	const auto Transform = AnimInstance->GetSkelMeshComponent()->GetAttachParent()->GetComponentTransform();
@@ -39,8 +39,8 @@ bool FProceduralLegDriver::LockWorldGroundPosition()
 		return false;
 	}
 
-	if (PlantedPosition.DeltaPosition.Size() > 5.0f)
-		SetWalkingState(ELegWalkingState::SeekingGround, true);
+	// if (PlantedPosition.DeltaPosition.Size() > 5.0f)
+		// SetWalkingState(ELegWalkingState::SeekingGround, true);
 	
 	LockedWorldPosition = Transform.TransformPosition(Leg->Position + PlantedPosition.DeltaPosition);
 	LockedWorldRotation = Transform.TransformRotation(LockedRotation.Quaternion()).Rotator();
@@ -52,9 +52,6 @@ void FProceduralLegDriver::SnapToLockedPosition()
 	const auto Transform = AnimInstance->GetSkelMeshComponent()->GetAttachParent()->GetComponentTransform().Inverse();
 	DesiredPosition = Transform.TransformPosition(LockedWorldPosition);
 	DesiredRotation = Transform.TransformRotation(FQuat(LockedWorldRotation)).Rotator();
-
-	if (const auto GroundData = Leg->GetPlantedWorldPosition(5.0f); GroundData.GroundHit)
-		SetWalkingState(ELegWalkingState::Planted, true);
 }
 
 FProceduralLegDriver::FProceduralLegDriver(UDragonAnimInstance* AnimInstance,
@@ -76,8 +73,15 @@ void FProceduralLegDriver::Tick(const float DeltaTime)
 		CyclePosition = CycleDuration;
 		AdvanceState();
 	}
+
+	const auto GroundData = Leg->GetPlantedWorldPosition(1.0f);
+	if (WalkingState == ELegWalkingState::SeekingGround && GroundData.GroundHit)
+	{
+		LockWorldGroundPosition(true);
+		SetWalkingState(ELegWalkingState::Planted, true);
+	}
 	
-	if (WalkingState == ELegWalkingState::Planted || WalkingState == ELegWalkingState::SeekingGround)
+	if (WalkingState == ELegWalkingState::Planted)
 	{
 		SnapToLockedPosition();
 	}
@@ -94,20 +98,29 @@ void FProceduralLegDriver::RecalculatePose(const float DeltaTime)
 	auto Duration = Direction.Duration;
 	if (FMath::Abs(Duration) < 0.001f)
 		Duration = 0.001f;
+
+	auto TargetPosition = Direction.TargetPosition;
+	auto TargetRotation = Direction.TargetRotation;
+	if (WalkingState == ELegWalkingState::SeekingGround)
+	{
+		const auto Transform = AnimInstance->GetSkelMeshComponent()->GetAttachParent()->GetComponentTransform().Inverse();
+		TargetPosition = Transform.TransformPosition(LockedWorldPosition);
+		TargetRotation = Transform.TransformRotation(FQuat(LockedWorldRotation)).Rotator();
+	}
 	
 	const auto PositionCurve = UE::CubicBezier::Eval(
 			PositionFrom,
 			PositionFrom + Direction.StartArticulationPosition,
-			Direction.TargetPosition + Direction.EndArticulationPosition,
-			Direction.TargetPosition,
+			TargetPosition + Direction.EndArticulationPosition,
+			TargetPosition,
 			VisualCyclePosition / Duration
 		);
 	
 	const auto RotationCurve = UE::CubicBezier::Eval(
 		FVector(RotationFrom.Pitch, RotationFrom.Yaw, RotationFrom.Roll),
 		FVector(RotationFrom.Pitch, RotationFrom.Yaw, RotationFrom.Roll) + Direction.StartArticulationRotation,
-		FVector(Direction.TargetRotation.Pitch, Direction.TargetRotation.Yaw, Direction.TargetRotation.Roll) + Direction.EndArticulationRotation,
-		FVector(Direction.TargetRotation.Pitch, Direction.TargetRotation.Yaw, Direction.TargetRotation.Roll),
+		FVector(TargetRotation.Pitch, TargetRotation.Yaw, TargetRotation.Roll) + Direction.EndArticulationRotation,
+		FVector(TargetRotation.Pitch, TargetRotation.Yaw, TargetRotation.Roll),
 		VisualCyclePosition / Duration
 	);
 

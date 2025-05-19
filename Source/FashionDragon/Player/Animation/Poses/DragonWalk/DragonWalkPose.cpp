@@ -98,6 +98,7 @@ void FDragonWalkLegDriver::AdvanceState()
 		SetWalkingState(ELegWalkingState::Stepping);
 		break;
 	case ELegWalkingState::Planted:
+	case ELegWalkingState::SeekingGround:
 		SetWalkingState(ELegWalkingState::Stepping);
 		break;
 	case ELegWalkingState::Stepping:
@@ -125,18 +126,18 @@ FDragonWalkStateData FDragonWalkLegDriver::GetTargetPosition() const
 			{
 				.TargetPosition = FVector(0.0f, 0.0f, 150.0f),
 				.TargetRotation = FRotator(0.0f, 0.0f, 60.0f),
-				.LinearForce = 2500.f,
-				.AngularForce = 720.0f,
-				.Duration = 1.0f
+				.LinearForce = 700.f,
+				.AngularForce = 30.0f,
+				.Duration = 0.3f
 			}
 		},
 		{ ELegWalkingState::SeekingGround,
 			{
 				.TargetPosition = FVector(0.0f, 0.0f, 0.0f),
 				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
-				.LinearForce = 500.f,
+				.LinearForce = 5000.f,
 				.AngularForce = 10.0f,
-				.Duration = 0.2f
+				.Duration = 0.3f
 			}
 		},
 		{ ELegWalkingState::Planted,
@@ -150,14 +151,14 @@ FDragonWalkStateData FDragonWalkLegDriver::GetTargetPosition() const
 		},
 		{ ELegWalkingState::Stepping,
 			{
-				.TargetPosition = FVector(0.0f, 300.0f, 0.0f),
-				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
+				.TargetPosition = FVector(-20.0f, 300.0f, 0.0f),
+				.TargetRotation = FRotator(0.0f, 15.0f, 0.0f),
 				.LinearForce = 25000.f,
 				.AngularForce = 360.0f,
 				.Duration = 0.7f,
-				.StartArticulationPosition = FVector(0.0f, 0.0f, 150.0f),
+				.StartArticulationPosition = FVector(15.0f, 0.0f, 150.0f),
 				.StartArticulationRotation = FVector(0.0f, 0.0f, 60.0f),
-				.EndArticulationPosition = FVector(0.0f, 0.0f, 30.0f),
+				.EndArticulationPosition = FVector(15.0f, 0.0f, 30.0f),
 				.EndArticulationRotation = FVector(0.0f, 0.0f, 10.0f),
 			}
 		},
@@ -173,13 +174,27 @@ FDragonWalkStateData FDragonWalkLegDriver::GetTargetPosition() const
 	};
 	
 	const auto Data = FDragonWalkStateData(AnimData.at(WalkingState));
+	Data.TargetPosition = FVector(Data.TargetPosition.X * Leg->MirrorScalar, Data.TargetPosition.Y, Data.TargetPosition.Z);
+	Data.TargetRotation.Yaw *= Leg->MirrorScalar;
+	Data.StartArticulationPosition.X *= Leg->MirrorScalar;
+	Data.EndArticulationPosition.X *= Leg->MirrorScalar;
+	
 	Data.TargetPosition = RotateVectorToInputRotation(Data.TargetPosition);
+	
 	const auto InputRotation = FMath::Abs(FMath::Cos(GetInputRotation()));
 	const auto OriginalZ = Data.TargetPosition.Z;
 	const auto StepScale = ((InputRotation + 2.0f) / 3.0f);
 	Data.TargetPosition *= StepScale;
 	Data.TargetPosition.Z = OriginalZ;
 	Data.PlaybackSpeed = 1.0f / StepScale;
+
+	if (WalkingState == ELegWalkingState::Stepping)
+	{
+		const auto Planted = Leg->GetPlantedWorldPosition(Data.TargetPosition, Data.TargetRotation, 250.0f);
+		if (Planted.GroundHit)
+			Data.TargetPosition += Planted.DeltaPosition;
+	}
+	
 	return Data;
 }
 
