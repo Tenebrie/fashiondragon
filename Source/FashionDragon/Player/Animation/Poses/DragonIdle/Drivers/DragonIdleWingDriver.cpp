@@ -4,7 +4,7 @@ FDragonWingStateData FDragonIdleWingDriver::GetTargetPosition() const
 {
 	return FDragonWingStateData
 	{
-		.Flap = CyclePosition * 2.0f - 1.0f,
+		.Flap = 0.0f,
 		.Openness = 0.0f,
 		.Duration = 1.0f,
 	};
