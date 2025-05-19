@@ -35,27 +35,27 @@ private:
 public:
 	FName IKBoneName;
 	float MirrorScalar;
-	FVector IKBoneOffset = FVector(0.0f, 0.0f, 0.0f);
-	FVector Position = FVector(0.0f, 0.0f, 0.0f);
-	FRotator Rotation = FRotator(0.0f, 0.0f, 0.0f);
-	FVector VisualPosition = FVector(0.0f, 0.0f, 0.0f);
-	FRotator VisualRotation = FRotator(0.0f, 0.0f, 0.0f);
+	FVector IKBoneOffset = FVector::ZeroVector;
+	FVector Position = FVector::ZeroVector;
+	FRotator Rotation = FRotator::ZeroRotator;
+	FVector VisualPosition = FVector::ZeroVector;
+	FRotator VisualRotation = FRotator::ZeroRotator;
 
 	FVector GetWorldPosition(const FVector& FromPosition) const;
 	FVector GetWorldPosition() const { return GetWorldPosition(Position); }
 	FVector GetWorldPosition(const FPoseEffector& FromEffector) const { return GetWorldPosition(FromEffector.Position); }
 	
 	FQuat GetWorldRotation(const FQuat& FromRotation) const;
-	FQuat GetWorldRotation() const { return GetWorldRotation(Rotation.Quaternion()); };
+	FQuat GetWorldRotation() const { return GetWorldRotation(Rotation.Quaternion()); }
 	FQuat GetWorldRotation(const FPoseEffector& FromEffector) const { return GetWorldRotation(FromEffector.Rotation.Quaternion()); }
 
 	FPlantedPositionData GetPlantedWorldPosition(const FVector& AtPosition, const FRotator& AtRotation, const float SweepDown = 0.00f) const;
 	FPlantedPositionData GetPlantedWorldPosition(const float SweepDown = 0.00f) const
 	{
 		return GetPlantedWorldPosition(Position, Rotation, SweepDown);
-	};
+	}
 	FPlantedPositionData GetPlantedWorldPosition(const FPoseEffector& Effector, const float SweepDown = 0.00f) const
 	{
 		return GetPlantedWorldPosition(Effector.Position, Effector.Rotation, SweepDown);
-	};
+	}
 };

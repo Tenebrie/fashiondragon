@@ -1,4 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
+// ReSharper disable CppMemberFunctionMayBeStatic
 #include "MainCharacter.h"
 
 #include "Animation/DragonAnimInstance.h"
@@ -11,13 +12,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "PhysicsEngine/PhysicalAnimationComponent.h"
 #include "EnhancedInputComponent.h"
-#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "Input/Actions.h"
-
-#include <iostream>
-#include <vector>
-#include <string>
-#include <chrono>
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -25,9 +20,12 @@ AMainCharacter::AMainCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	GetCapsuleComponent()->InitCapsuleSize(50.f, 50.0f);
+
+    DetachedMeshRoot = CreateDefaultSubobject<USceneComponent>(TEXT("RotationRoot"));
+    DetachedMeshRoot->SetupAttachment(GetCapsuleComponent());
     
     MeshRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DragonMeshRoot"));
-    MeshRoot->SetupAttachment(GetCapsuleComponent());
+    MeshRoot->SetupAttachment(DetachedMeshRoot);
     MeshRoot->SetRelativeLocation(FVector(0.f, 0.f, 85.f));
 
     DragonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("DragonMesh"));
@@ -37,6 +35,7 @@ AMainCharacter::AMainCharacter()
 
     PhysicalAnimation = CreateDefaultSubobject<UPhysicalAnimationComponent>(TEXT("PhysicalAnimationComponent"));
     PhysicalAnimation->SetSkeletalMeshComponent(DragonMesh);
+    DetachedMeshRoot->SetUsingAbsoluteRotation(true);
 }
 
 void AMainCharacter::PostInitializeComponents()
@@ -63,6 +62,7 @@ void AMainCharacter::BeginPlay()
     GetCharacterMovement()->MaxWalkSpeed = 800.f;
     GetCharacterMovement()->MaxAcceleration = 1000.f;
     GetCharacterMovement()->BrakingDecelerationWalking = 1000.f;
+    MeshRoot->SetUsingAbsoluteRotation(true);
 }
 
 // Called every frame
@@ -70,6 +70,18 @@ void AMainCharacter::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+    const auto SpringArmComponent = FindComponentByClass<USpringArmComponent>();
+    if (!Controller || !SpringArmComponent) { return; }
+
+    // TODO: Detach mesh movement from camera movement
+    const FRotator CameraRotation = SpringArmComponent->GetComponentRotation();
+    const FRotator TargetRotation = FRotator(0.f, CameraRotation.Yaw - 90, 0.f);
+    const float CurrentYaw = MeshRoot->GetComponentRotation().Yaw;
+    const float TargetYaw = TargetRotation.Yaw;
+    const float NewYaw = FMath::FixedTurn(CurrentYaw, TargetYaw, DeltaTime * 5000.0f);
+
+    const FRotator NewRot = FRotator(0.f, NewYaw, 0.f);
+    MeshRoot->SetWorldRotation(NewRot);
 }
 
 // Called to bind functionality to input
@@ -156,5 +168,5 @@ void AMainCharacter::StopSprint()
 
 void AMainCharacter::CastSomeSpell()
 {
-    Debug::Print("We are casting a speeeeeell~");
+    
 }

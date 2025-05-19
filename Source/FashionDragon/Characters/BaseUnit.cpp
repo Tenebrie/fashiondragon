@@ -72,7 +72,7 @@ void ABaseUnit::Tick(const float DeltaTime)
 		if (CurrentPathIndex < PathPoints.Num())
 		{
 			// Get current target point
-			FVector TargetPoint = PathPoints[CurrentPathIndex];
+			const FVector TargetPoint = PathPoints[CurrentPathIndex];
 			FVector Direction = TargetPoint - GetActorLocation();
 			// Direction.Z = 0; // Keep movement on the XY plane
             
@@ -87,7 +87,6 @@ void ABaseUnit::Tick(const float DeltaTime)
 				if (CurrentPathIndex >= PathPoints.Num())
 				{
 					bIsFollowingPath = false;
-					return;
 				}
 			}
 			else

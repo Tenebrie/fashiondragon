@@ -1,18 +1,15 @@
 ﻿#include "DragonWalkPose.h"
 
 #include <map>
-
-#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "FashionDragon/Utils/Utils.h"
-#include "GameFramework/CharacterMovementComponent.h"
 
 // ============================================================================
 // Body Driver
 // ============================================================================
 
-void FDragonWalkBodyDriver::Tick(float DeltaTime)
+void FDragonWalkBodyDriver::Tick(const float DeltaTime)
 {
 	const auto LeftLegOffset = std::min(1.0, LeftLeg->Position.Size() / 750.0f);
 	const auto RightLegOffset = std::min(1.0, RightLeg->Position.Size() / 750.0f);
@@ -23,17 +20,17 @@ void FDragonWalkBodyDriver::Tick(float DeltaTime)
 	DesiredPosition = FVector(0.0f, 0.0f, VerticalOffset);
 
 	// Lerp current value to target value
-	auto TargetLean = 10.0f + (LegState - 0.5f) * 5.f;
+	// auto TargetLean = 10.0f + (LegState - 0.5f) * 5.f;
 
-	const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
-	if (OwningActor->IsSprinting)
-	{
-		TargetLean += 10.0f;
-	}
+	// const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
+	// if (OwningActor->IsSprinting)
+	// {
+		// TargetLean += 10.0f;
+	// }
 
-	const auto Lean = FMath::Lerp(Bone->Rotation.Roll, TargetLean, DeltaTime);
+	// const auto Lean = FMath::Lerp(Bone->Rotation.Roll, TargetLean, DeltaTime);
 	
-	// Rotation = FRotator(0.0f, 0.0f, Lean);
+	// DesiredRotation = FRotator(0.0f, 0.0f, Lean);
 	DesiredRotation = FRotator(0.0f, 0.0f, 0.0f);
 }
 
@@ -61,10 +58,11 @@ void FDragonWalkHipSwayDriver::Tick(const float DeltaTime)
 
 	// TODO: Calculate the sway value based on the position of each leg.
 	// Specifically, a leg that's in Planted state contributes negative weight, while a leg in Stepping state is positive.
-	const auto LeftLegOffset = std::min(1.0, LeftLeg->Position.Size() / 750.0f);
-	const auto RightLegOffset = std::min(1.0, RightLeg->Position.Size() / 750.0f);
+	const auto LeftLegOffset = std::min(1.0, LeftLeg->Position.Y / 750.0f);
+	const auto RightLegOffset = -std::min(1.0, RightLeg->Position.Y / 750.0f);
+	const auto Value = LeftLegOffset + RightLegOffset;
 
-	const auto Sway = FMath::Sin((-CyclePosition + 0.5) * PI) * 10.0f;
+	const auto Sway = FMath::Sin(Value * PI) * 12.0f;
 	
 	DesiredRotation = FRotator(0.0f, Sway, 0.0f);
 }
@@ -102,14 +100,14 @@ void FDragonWalkLegDriver::AdvanceState()
 		SetWalkingState(ELegWalkingState::Stepping);
 		break;
 	case ELegWalkingState::Stepping:
-		LockWorldGroundPosition();
+		LockToWorldGround();
 		break;
 	default:
 		break;
 	}
 }
 
-FDragonWalkStateData FDragonWalkLegDriver::GetTargetPosition() const
+FDragonWalkStateData FDragonWalkLegDriver::GetRawWalkStateData() const
 {
 	const std::map<ELegWalkingState, FDragonWalkStateData> AnimData =
 	{
@@ -173,76 +171,7 @@ FDragonWalkStateData FDragonWalkLegDriver::GetTargetPosition() const
 		},
 	};
 	
-	const auto Data = FDragonWalkStateData(AnimData.at(WalkingState));
-	Data.TargetPosition = FVector(Data.TargetPosition.X * Leg->MirrorScalar, Data.TargetPosition.Y, Data.TargetPosition.Z);
-	Data.TargetRotation.Yaw *= Leg->MirrorScalar;
-	Data.StartArticulationPosition.X *= Leg->MirrorScalar;
-	Data.EndArticulationPosition.X *= Leg->MirrorScalar;
-	
-	Data.TargetPosition = RotateVectorToInputRotation(Data.TargetPosition);
-	
-	const auto InputRotation = FMath::Abs(FMath::Cos(GetInputRotation()));
-	const auto OriginalZ = Data.TargetPosition.Z;
-	const auto StepScale = ((InputRotation + 2.0f) / 3.0f);
-	Data.TargetPosition *= StepScale;
-	Data.TargetPosition.Z = OriginalZ;
-	Data.PlaybackSpeed = 1.0f / StepScale;
-
-	if (WalkingState == ELegWalkingState::Stepping)
-	{
-		const auto Planted = Leg->GetPlantedWorldPosition(Data.TargetPosition, Data.TargetRotation, 250.0f);
-		if (Planted.GroundHit)
-			Data.TargetPosition += Planted.DeltaPosition;
-	}
-	
-	return Data;
-}
-
-float FDragonWalkLegDriver::GetInputRotation() const
-{
-	const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
-	if (!OwningActor) { return 0; }
-	
-	auto VelocityVector = OwningActor->GetCharacterMovement()->GetLastUpdateVelocity();
-	VelocityVector.Normalize();
-	if (VelocityVector.IsNearlyZero()) { return 0; }
-	
-	// Get normalized input vector in local space
-	const auto InputVector = OwningActor->GetActorRotation().UnrotateVector(VelocityVector).GetSafeNormal2D();
-
-	// Calculate the angle between input vector and forward vector directly
-	const float AngleRadians = FMath::Atan2(InputVector.Y, InputVector.X);
-
-	return AngleRadians;
-	// return FMath::RadiansToDegrees(AngleRadians);
-}
-
-FVector FDragonWalkLegDriver::RotateVectorToInputRotation(const FVector& VectorToRotate, const bool Inverted) const
-{
-	const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
-	if (!OwningActor) { return VectorToRotate; }
-	
-	auto VelocityVector = OwningActor->GetCharacterMovement()->GetLastUpdateVelocity();
-	VelocityVector.Normalize();
-	if (VelocityVector.IsNearlyZero()) { return VectorToRotate; }
-	
-	// Get normalized input vector in local space
-	const auto ActorRotation = OwningActor->GetActorRotation();
-	const auto InputVector = ActorRotation.UnrotateVector(VelocityVector).GetSafeNormal2D();
-
-	// Calculate the angle between input vector and forward vector directly
-	float AngleRadians = FMath::Atan2(InputVector.Y, InputVector.X);
-	if (Inverted)
-	{
-		AngleRadians = -AngleRadians;
-	}
-
-	// Create rotation matrix around Z axis using the angle
-	const FRotator Rotation(0, FMath::RadiansToDegrees(AngleRadians), 0);
-	const FRotationMatrix RotMatrix(Rotation);
-
-	// Apply rotation to target position
-	return RotMatrix.TransformPosition(VectorToRotate);
+	return AnimData.at(WalkingState);
 }
 
 void FDragonWalkLegDriver::Tick(const float DeltaTime)
@@ -297,7 +226,7 @@ void FDragonWalkPose::ResetState()
 	const auto PushingLeg = SwitchStartingLeg ? RightLegDriver : LeftLegDriver;
 	const auto SteppingLeg = SwitchStartingLeg ? LeftLegDriver : RightLegDriver;
 
-	PushingLeg->LockWorldGroundPosition();
+	PushingLeg->LockToWorldGround();
 	SteppingLeg->SetWalkingState(ELegWalkingState::Stepping);
 
 	SwitchStartingLeg = !SwitchStartingLeg;

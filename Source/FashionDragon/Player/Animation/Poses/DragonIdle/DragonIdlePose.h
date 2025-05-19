@@ -1,8 +1,8 @@
 ﻿#pragma once
-#include "BodyDriver/DragonIdleBodyDriver.h"
+#include "Drivers/DragonIdleBodyDriver.h"
 #include "FashionDragon/Player/Animation/Abstract/ProceduralPose.h"
-#include "LegDriver/DragonIdleLegDriver.h"
-#include "WingDriver/DragonIdleWingDriver.h"
+#include "Drivers/DragonIdleLegDriver.h"
+#include "Drivers/DragonIdleWingDriver.h"
 
 class FDragonWalkPose;
 

@@ -67,7 +67,7 @@ void FDragonJumpLegDriver::AdvanceState()
 // 	return LegStateToPosition.at(JumpingState);
 // }
 
-FDragonWalkStateData FDragonJumpLegDriver::GetTargetPosition() const
+FDragonWalkStateData FDragonJumpLegDriver::GetRawWalkStateData() const
 {
 	const std::map<ELegJumpState, FDragonWalkStateData> AnimData =
 	{

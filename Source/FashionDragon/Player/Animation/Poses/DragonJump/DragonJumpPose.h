@@ -21,7 +21,7 @@ public:
 	
 	virtual void AdvanceState() override;
 
-	virtual FDragonWalkStateData GetTargetPosition() const override;
+	virtual FDragonWalkStateData GetRawWalkStateData() const override;
 
 	ELegJumpState JumpingState = ELegJumpState::Charging;
 	void SetJumpState(ELegJumpState NewJumpState);

@@ -7,35 +7,35 @@ void FDragonAnimStateMachine::InitTransitions()
 {
 	Transitions = {
 		{ Idle, {
-			{ Walking, [this]()
+			{ Walking, [this]
 			{
 				WalkPoseDriver->ResetState();
 				WalkPoseDriver->BlendAlpha = 1.0f;
 			}},
-			{ Running, [this]()
+			{ Running, [this]
 			{
 				TrotPoseDriver->ResetState();
 				TrotPoseDriver->BlendAlpha = 1.0f;
 			}},
-			{ Jumping, [this]()
+			{ Jumping, [this]
 			{
 				JumpPoseDriver->ResetState();
 				// JumpPoseDriver->BlendAlpha = 1.0f;
 			}},
 		}},
 		{ Jumping, {
-			{ Idle, [this]()
+			{ Idle, [this]
 			{
 				WalkPoseDriver->ResetState();
 				JumpPoseDriver->BlendAlpha = 0.0f;
 			}},
-			{ Walking, [this]()
+			{ Walking, [this]
 			{
 				WalkPoseDriver->ResetState();
 				JumpPoseDriver->BlendAlpha = 0.0f;
 				WalkPoseDriver->BlendAlpha = 1.0f;
 			}},
-			{ Running, [this]()
+			{ Running, [this]
 			{
 				TrotPoseDriver->ResetState();
 				JumpPoseDriver->BlendAlpha = 0.0f;
@@ -43,17 +43,17 @@ void FDragonAnimStateMachine::InitTransitions()
 			}},
 		}},
 		{ Walking, {
-			{ Idle, [this]() { IdlePoseDriver->SyncStateFrom(WalkPoseDriver); } },
-			{ Running, [this]() { TrotPoseDriver->SyncStateFrom(WalkPoseDriver); } },
-			{ Jumping, [this]()
+			{ Idle, [this] { IdlePoseDriver->SyncStateFrom(WalkPoseDriver); } },
+			{ Running, [this] { TrotPoseDriver->SyncStateFrom(WalkPoseDriver); } },
+			{ Jumping, [this]
 			{
 				JumpPoseDriver->ResetState();
 				JumpPoseDriver->BlendAlpha = 1.0f;
 			} },
 		}},
 		{ Running, {
-			{ Walking, [this]() { WalkPoseDriver->SyncStateFrom(TrotPoseDriver); } },
-			{ Jumping, [this]()
+			{ Walking, [this] { WalkPoseDriver->SyncStateFrom(TrotPoseDriver); } },
+			{ Jumping, [this]
 			{
 				JumpPoseDriver->ResetState();
 				JumpPoseDriver->BlendAlpha = 1.0f;
@@ -73,12 +73,12 @@ void FDragonAnimStateMachine::Tick(const float DeltaTime, const AMainCharacter* 
 		OwningActor->GetLastMovementInputVector().Y,
 		0.0f
 	);
-	if (AnimationState != Jumping && (OwningActor->IsChargingJump))
+	if (AnimationState != Jumping && OwningActor->IsChargingJump)
 	{
 		SetState(Jumping);
 		AnimationLockout = 0.5f;
 	}
-	else if (AnimationState == Jumping && (OwningActor->IsChargingJump))
+	else if (AnimationState == Jumping && OwningActor->IsChargingJump)
 	{
 		AnimationLockout = 0.5f;
 	}

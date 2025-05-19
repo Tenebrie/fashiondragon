@@ -42,27 +42,14 @@ void FDragonTrotLegDriver::AdvanceState()
 		SetWalkingState(ELegWalkingState::Stepping);
 		break;
 	case ELegWalkingState::Planted:
+	case ELegWalkingState::SeekingGround:
 		SetWalkingState(ELegWalkingState::Stepping);
 		break;
 	case ELegWalkingState::Stepping:
-		LockWorldGroundPosition();
+		LockToWorldGround();
 		break;
 	}
 }
-
-// std::pair<FVector, FRotator> FDragonTrotLegDriver::GetTargetPosition() const
-// {
-// 	const std::map<ELegWalkingState, std::pair<FVector, FRotator>> LegStateToPosition =
-// 	{
-// 		{ ELegWalkingState::Relaxed, LEG_POSE((0.0f, 0.0f, 0.0f), (0.0f, 0.0f, 0.0f)) },
-// 		{ ELegWalkingState::Raised, LEG_POSE((0.0f, 0.0f, 150.0f), (0.0f, 0.0f, 60.0f)) },
-// 		{ ELegWalkingState::Planted, LEG_POSE((0.0f, -350.0f, 0.0f), (0.0f, 0.0f, 0.0f)) },
-// 		{ ELegWalkingState::Stepping, LEG_POSE((0.0f, 550.0f, 0.0f), (0.0f, 0.0f, 0.0f)) },
-// 		{ ELegWalkingState::Inertia, LEG_POSE((0.0f, -450.0f, 200.0f), (0.0f, 0.0f, 60.0f)) },
-// 	};
-//
-// 	return LegStateToPosition.at(WalkingState);
-// }
 
 FDragonTrotPose::FDragonTrotPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
@@ -92,6 +79,6 @@ void FDragonTrotPose::ResetState()
 {
 	BodyDriver->ResetState();
 	HipsDriver->ResetState();
-	LeftLegDriver->LockWorldGroundPosition();
+	LeftLegDriver->LockToWorldGround();
 	RightLegDriver->SetWalkingState(ELegWalkingState::Stepping);
 }

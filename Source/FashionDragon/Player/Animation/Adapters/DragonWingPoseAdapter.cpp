@@ -1,7 +1,7 @@
 ﻿#include "DragonWingPoseAdapter.h"
 
-#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
+#include "PhysicsEngine/ConstraintInstance.h"
 
 TPair<FVector, FRotator>* FDragonWingPoseAdapter::GetNeutralPose(const int Idx, const float MirrorValue)
 {

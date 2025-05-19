@@ -4,31 +4,7 @@
 #include "FashionDragon/Player/Animation/Poses/DragonWalk/DragonWalkPose.h"
 #include "FashionDragon/Utils/Utils.h"
 
-FDragonIdleLegDriver::FDragonIdleLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg): FProceduralLegDriver(AnimInstance, ControlledLeg)
-{}
-
-void FDragonIdleLegDriver::Tick(const float DeltaTime)
-{
-	FProceduralLegDriver::Tick(DeltaTime);
-	if (IdleState == ELegIdleState::Relaxed)
-	{
-		LockWorldGroundPosition();
-		SetIdleState(ELegIdleState::Planted);
-	}
-	if (IdleState == ELegIdleState::ArticulatedReturn && Leg->Position.Size() < 5.f)
-	{
-		LockWorldGroundPosition();
-		SetIdleState(ELegIdleState::Planted);
-	}
-
-	const auto ShouldLeftDisconnect = Leg->Position.Size() > 150.0f || FUtils::GetRotatorDistance(Leg->Rotation) > 50.0f;
-	if (IdleState != ELegIdleState::ArticulatedReturn && IdleState == ELegIdleState::Planted && ShouldLeftDisconnect)
-	{
-		SetIdleState(ELegIdleState::ArticulatedReturn);
-	}
-}
-
-FDragonWalkStateData FDragonIdleLegDriver::GetTargetPosition() const
+FDragonWalkStateData FDragonIdleLegDriver::GetRawWalkStateData() const
 {
 	if (IdleState == ELegIdleState::ArticulatedReturn) { return ArticulatedReturnData; }
 	
@@ -41,16 +17,25 @@ FDragonWalkStateData FDragonIdleLegDriver::GetTargetPosition() const
 	};
 }
 
-void FDragonIdleLegDriver::SyncIdleStateFrom(const FDragonWalkLegDriver* TargetDriver)
+void FDragonIdleLegDriver::Tick(const float DeltaTime)
 {
-	ResetState();
-	if (TargetDriver->WalkingState == ELegWalkingState::Planted)
+	FProceduralLegDriver::Tick(DeltaTime);
+	if (IdleState == ELegIdleState::Relaxed)
 	{
-		LockWorldGroundPosition();
-		SetIdleState(ELegIdleState::NeedsReturn);
+		LockToWorldGround();
+		SetIdleState(ELegIdleState::Planted);
 	}
-	else
+	if (IdleState == ELegIdleState::ArticulatedReturn && Leg->Position.Size() < 5.f)
+	{
+		LockToWorldGround();
+		SetIdleState(ELegIdleState::Planted);
+	}
+
+	const auto ShouldLeftDisconnect = Leg->Position.Size() > 150.0f || FUtils::GetRotatorDistance(Leg->Rotation) > 50.0f;
+	if (IdleState != ELegIdleState::ArticulatedReturn && IdleState == ELegIdleState::Planted && ShouldLeftDisconnect)
+	{
 		SetIdleState(ELegIdleState::ArticulatedReturn);
+	}
 }
 
 void FDragonIdleLegDriver::SetIdleState(const ELegIdleState NewState, const bool SkipBroadcast)
@@ -66,7 +51,7 @@ void FDragonIdleLegDriver::SetIdleState(const ELegIdleState NewState, const bool
 		constexpr float Duration = 0.5f;
 
 		ArticulatedReturnData = {
-			.TargetPosition = FVector(0.0f, 0.0f, 0.0f),
+			.TargetPosition = FVector::ZeroVector,
 			.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
 			.LinearForce = Speed,
 			.AngularForce = Speed,
@@ -80,4 +65,16 @@ void FDragonIdleLegDriver::SetIdleState(const ELegIdleState NewState, const bool
 		OnIdleStateChanged.Broadcast(IdleState, NewState);
 	}
 	IdleState = NewState;
+}
+
+void FDragonIdleLegDriver::SyncIdleStateFrom(const FDragonWalkLegDriver* TargetDriver)
+{
+	ResetState();
+	if (TargetDriver->WalkingState == ELegWalkingState::Planted)
+	{
+		LockToWorldGround();
+		SetIdleState(ELegIdleState::NeedsReturn);
+	}
+	else
+		SetIdleState(ELegIdleState::ArticulatedReturn);
 }

@@ -8,9 +8,10 @@ public class FashionDragon : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "NavigationSystem" });
+		PublicDependencyModuleNames.AddRange(["Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "NavigationSystem"
+		]);
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "CADKernel" });
+		PrivateDependencyModuleNames.AddRange(["CADKernel"]);
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

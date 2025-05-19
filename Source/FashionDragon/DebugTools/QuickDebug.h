@@ -6,10 +6,10 @@ public:
 	FString Value;
 
 	// Constructor from const char*
-	FDebugString(const char* InValue) : Value(UTF8_TO_TCHAR(InValue)) {}
+	explicit FDebugString(const char* InValue) : Value(UTF8_TO_TCHAR(InValue)) {}
     
 	// Constructor from FString
-	FDebugString(const FString& InValue) : Value(InValue) {}
+	explicit FDebugString(const FString& InValue) : Value(InValue) {}
     
 	// Operator+ for concatenation with const char*
 	FDebugString operator+(const char* Other) const
@@ -69,7 +69,7 @@ private:
     
 	// Helper for other types - convert to string safely
 	template<typename T>
-	static typename std::enable_if_t<!std::is_convertible_v<T, const char*> && !std::is_same_v<T, FDebugString>, void>
+	static std::enable_if_t<!std::is_convertible_v<T, const char*> && !std::is_same_v<T, FDebugString>, void>
 	AppendArg(FString& Message, const T& Arg)
 	{
 		if constexpr (std::is_enum_v<T>)

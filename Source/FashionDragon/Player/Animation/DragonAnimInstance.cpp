@@ -3,6 +3,7 @@
 #include <string>
 
 #include "Adapters/DragonWingPoseAdapter.h"
+#include "FashionDragon/Player/MainCharacter.h"
 #include "Limbs/ControlledLeg.h"
 #include "Poses/DragonIdle/DragonIdlePose.h"
 #include "Poses/DragonTrot/DragonTrotPose.h"

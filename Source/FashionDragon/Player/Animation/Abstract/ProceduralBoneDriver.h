@@ -1,43 +1,32 @@
 ﻿#pragma once
+#include "BaseDriver.h"
+
 #include "FashionDragon/Player/Animation/Structs/PoseEffectorContext.h"
-
-class UDragonAnimInstance;
-
 #include "FashionDragon/Player/Animation/Limbs/ControlledBone.h"
 #include "FashionDragon/Player/Animation/Structs/PoseEffector.h"
 
 /**
  * @brief Abstract base class for procedural bone drivers
  */
-class FProceduralBoneDriver
+class FProceduralBoneDriver: protected FBaseDriver
 {
 protected:
-	UDragonAnimInstance* AnimInstance;
 	FControlledBone* Bone;
-	float CyclePosition = 0.0f;
-	float VisualCyclePosition = 0.0f;
 
-	FVector DesiredPosition = FVector(0.0f, 0.0f, 0.0f);
-	FRotator DesiredRotation = FRotator(0.0f, 0.0f, 0.0f);
-	FVector PositionFrom = FVector(0.0f, 0.0f, 0.0f);
-	FRotator RotationFrom = FRotator(0.0f, 0.0f, 0.0f);
+	FVector DesiredPosition = FVector::ZeroVector;
+	FRotator DesiredRotation = FRotator::ZeroRotator;
+	FVector PositionFrom = FVector::ZeroVector;
+	FRotator RotationFrom = FRotator::ZeroRotator;
 
-	FVector ArticulationPosition = FVector(0.0f, 0.0f, 0.0f);
-	FVector ArticulationRotation = FVector(0.0f, 0.0f, 0.0f);
-	
-	// virtual void AdvanceState();
-	// virtual std::pair<FVector, FRotator> GetTargetPosition() const;
+	FVector ArticulationPosition = FVector::ZeroVector;
+	FVector ArticulationRotation = FVector::ZeroVector;
 	
 public:
-	virtual ~FProceduralBoneDriver() = default;
-
-	FProceduralBoneDriver(UDragonAnimInstance* AnimInstance, FControlledBone* ControlledBone);
+	FProceduralBoneDriver(UDragonAnimInstance* AnimInstance, FControlledBone* ControlledBone):
+		FBaseDriver(AnimInstance), Bone(ControlledBone) {}
 
 	virtual void Tick(float DeltaTime);
 	virtual void ResetState();
-	// virtual void RecalculatePose();
-
-	// virtual void SyncStateFrom(FAbstractProceduralDriver* TargetDriver);
 
 	/**
 	 * @brief Converts the current state of the leg driver to an effector.
@@ -55,6 +44,4 @@ public:
 	FControlledBone* GetBone() const { return Bone; }
 	FVector GetDesiredPosition() const { return DesiredPosition; }
 	FRotator GetDesiredRotation() const { return DesiredRotation; }
-	float GetCyclePosition() const { return CyclePosition; }
-	float GetVisualCyclePosition() const { return VisualCyclePosition; }
 };

@@ -8,6 +8,8 @@ public:
 
 	virtual FPoseEffector ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context) override;
 	virtual FPoseEffector ToPostProcessEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context) override;
+	virtual void AdvanceState() override {}
+	virtual FDragonWalkStateData GetRawWalkStateData() const override { return {}; }
 };
 
 class FDragonFootPlacementPose final : public FProceduralPose

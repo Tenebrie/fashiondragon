@@ -16,7 +16,7 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 	virtual void AdvanceState() override;
-	// virtual std::pair<FVector, FRotator> GetTargetPosition() const override;
+	virtual FDragonWalkStateData GetRawWalkStateData() const override { return {}; }
 };
 
 /**

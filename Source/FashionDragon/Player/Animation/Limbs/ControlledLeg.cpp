@@ -13,7 +13,7 @@ FControlledLeg::FControlledLeg(UDragonAnimInstance* AnimInstance, const FName IK
  */
 FPlantedPositionData FControlledLeg::GetPlantedWorldPosition(const FVector& AtPosition, const FRotator& AtRotation, const float SweepDown) const
 {
-	const auto FootRotation = GetWorldRotation(AtRotation.Quaternion());
+	// const auto FootRotation = GetWorldRotation(AtRotation.Quaternion());
 	const auto WorldFootBase = GetWorldPosition(AtPosition);
 
 	// TODO: Fix. As the rotation is not taken into account, this is checking for flat collision.

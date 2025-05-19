@@ -3,7 +3,6 @@
 #include "CoreMinimal.h"
 #include "Limbs/ControlledLeg.h"
 #include "DragonAnimStateMachine.h"
-#include "../MainCharacter.h"
 #include "Adapters/DragonWingPoseAdapter.h"
 #include "Animation/AnimInstance.h"
 #include "DragonAnimInstance.generated.h"

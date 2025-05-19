@@ -2,8 +2,61 @@
 #include "ProceduralBoneDriver.h"
 #include "FashionDragon/Player/Animation/Limbs/ControlledLeg.h"
 
-struct FDragonWalkStateData
+struct FDragonWalkStateData;
+
+/**
+ * @brief Abstract base class for procedural leg drivers
+ */
+class FProceduralLegDriver : protected FBaseDriver
 {
+public:
+	virtual void AdvanceState() = 0;
+	virtual FDragonWalkStateData GetRawWalkStateData() const = 0;
+	
+	virtual void Tick(float DeltaTime);
+	virtual void ResetState();
+
+	void SyncStateFrom(const FProceduralLegDriver* TargetDriver);
+	virtual FPoseEffector ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context);
+	virtual FPoseEffector ToPostProcessEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context) { return BaseEffector; }
+
+	ELegWalkingState WalkingState = ELegWalkingState::Relaxed;
+	void SetWalkingState(ELegWalkingState NewState, const bool KeepCycle = false);
+	bool LockToWorldGround(const bool KeepCycle = false);
+
+	FControlledLeg* GetLeg() const { return Leg; }
+	FVector GetDesiredPosition() const { return DesiredPosition; }
+	FRotator GetDesiredRotation() const { return DesiredRotation; }
+
+	FProceduralLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg)
+		: FBaseDriver(AnimInstance), Leg(ControlledLeg) {}
+
+protected:
+	FControlledLeg* Leg;
+	float CyclePosition = 0.0f;
+	float VisualCyclePosition = 0.0f;
+
+	FVector DesiredPosition = FVector::ZeroVector;
+	FRotator DesiredRotation = FRotator::ZeroRotator;
+	FVector PositionFrom = FVector::ZeroVector;
+	FRotator RotationFrom = FRotator::ZeroRotator;
+	FVector ArticulationPosition = FVector::ZeroVector;
+	FVector ArticulationRotation = FVector::ZeroVector;
+
+	float CycleDuration = 1.0f;
+	FVector LockedWorldPosition = FVector::ZeroVector;
+	FRotator LockedWorldRotation = FRotator::ZeroRotator;
+	
+	void SnapToLockedPosition();
+	void RecalculatePose(const float DeltaTime);
+
+	FDragonWalkStateData GetTargetPosition() const;
+	FDragonWalkStateData AlignPoseToInputDirection(FDragonWalkStateData PoseData) const;
+};
+
+inline void FProceduralLegDriver::ResetState() { CyclePosition = 0; VisualCyclePosition = 0; }
+
+struct FDragonWalkStateData {
 	mutable FVector TargetPosition;
 	mutable FRotator TargetRotation;
 	/**
@@ -27,50 +80,9 @@ struct FDragonWalkStateData
 	 */
 	mutable float PlaybackSpeed = 1.0f;
 
-	mutable FVector StartArticulationPosition = FVector(0.0f, 0.0f, 0.0f);
-	mutable FVector StartArticulationRotation = FVector(0.0f, 0.0f, 0.0f);
-	mutable FVector EndArticulationPosition = FVector(0.0f, 0.0f, 0.0f);
-	mutable FVector EndArticulationRotation = FVector(0.0f, 0.0f, 0.0f);
+	mutable FVector StartArticulationPosition = FVector::ZeroVector;
+	mutable FVector StartArticulationRotation = FVector::ZeroVector;
+	mutable FVector EndArticulationPosition = FVector::ZeroVector;
+	mutable FVector EndArticulationRotation = FVector::ZeroVector;
 };
 
-/**
- * @brief Abstract base class for procedural leg drivers
- */
-class FProceduralLegDriver : public FProceduralBoneDriver
-{
-protected:
-	FControlledLeg* Leg;
-
-	float CycleDuration = 1.0f;
-	FVector LockedWorldPosition = FVector(0.0f, 0.0f, 0.0f);
-	FRotator LockedWorldRotation = FRotator(0.0f, 0.0f, 0.0f);
-
-	virtual void SnapToLockedPosition();
-
-	virtual void AdvanceState();
-	virtual FDragonWalkStateData GetTargetPosition() const;
-	
-public:
-	FProceduralLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg);
-
-	virtual void Tick(float DeltaTime) override;
-	virtual void RecalculatePose(const float DeltaTime);
-
-	bool LockWorldGroundPosition(const bool KeepCycle = false);
-
-	/**
-	 * @brief Syncs the current state of the leg driver with another.
-	 * Intended to be used when starting transition between two poses.
-	 * 
-	 * Default implementation assumes the other driver has the same duration.
-	 * @param TargetDriver Compatible driver to sync with
-	 */
-	virtual void SyncStateFrom(FProceduralLegDriver* TargetDriver);
-	virtual FPoseEffector ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context) override;
-
-	FControlledLeg* GetLeg() const { return Leg; }
-
-	// TODO: Extract into a separate interface
-	ELegWalkingState WalkingState = ELegWalkingState::Relaxed;
-	virtual void SetWalkingState(ELegWalkingState NewState, const bool KeepCycle = false);
-};
