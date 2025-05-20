@@ -8,11 +8,12 @@
 /**
  * @brief Abstract base class for procedural bone drivers
  */
-class FProceduralBoneDriver: protected FBaseDriver
+class FProceduralBoneDriver: public FBaseDriver
 {
 protected:
 	FControlledBone* Bone;
-
+	
+	float DesiredForce = 200.0f;
 	FVector DesiredPosition = FVector::ZeroVector;
 	FRotator DesiredRotation = FRotator::ZeroRotator;
 	FVector PositionFrom = FVector::ZeroVector;
@@ -22,8 +23,13 @@ protected:
 	FVector ArticulationRotation = FVector::ZeroVector;
 	
 public:
-	FProceduralBoneDriver(UDragonAnimInstance* AnimInstance, FControlledBone* ControlledBone):
-		FBaseDriver(AnimInstance), Bone(ControlledBone) {}
+	FProceduralBoneDriver(UDragonAnimInstance* AnimInstance, TArray<FControlledBone*>* ControlledBones, const int DriverGroup):
+		FBaseDriver(AnimInstance)
+	{
+		while (ControlledBones->Num() < DriverGroup + 1)
+			ControlledBones->Add(new FControlledBone());
+		Bone = (*ControlledBones)[DriverGroup];
+	}
 
 	virtual void Tick(float DeltaTime);
 	virtual void ResetState();

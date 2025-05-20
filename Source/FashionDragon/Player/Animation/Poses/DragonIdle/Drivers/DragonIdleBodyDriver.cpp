@@ -1,9 +1,16 @@
 ﻿#include "DragonIdleBodyDriver.h"
 
-#include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 
 void FDragonIdleBodyDriver::Tick(const float DeltaTime)
 {
-	DesiredRotation = FMath::RInterpTo(Bone->Rotation, FRotator(0.0f, 0.0f, -10.0f), DeltaTime, 1.8f);
+	BlendAlpha = FMath::FInterpTo(BlendAlpha, TargetBlendAlpha, DeltaTime, 5.0f);
+	DesiredForce = 20.0f;
+	DesiredPosition = FVector(0.0f, 0.0f, 80.0f);
+	DesiredRotation = FRotator(0.0f, 0.0f, -20.0f);
+}
+
+void FDragonIdleBodyDriver::SetBlendAlpha(const float NewBlendAlpha)
+{
+	TargetBlendAlpha = NewBlendAlpha;
 }

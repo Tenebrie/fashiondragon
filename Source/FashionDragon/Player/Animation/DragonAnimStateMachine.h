@@ -9,7 +9,7 @@
 
 class AMainCharacter;
 
-const enum EAnimationState
+enum class EAnimationState
 {
 	Idle,
 	Walking,
@@ -57,7 +57,7 @@ public:
 	void InitTransitions();
 	void Tick(float DeltaTime, const AMainCharacter* OwningActor);
 	
-	EAnimationState AnimationState = Idle;
+	EAnimationState AnimationState = EAnimationState::Idle;
 	void SetState(EAnimationState);
 
 	void BlendDrivers(const float DeltaTime) const;

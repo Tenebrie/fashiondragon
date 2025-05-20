@@ -25,8 +25,8 @@ class FASHIONDRAGON_API UDragonAnimInstance : public UAnimInstance
 
 public:
 	FDragonAnimStateMachine* StateMachine;
-	FControlledBone* ControlledBody;
-	FControlledBone* ControlledHips;
+	TArray<FControlledBone*> ControlledBody;
+	TArray<FControlledBone*> ControlledHips;
 	FControlledLeg* BackLeftLeg;
 	FControlledLeg* BackRightLeg;
 	FControlledWing* LeftWing;

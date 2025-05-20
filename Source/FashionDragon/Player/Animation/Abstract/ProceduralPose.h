@@ -17,11 +17,8 @@ protected:
 	TArray<FProceduralWingDriver*> WingDrivers;
 	
 public:
-	virtual ~FProceduralPose() = default;
-
 	explicit FProceduralPose(UDragonAnimInstance* AnimInstance);
 
-	float BlendAlpha = 0.0f;
 	virtual void Tick(float DeltaTime);
 	virtual void ResetState() {};
 	FPoseEffector ToBodyEffector(const FPoseEffector& BaseEffector, const FControlledBone* Body, const float DeltaTime) const;
@@ -29,4 +26,9 @@ public:
 	FPoseEffector ToLegEffector(const FPoseEffector& BaseEffector, const FControlledLeg* Leg, const float DeltaTime) const;
 	FPoseEffector ToPostProcessLegEffector(const FPoseEffector& BaseEffector, const FControlledLeg* Leg, const float DeltaTime) const;
 	FPoseWingEffector ToWingEffector(const FPoseWingEffector& BaseEffector, const FControlledWing* Wing, const float DeltaTime) const;
+
+	void AddBlendAlpha(const float Delta);
+	void SetBlendAlpha(const float BlendAlpha);
+
+	virtual ~FProceduralPose() = default;
 };

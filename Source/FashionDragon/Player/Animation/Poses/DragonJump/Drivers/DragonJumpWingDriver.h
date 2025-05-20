@@ -1,10 +1,10 @@
 ﻿#pragma once
 #include "FashionDragon/Player/Animation/Abstract/ProceduralWingDriver.h"
 
-class FDragonIdleWingDriver final : public FProceduralWingDriver
+class FDragonJumpWingDriver final : public FProceduralWingDriver
 {
 public:
-	FDragonIdleWingDriver(
+	FDragonJumpWingDriver(
 		UDragonAnimInstance* AnimInstance,
 		FControlledWing* ControlledWing
 	): FProceduralWingDriver(AnimInstance, ControlledWing) {}

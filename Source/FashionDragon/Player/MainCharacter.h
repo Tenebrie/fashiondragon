@@ -18,7 +18,7 @@ public:
 	AMainCharacter();
 
 	bool IsSprinting;
-	bool IsFlapping = false;
+	
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* DragonMesh;

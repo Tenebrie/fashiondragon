@@ -39,13 +39,10 @@ struct FDragonWingStateData
 /**
  * @brief Abstract base class for procedural wing drivers
  */
-class FProceduralWingDriver
+class FProceduralWingDriver: public FBaseDriver
 {
 protected:
-	UDragonAnimInstance* AnimInstance;
 	FControlledWing* Wing;
-	float CyclePosition = 0.0f;
-	float VisualCyclePosition = 0.0f;
 
 	float CycleDuration = 1.0f;
 	bool Inverted = false;
@@ -54,17 +51,11 @@ protected:
 	virtual FDragonWingStateData GetTargetPosition() const;
 	
 public:
-	virtual ~FProceduralWingDriver() = default;
 	FProceduralWingDriver(UDragonAnimInstance* AnimInstance, FControlledWing* ControlledWing);
 
 	virtual void Tick(float DeltaTime);
-	// virtual void RecalculatePose(const float DeltaTime);
 
 	virtual FPoseWingEffector ToEffector(const FPoseWingEffector& BaseEffector, const FPoseEffectorContext& Context);
 
 	FControlledWing* GetWing() const { return Wing; }
-
-	// TODO: Extract into a separate interface
-	ELegWalkingState WalkingState = ELegWalkingState::Relaxed;
-	// virtual void SetWalkingState(ELegWalkingState NewState, const bool KeepCycle = false);
 };

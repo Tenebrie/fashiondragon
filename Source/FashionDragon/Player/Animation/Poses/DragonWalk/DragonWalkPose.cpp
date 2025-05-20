@@ -13,16 +13,18 @@
 
 void FDragonWalkBodyDriver::Tick(const float DeltaTime)
 {
+	BlendAlpha = FMath::FInterpTo(BlendAlpha, TargetBlendAlpha, DeltaTime, 1.0f);
+	
 	const auto LeftLegOffset = std::min(1.0, LeftLeg->Position.Size() / 750.0f);
 	const auto RightLegOffset = std::min(1.0, RightLeg->Position.Size() / 750.0f);
 
 	const auto LegState = std::min(LeftLegOffset, RightLegOffset);
-	const auto VerticalOffset = LegState * -50.0f;
+	const auto VerticalOffset = LegState * -50.0f + 40.0f;
 
 	DesiredPosition = FVector(0.0f, 0.0f, VerticalOffset);
 
 	// Lerp current value to target value
-	auto TargetLean = -5.0f + (LegState - 0.5f) * 5.f;
+	auto TargetLean = -10.0f;
 
 	const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
 	if (OwningActor->IsSprinting)
@@ -30,10 +32,10 @@ void FDragonWalkBodyDriver::Tick(const float DeltaTime)
 		TargetLean += 10.0f;
 	}
 
-	const auto Lean = FMath::Lerp(Bone->Rotation.Roll, TargetLean, DeltaTime);
 	const auto Bank = FMath::Min(GetInputRotation(), 1.0f) * 10.0f;
-	
-	DesiredRotation = FRotator(-Bank * 2, -Bank * 0.25, Lean);
+
+	DesiredForce = 25.0f;
+	DesiredRotation = FRotator(-Bank * 2, -Bank * 0.25, TargetLean);
 	// DesiredRotation = FRotator(0.0f, 0.0f, 0.0f);
 }
 
@@ -199,8 +201,8 @@ void FDragonWalkLegDriver::Tick(const float DeltaTime)
 
 FDragonWalkPose::FDragonWalkPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
-	BodyDriver = new FDragonWalkBodyDriver(Anim, Anim->ControlledBody, Anim->BackLeftLeg, Anim->BackRightLeg);
-	HipsDriver = new FDragonWalkHipSwayDriver(Anim, Anim->ControlledHips, Anim->BackLeftLeg, Anim->BackRightLeg);
+	BodyDriver = new FDragonWalkBodyDriver(Anim, &Anim->ControlledBody, 0, Anim->BackLeftLeg, Anim->BackRightLeg);
+	HipsDriver = new FDragonWalkHipSwayDriver(Anim, &Anim->ControlledHips, 0, Anim->BackLeftLeg, Anim->BackRightLeg);
 	FProceduralPose::BodyDriver = BodyDriver;
 	FProceduralPose::HipsDriver = HipsDriver;
 

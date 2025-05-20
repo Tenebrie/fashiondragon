@@ -3,6 +3,7 @@
 #include <string>
 
 #include "Adapters/DragonWingPoseAdapter.h"
+#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/MainCharacter.h"
 #include "Limbs/ControlledLeg.h"
 #include "Poses/DragonIdle/DragonIdlePose.h"
@@ -25,8 +26,8 @@ void UDragonAnimInstance::NativeInitializeAnimation()
 	}
 	WingPoseAdapter = new FDragonWingPoseAdapter(this);
 
-	ControlledBody = new FControlledBone();
-	ControlledHips = new FControlledBone();
+	ControlledBody = TArray<FControlledBone*>();
+	ControlledHips = TArray<FControlledBone*>();
 	
 	ControlledLegs = TArray<FControlledLeg*>();
 	BackLeftLeg = new FControlledLeg(
@@ -72,26 +73,39 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 	StateMachine->Tick(DeltaTime, OwningActor);
 
 	// Apply body driver
-	auto CumulativeEffector = FPoseEffector(ControlledBody->Position, ControlledBody->Rotation);
-	for (const auto PoseDriver : StateMachine->PoseDrivers)
+	auto CumulativeEffector = FPoseEffector();
+	for (int i = 0; i < ControlledBody.Num(); i++)
 	{
-		CumulativeEffector = PoseDriver->ToBodyEffector(CumulativeEffector, ControlledBody, DeltaTime);
+		auto LocalEffector = FPoseEffector(ControlledBody[i]->Position, ControlledBody[i]->Rotation);
+		
+		for (const auto PoseDriver : StateMachine->PoseDrivers)
+		{
+			LocalEffector = PoseDriver->ToBodyEffector(LocalEffector, ControlledBody[i], DeltaTime);
+		}
+		ControlledBody[i]->Position = LocalEffector.Position;
+		ControlledBody[i]->Rotation = LocalEffector.Rotation;
+		CumulativeEffector.Position += LocalEffector.Position;
+		CumulativeEffector.Rotation += LocalEffector.Rotation;
 	}
-	ControlledBody->Position = CumulativeEffector.Position;
-	ControlledBody->Rotation = CumulativeEffector.Rotation;
-	GetSkelMeshComponent()->SetRelativeLocation(ControlledBody->Position);
-	GetSkelMeshComponent()->SetRelativeRotation(ControlledBody->Rotation);
+	// Debug::Print(CumulativeEffector.Position, CumulativeEffector.Rotation);
+	GetSkelMeshComponent()->SetRelativeLocation(CumulativeEffector.Position);
+	GetSkelMeshComponent()->SetRelativeRotation(CumulativeEffector.Rotation);
 
 	// Apply hips driver
-	CumulativeEffector = FPoseEffector(ControlledHips->Position, ControlledHips->Rotation);
-	for (const auto PoseDriver : StateMachine->PoseDrivers)
+	CumulativeEffector = FPoseEffector();
+	for (int i = 0; i < ControlledHips.Num(); i++)
 	{
-		CumulativeEffector = PoseDriver->ToHipsEffector(CumulativeEffector, ControlledHips, DeltaTime);
+		auto LocalEffector = FPoseEffector(ControlledHips[i]->Position, ControlledHips[i]->Rotation);
+		for (const auto PoseDriver : StateMachine->PoseDrivers)
+		{
+			LocalEffector = PoseDriver->ToHipsEffector(LocalEffector, ControlledHips[i], DeltaTime);
+		}
+		ControlledHips[i]->Position = LocalEffector.Position;
+		ControlledHips[i]->Rotation = LocalEffector.Rotation;
+		CumulativeEffector.Position += LocalEffector.Position;
+		CumulativeEffector.Rotation += LocalEffector.Rotation;
 	}
-	ControlledHips->Position = CumulativeEffector.Position;
-	ControlledHips->Rotation = CumulativeEffector.Rotation;
-
-	SetBoneOffset("Hip", "Tail_001", ControlledHips->Position, ControlledHips->Rotation);
+	SetBoneOffset("Hip", "Tail_001", CumulativeEffector.Position, CumulativeEffector.Rotation);
 
 	// Apply leg drivers
 	for (int i = 0; i < ControlledLegs.Num(); i++)

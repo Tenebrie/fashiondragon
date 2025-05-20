@@ -82,7 +82,6 @@ void AMainCharacter::Tick(const float DeltaTime)
 
     const FRotator NewRot = FRotator(0.f, NewYaw, 0.f);
     MeshRoot->SetWorldRotation(NewRot);
-    IsFlapping = false;
 }
 
 // Called to bind functionality to input
@@ -146,8 +145,8 @@ void AMainCharacter::StartJump()
         const float JumpZVelocity = GetCharacterMovement()->JumpZVelocity;
         LaunchCharacter(FVector(0, 0, JumpZVelocity), false, true);
         const auto AnimInstance = Cast<UDragonAnimInstance>(DragonMesh->GetAnimInstance());
-        AnimInstance->StateMachine->SetState(Jumping);
-        AnimInstance->StateMachine->AnimationLockout = 0.5f;
+        AnimInstance->StateMachine->SetState(EAnimationState::Jumping);
+        AnimInstance->StateMachine->AnimationLockout = 0.2f;
     }
 }
 
@@ -169,5 +168,4 @@ void AMainCharacter::StopSprint()
 
 void AMainCharacter::CastSomeSpell()
 {
-    IsFlapping = true;
 }

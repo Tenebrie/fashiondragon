@@ -53,13 +53,13 @@ void FDragonTrotLegDriver::AdvanceState()
 
 FDragonTrotPose::FDragonTrotPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
-	BodyDriver = new FDragonWalkBodyDriver(AnimInstance, Anim->ControlledBody, Anim->BackLeftLeg, Anim->BackRightLeg);
-	HipsDriver = new FDragonWalkHipSwayDriver(Anim, Anim->ControlledHips, Anim->BackLeftLeg, Anim->BackRightLeg);
+	BodyDriver = new FDragonWalkBodyDriver(Anim, &Anim->ControlledBody, 0, Anim->BackLeftLeg, Anim->BackRightLeg);
+	HipsDriver = new FDragonWalkHipSwayDriver(Anim, &Anim->ControlledHips,0,  Anim->BackLeftLeg, Anim->BackRightLeg);
 	FProceduralPose::BodyDriver = BodyDriver;
 	FProceduralPose::HipsDriver = HipsDriver;
 	
-	LeftLegDriver = new FDragonTrotLegDriver(AnimInstance, Anim->BackLeftLeg);
-	RightLegDriver = new FDragonTrotLegDriver(AnimInstance, Anim->BackRightLeg);
+	LeftLegDriver = new FDragonTrotLegDriver(Anim, Anim->BackLeftLeg);
+	RightLegDriver = new FDragonTrotLegDriver(Anim, Anim->BackRightLeg);
 	LegDrivers = {
 		LeftLegDriver,
 		RightLegDriver,

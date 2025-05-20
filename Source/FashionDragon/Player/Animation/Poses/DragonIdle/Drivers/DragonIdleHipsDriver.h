@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include "FashionDragon/Player/Animation/Abstract/ProceduralBoneDriver.h"
 
-class FDragonIdleBodyDriver final : public FProceduralBoneDriver
+class FDragonIdleHipsDriver final : public FProceduralBoneDriver
 {
 	float TargetBlendAlpha = 1.0f;
 public:
-	FDragonIdleBodyDriver(
+	FDragonIdleHipsDriver(
 		UDragonAnimInstance* AnimInstance,
 		TArray<FControlledBone*>* ControlledBones,
 		const int DriverGroup
@@ -13,5 +13,5 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void SetBlendAlpha(const float NewBlendAlpha) override;
+	virtual void SetBlendAlpha(const float NewBlendAlpha) override { TargetBlendAlpha = NewBlendAlpha; }
 };

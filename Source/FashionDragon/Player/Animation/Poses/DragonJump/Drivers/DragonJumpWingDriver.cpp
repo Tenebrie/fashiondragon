@@ -1,8 +1,8 @@
-﻿#include "DragonIdleWingDriver.h"
+﻿#include "DragonJumpWingDriver.h"
 
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 
-FDragonWingStateData FDragonIdleWingDriver::GetTargetPosition() const
+FDragonWingStateData FDragonJumpWingDriver::GetTargetPosition() const
 {
 	return FDragonWingStateData
 	{

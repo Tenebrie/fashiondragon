@@ -8,19 +8,22 @@ class FDragonWalkBodyDriver final : public FProceduralBoneDriver
 {
 	FControlledLeg* LeftLeg;
 	FControlledLeg* RightLeg;
+	float TargetBlendAlpha = 1.0f;
 	
 public:
 	FDragonWalkBodyDriver(
 		UDragonAnimInstance* AnimInstance,
-		FControlledBone* ControlledBone,
+		TArray<FControlledBone*>* ControlledBones,
+		const int DriverGroup,
 		FControlledLeg* LeftLeg,
 		FControlledLeg* RightLeg
-	): FProceduralBoneDriver(AnimInstance, ControlledBone),
+	): FProceduralBoneDriver(AnimInstance, ControlledBones, DriverGroup),
 		LeftLeg(LeftLeg), RightLeg(RightLeg)
 	{}
 
 	virtual void Tick(float DeltaTime) override;
 	void SyncStateFrom(const FDragonWalkBodyDriver* TargetDriver);
+	virtual void SetBlendAlpha(const float NewBlendAlpha) override { TargetBlendAlpha = NewBlendAlpha; }
 };
 
 class FDragonWalkHipSwayDriver final : public FProceduralBoneDriver
@@ -32,11 +35,12 @@ class FDragonWalkHipSwayDriver final : public FProceduralBoneDriver
 public:
 	FDragonWalkHipSwayDriver(
 		UDragonAnimInstance* AnimInstance,
-		FControlledBone* ControlledBone,
+		TArray<FControlledBone*>* ControlledBones,
+		const int DriverGroup,
 		FControlledLeg* LeftLeg,
 		FControlledLeg* RightLeg
-	): FProceduralBoneDriver(AnimInstance, ControlledBone),
-		Hips(ControlledBone), LeftLeg(LeftLeg), RightLeg(RightLeg) {}
+	): FProceduralBoneDriver(AnimInstance, ControlledBones, DriverGroup),
+		Hips(Bone), LeftLeg(LeftLeg), RightLeg(RightLeg) {}
 
 	virtual void Tick(float DeltaTime) override;
 	void SyncStateFrom(const FDragonWalkHipSwayDriver* TargetDriver);

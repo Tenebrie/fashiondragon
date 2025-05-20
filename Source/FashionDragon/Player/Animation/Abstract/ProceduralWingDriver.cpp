@@ -6,7 +6,7 @@ FDragonWingStateData FProceduralWingDriver::GetTargetPosition() const
 }
 
 FProceduralWingDriver::FProceduralWingDriver(UDragonAnimInstance* AnimInstance, FControlledWing* ControlledWing): 
-	AnimInstance(AnimInstance), Wing(ControlledWing)
+	FBaseDriver(AnimInstance), Wing(ControlledWing)
 {
 }
 
@@ -33,8 +33,16 @@ void FProceduralWingDriver::Tick(const float DeltaTime)
 	}
 }
 
-FPoseWingEffector FProceduralWingDriver::ToEffector(const FPoseWingEffector& BaseEffector,
-                                                    const FPoseEffectorContext& Context)
+FPoseWingEffector FProceduralWingDriver::ToEffector(const FPoseWingEffector& BaseEffector, const FPoseEffectorContext& Context)
 {
-	return BaseEffector;
+	const auto State = GetTargetPosition();
+	
+	const auto LinearSpeed = State.LinearForce * Context.BlendAlpha * Context.DeltaTime;
+
+	const auto FlapDistToMove = std::min(LinearSpeed, State.Flap - Wing->Flap);
+	const auto OpennessDistToMove = std::min(LinearSpeed, State.Openness - Wing->Openness);
+	
+	return BaseEffector
+		.AddFlap(FlapDistToMove)
+		.AddOpenness(OpennessDistToMove);
 }

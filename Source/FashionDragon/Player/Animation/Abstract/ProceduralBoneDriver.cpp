@@ -1,5 +1,6 @@
 ﻿#include "ProceduralBoneDriver.h"
 
+#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/Animation/Structs/PoseEffectorContext.h"
 
 void FProceduralBoneDriver::Tick(const float DeltaTime)
@@ -18,9 +19,18 @@ FPoseEffector FProceduralBoneDriver::ToEffector(const FPoseEffector& BaseEffecto
 {
 	const auto PositionDelta = DesiredPosition - BaseEffector.Position;
 	const auto RotationDelta = DesiredRotation - BaseEffector.Rotation;
-	const auto Effector = FPoseEffector(BaseEffector)
-		.AddPosition(PositionDelta * Context.BlendAlpha)
-		.AddRotation(RotationDelta * Context.BlendAlpha);
+
+	if (FMath::IsNearlyZero(DesiredForce * Context.BlendAlpha))
+	{
+		return BaseEffector;
+	}
+
+	const auto NewPos = FMath::VInterpTo(BaseEffector.Position, DesiredPosition, Context.DeltaTime, DesiredForce * Context.BlendAlpha);
+	const auto NewRot = FMath::RInterpTo(BaseEffector.Rotation, DesiredRotation, Context.DeltaTime, DesiredForce * Context.BlendAlpha);
+
+	const auto Effector = BaseEffector
+		.SetPosition(NewPos)
+		.SetRotation(NewRot);
 	return Effector;
 }
 

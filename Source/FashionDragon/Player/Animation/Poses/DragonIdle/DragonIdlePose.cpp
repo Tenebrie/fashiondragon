@@ -1,15 +1,20 @@
 ﻿#include "DragonIdlePose.h"
 
+#include "Drivers/DragonIdleBodyDriver.h"
+#include "Drivers/DragonIdleHipsDriver.h"
+#include "Drivers/DragonIdleLegDriver.h"
+#include "Drivers/DragonIdleWingDriver.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "FashionDragon/Utils/Utils.h"
 
+enum class ELegIdleState;
 /**
  * @brief Constructor
  */
 FDragonIdlePose::FDragonIdlePose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
-	BodyDriver = new FDragonIdleBodyDriver(Anim, Anim->ControlledBody);
-	HipsDriver = new FDragonIdleBodyDriver(Anim, Anim->ControlledHips);
+	BodyDriver = new FDragonIdleBodyDriver(Anim, &Anim->ControlledBody, 0);
+	HipsDriver = new FDragonIdleHipsDriver(Anim, &Anim->ControlledHips, 0);
 	FProceduralPose::BodyDriver = BodyDriver;
 	FProceduralPose::HipsDriver = HipsDriver;
 

@@ -3,15 +3,37 @@
 
 enum class ELegJumpState
 {
-	Charging,
 	Pushing,
 	Retracting,
 	Landing,
+	Impact,
+	Relaxed,
 };
 
-/**
- * @brief Jump preparation animation leg driver
- */
+DECLARE_MULTICAST_DELEGATE_TwoParams(
+	FDragonJumpLegDriverStateChangedDelegate,
+	ELegJumpState OldState,
+	ELegJumpState NewState
+);
+
+class FDragonJumpPose;
+
+class FDragonJumpBodyDriver final : public FProceduralBoneDriver
+{
+	float TargetBlendAlpha = 1.0f;
+public:
+	FDragonJumpBodyDriver(UDragonAnimInstance* AnimInstance, TArray<FControlledBone*>* ControlledBones, const int DriverGroup):
+		FProceduralBoneDriver(AnimInstance, ControlledBones, DriverGroup) {}
+	
+	virtual void Tick(float DeltaTime) override;
+	
+	ELegJumpState JumpingState = ELegJumpState::Relaxed;
+	void SetJumpState(ELegJumpState NewJumpState);
+
+	virtual FPoseEffector ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context) override;
+	virtual void SetBlendAlpha(const float NewBlendAlpha) override { TargetBlendAlpha = NewBlendAlpha; }
+};
+
 class FDragonJumpLegDriver final : public FProceduralLegDriver
 {
 public:
@@ -23,8 +45,10 @@ public:
 
 	virtual FDragonWalkStateData GetRawWalkStateData() const override;
 
-	ELegJumpState JumpingState = ELegJumpState::Charging;
+	ELegJumpState JumpingState = ELegJumpState::Relaxed;
 	void SetJumpState(ELegJumpState NewJumpState);
+
+	FDragonJumpLegDriverStateChangedDelegate OnJumpStateChanged;
 };
 
 /**
@@ -32,6 +56,9 @@ public:
  */
 class FDragonJumpPose final : public FProceduralPose
 {
+	FDragonJumpBodyDriver* BodyDriver;
+	FDragonJumpLegDriver* LeftLegDriver;
+	FDragonJumpLegDriver* RightLegDriver;
 public:
 	explicit FDragonJumpPose(UDragonAnimInstance* Anim);
 

@@ -7,7 +7,7 @@ struct FDragonWalkStateData;
 /**
  * @brief Abstract base class for procedural leg drivers
  */
-class FProceduralLegDriver : protected FBaseDriver
+class FProceduralLegDriver : public FBaseDriver
 {
 public:
 	virtual void AdvanceState() = 0;
@@ -33,8 +33,6 @@ public:
 
 protected:
 	FControlledLeg* Leg;
-	float CyclePosition = 0.0f;
-	float VisualCyclePosition = 0.0f;
 
 	FVector DesiredPosition = FVector::ZeroVector;
 	FRotator DesiredRotation = FRotator::ZeroRotator;

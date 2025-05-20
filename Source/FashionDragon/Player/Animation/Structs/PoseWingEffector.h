@@ -8,4 +8,13 @@ struct FPoseWingEffector
 	FPoseWingEffector() {}
 	FPoseWingEffector(FPoseWingEffector const&) = default;
 	FPoseWingEffector(const float Flap, const float Openness): Flap(Flap), Openness(Openness) {}
+
+	FPoseWingEffector AddFlap(const float Delta) const
+	{
+		return FPoseWingEffector(Flap + Delta, Openness);
+	}
+	FPoseWingEffector AddOpenness(const float Delta) const
+	{
+		return FPoseWingEffector(Flap, Openness + Delta);
+	}
 };
