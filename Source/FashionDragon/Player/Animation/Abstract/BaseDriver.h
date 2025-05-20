@@ -10,6 +10,7 @@ protected:
 	float VisualCyclePosition = 0.0f;
 	float BlendAlpha = 1.0f;
 
+	float GetRawInputRotation() const;
 	float GetInputRotation() const;
 	FVector RotateVectorToInputRotation(const FVector& VectorToRotate, const bool Inverted = false) const;
 

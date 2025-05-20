@@ -1,6 +1,8 @@
 ﻿#include "ControlledLeg.h"
 
 #include "../DragonAnimInstance.h"
+#include "FashionDragon/DebugTools/QuickDebug.h"
+#include "FashionDragon/Player/MainCharacter.h"
 
 FControlledLeg::FControlledLeg(UDragonAnimInstance* AnimInstance, const FName IKBoneName, const FVector& IKBoneOffset, const int Idx):
 	AnimInstance(AnimInstance), Idx(Idx), IKBoneName(IKBoneName), IKBoneOffset(IKBoneOffset)
@@ -77,6 +79,18 @@ FPlantedPositionData FControlledLeg::GetPlantedWorldPosition(const FVector& AtPo
 		.DeltaPosition = (GroundPosition - FootLocation) * 2.0f,
 		.DeltaRotation = FQuat::Identity,
 	};
+}
+
+void FControlledLeg::Tick(const float DeltaTime)
+{
+	FControlledBone::Tick(DeltaTime);
+
+	const auto PlantedPos = GetPlantedWorldPosition(2.0f);
+	if (PlantedPos.GroundHit && !IsGrounded)
+	{
+		AnimInstance->GetCharacter()->OnLegPlanted.Broadcast(GetWorldPosition());
+	}
+	IsGrounded = PlantedPos.GroundHit;
 }
 
 FVector FControlledLeg::GetWorldPosition(const FVector& FromPosition) const

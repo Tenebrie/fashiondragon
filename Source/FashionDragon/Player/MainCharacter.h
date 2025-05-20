@@ -8,6 +8,8 @@
 #include "PhysicsEngine/PhysicalAnimationComponent.h"
 #include "MainCharacter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLegPlanted, FVector, SpawnLocation);
+
 UCLASS()
 class FASHIONDRAGON_API AMainCharacter : public ACharacter
 {
@@ -19,6 +21,8 @@ public:
 
 	bool IsSprinting;
 	
+	UPROPERTY(BlueprintAssignable, Category="Events")
+	FOnLegPlanted OnLegPlanted;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* DragonMesh;

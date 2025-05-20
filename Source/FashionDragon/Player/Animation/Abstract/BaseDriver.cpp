@@ -4,6 +4,25 @@
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+float FBaseDriver::GetRawInputRotation() const
+{
+	const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
+	if (!OwningActor) { return 0; }
+	
+	auto VelocityVector = OwningActor->GetCharacterMovement()->GetLastUpdateVelocity();
+	VelocityVector.Normalize();
+	if (VelocityVector.IsNearlyZero()) { return 0; }
+	
+	// Get normalized input vector in local space
+	const auto InputVector = VelocityVector.GetSafeNormal2D();
+
+	// Calculate the angle between input vector and forward vector directly
+	const float AngleRadians = FMath::Atan2(InputVector.Y, InputVector.X);
+
+	return AngleRadians;
+	// return FMath::RadiansToDegrees(AngleRadians);
+}
+
 float FBaseDriver::GetInputRotation() const
 {
 	const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());

@@ -32,10 +32,15 @@ void FDragonWalkBodyDriver::Tick(const float DeltaTime)
 		TargetLean += 10.0f;
 	}
 
-	const auto Bank = FMath::Min(GetInputRotation(), 1.0f) * 10.0f;
+	const auto InputRotation = GetInputRotation();
+	auto Bank = FMath::Sin(InputRotation) * 10.0f;
+	if (AnimInstance->StateMachine->AnimationState == EAnimationState::Jumping)
+	{
+		Bank = 0.0f;
+	}
 
 	DesiredForce = 25.0f;
-	DesiredRotation = FRotator(-Bank * 2, -Bank * 0.25, TargetLean);
+	DesiredRotation = FRotator(-Bank, -Bank * 0.25, TargetLean);
 	// DesiredRotation = FRotator(0.0f, 0.0f, 0.0f);
 }
 

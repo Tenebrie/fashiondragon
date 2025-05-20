@@ -16,7 +16,6 @@
  */
 void UDragonAnimInstance::NativeInitializeAnimation()
 {
-	HipRotation = FRotator();
 	LegPositions = TArray<FVector>();
 	LegRotations = TArray<FRotator>();
 	for (int i = 0; i < 4; i++)
@@ -69,7 +68,7 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 	const auto OwningActor = Cast<AMainCharacter>(GetOwningActor());
 	if (!OwningActor)
 		return;
-	
+
 	StateMachine->Tick(DeltaTime, OwningActor);
 
 	// Apply body driver
@@ -87,7 +86,6 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 		CumulativeEffector.Position += LocalEffector.Position;
 		CumulativeEffector.Rotation += LocalEffector.Rotation;
 	}
-	// Debug::Print(CumulativeEffector.Position, CumulativeEffector.Rotation);
 	GetSkelMeshComponent()->SetRelativeLocation(CumulativeEffector.Position);
 	GetSkelMeshComponent()->SetRelativeRotation(CumulativeEffector.Rotation);
 
@@ -144,6 +142,13 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 
 		WingPoseAdapter->ApplyEffector(Wing, CumulativeWingEffector);
 	}
+
+	for (FControlledBone* Body : ControlledBody)
+		Body->Tick(DeltaTime);
+	for (FControlledBone* Hips : ControlledHips)
+		Hips->Tick(DeltaTime);
+	for (FControlledLeg* Leg : ControlledLegs)
+		Leg->Tick(DeltaTime);
 }
 
 void UDragonAnimInstance::SetBoneOffset(const FName ParentBone, const FName ChildName, const FVector& Position, const FRotator& Rotation) const
@@ -160,4 +165,9 @@ void UDragonAnimInstance::SetBoneOffset(const FName ParentBone, const FName Chil
 			Constraint->SetRefOrientation(EConstraintFrame::Frame1, PriAxis, SecAxis);
 		}
 	}
+}
+
+AMainCharacter* UDragonAnimInstance::GetCharacter() const
+{
+	return Cast<AMainCharacter>(GetOwningActor());
 }

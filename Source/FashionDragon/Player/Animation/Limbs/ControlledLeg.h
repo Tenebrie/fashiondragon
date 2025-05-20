@@ -23,7 +23,7 @@ struct FPlantedPositionData
 	FQuat DeltaRotation;
 };
 
-class FControlledLeg : public FControlledBone
+class FControlledLeg final : public FControlledBone
 {
 public:
 	FControlledLeg(UDragonAnimInstance* AnimInstance, FName IKBoneName, const FVector& IKBoneOffset, const int Idx);
@@ -31,6 +31,8 @@ public:
 private:
 	UDragonAnimInstance* AnimInstance;
 	int Idx;
+
+	bool IsGrounded = true;
 
 public:
 	FName IKBoneName;
@@ -40,6 +42,8 @@ public:
 	FRotator Rotation = FRotator::ZeroRotator;
 	FVector VisualPosition = FVector::ZeroVector;
 	FRotator VisualRotation = FRotator::ZeroRotator;
+
+	virtual void Tick(const float DeltaTime) override;
 
 	FVector GetWorldPosition(const FVector& FromPosition) const;
 	FVector GetWorldPosition() const { return GetWorldPosition(Position); }
