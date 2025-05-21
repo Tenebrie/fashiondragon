@@ -1,8 +1,43 @@
 ﻿#include "DragonAnimStateMachine.h"
 
-#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/MainCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Poses/DragonFootPlacement/DragonFootPlacementPose.h"
+#include "Poses/DragonIdle/DragonIdlePose.h"
+#include "Poses/DragonJump/DragonJumpPose.h"
+#include "Poses/DragonRandomSway/DragonRandomSwayPose.h"
+#include "Poses/DragonTrot/DragonTrotPose.h"
+#include "Poses/DragonWalk/DragonWalkPose.h"
+#include "Poses/DragonMomentum/DragonMomentumPose.h"
+
+FDragonAnimStateMachine::FDragonAnimStateMachine(
+	FDragonIdlePose* IdlePoseDriver,
+	FDragonWalkPose* WalkPoseDriver,
+	FDragonTrotPose* TrotPoseDriver,
+	FDragonJumpPose* JumpPoseDriver,
+	FDragonRandomSwayPose* RandomSwayDriver,
+	FDragonMomentumPose* MomentumDriver,
+	FDragonFootPlacementPose* FootPlacementDriver
+):
+	IdlePoseDriver(IdlePoseDriver),
+	WalkPoseDriver(WalkPoseDriver),
+	TrotPoseDriver(TrotPoseDriver),
+	JumpPoseDriver(JumpPoseDriver),
+	RandomSwayDriver(RandomSwayDriver),
+	MomentumDriver(MomentumDriver),
+	FootPlacementDriver(FootPlacementDriver)
+{
+	PoseDrivers = {
+		IdlePoseDriver,
+		WalkPoseDriver,
+		TrotPoseDriver,
+		JumpPoseDriver,
+		RandomSwayDriver,
+		MomentumDriver,
+		FootPlacementDriver,
+	};
+	InitTransitions();
+}
 
 void FDragonAnimStateMachine::InitTransitions()
 {
@@ -140,6 +175,8 @@ void FDragonAnimStateMachine::BlendDrivers(const float DeltaTime) const
 		}
 	}
 
+	MomentumDriver->SetBlendAlpha(1.0f);
+	RandomSwayDriver->SetBlendAlpha(1.0f);
 	FootPlacementDriver->SetBlendAlpha(1.0f);
 }
 

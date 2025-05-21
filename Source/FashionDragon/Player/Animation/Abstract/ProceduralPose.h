@@ -11,8 +11,8 @@ class FProceduralPose
 protected:
 	UDragonAnimInstance* AnimInstance;
 
-	FProceduralBoneDriver* BodyDriver = nullptr;
-	FProceduralBoneDriver* HipsDriver = nullptr;
+	TArray<FProceduralBoneDriver*> BodyDrivers;
+	TArray<FProceduralBoneDriver*> HipsDrivers;
 	TArray<FProceduralLegDriver*> LegDrivers;
 	TArray<FProceduralWingDriver*> WingDrivers;
 	

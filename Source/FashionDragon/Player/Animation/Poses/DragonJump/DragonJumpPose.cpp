@@ -2,7 +2,6 @@
 
 #include <map>
 
-#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 
 void FDragonJumpBodyDriver::Tick(const float DeltaTime)
@@ -58,13 +57,13 @@ FDragonJumpLegDriver::FDragonJumpLegDriver(UDragonAnimInstance* AnimInstance, FC
 {
 }
 
-void FDragonJumpLegDriver::Tick(float DeltaTime)
+void FDragonJumpLegDriver::Tick(const float DeltaTime)
 {
 	FProceduralLegDriver::Tick(DeltaTime);
 
 	if (JumpingState == ELegJumpState::Retracting && AnimInstance->GetOwningActor()->GetVelocity().Z < 0.0f && Leg->GetPlantedWorldPosition(500).GroundHit)
 	{
-		SetJumpState(ELegJumpState::Landing);
+		SetJumpState(ELegJumpState::DelayedLanding);
 	}
 	if (JumpingState == ELegJumpState::Landing && Leg->GetPlantedWorldPosition(5).GroundHit)
 	{
@@ -82,9 +81,9 @@ void FDragonJumpLegDriver::AdvanceState()
 	// case ELegJumpState::Retracting:
 	// 	SetJumpState(ELegJumpState::Landing);
 	// 	break;
-	// case ELegJumpState::Landing:
-	// 	SetJumpState(ELegJumpState::Impact);
-	// 	break;
+	case ELegJumpState::DelayedLanding:
+		SetJumpState(ELegJumpState::Landing);
+		break;
 	case ELegJumpState::Impact:
 		SetJumpState(ELegJumpState::Relaxed);
 		break;
@@ -114,14 +113,21 @@ FDragonWalkStateData FDragonJumpLegDriver::GetRawWalkStateData() const
 			{
 				.TargetPosition = FVector(0.0f, 0.0f, -1000.0f),
 				.TargetRotation = FRotator(0.0f, 0.0f, 30.0f),
-				.Duration = 0.15f,
+				.Duration = 0.10f + JumpLagBehind,
 			}
 		},
 		{ ELegJumpState::Retracting,
 			{
-				.TargetPosition = FVector(0.0f, 0.0f, 150.0f),
+				.TargetPosition = FVector(0.0f, 0.0f, 150.0f) + JumpPositionOffset,
 				.TargetRotation = FRotator(0.0f, 0.0f, 60.0f),
 				.Duration = 0.50f,
+			}
+		},
+		{ ELegJumpState::DelayedLanding,
+			{
+				.TargetPosition = FVector(0.0f, 0.0f, 150.0f) + JumpPositionOffset,
+				.TargetRotation = FRotator(0.0f, 0.0f, 60.0f),
+				.Duration = JumpLagBehind,
 			}
 		},
 		{ ELegJumpState::Landing,
@@ -163,10 +169,19 @@ void FDragonJumpLegDriver::SetJumpState(const ELegJumpState NewJumpState)
 	RotationFrom = Leg->Rotation;
 }
 
+void FDragonJumpLegDriver::UpdateRandomness(const bool LagBehind)
+{
+	if (LagBehind)
+		JumpLagBehind = FMath::FRand() * 0.05f + 0.075f;
+	else
+		JumpLagBehind = 0.0f;
+	JumpPositionOffset = FVector(FMath::FRand() * 50.0f, FMath::FRand() * 50.0f, FMath::FRand() * 50.0f) - FVector(25.0f, 25.0f, 25.0f);
+}
+
 FDragonJumpPose::FDragonJumpPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
-	BodyDriver = new FDragonJumpBodyDriver(Anim, &Anim->ControlledBody, 1);
-	FProceduralPose::BodyDriver = BodyDriver;
+	BodyDriver = new FDragonJumpBodyDriver(Anim, &Anim->ControlledBody, EBodyDriverGroup::Jump);
+	BodyDrivers = { BodyDriver };
 
 	LeftLegDriver = new FDragonJumpLegDriver(Anim, Anim->BackLeftLeg);
 	RightLegDriver = new FDragonJumpLegDriver(Anim, Anim->BackRightLeg);
@@ -187,6 +202,10 @@ FDragonJumpPose::FDragonJumpPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 
 void FDragonJumpPose::ResetState()
 {
+	LeftLegDriver->UpdateRandomness(SwitchJumpingLeg);
+	RightLegDriver->UpdateRandomness(!SwitchJumpingLeg);
 	LeftLegDriver->SetJumpState(ELegJumpState::Pushing);
 	RightLegDriver->SetJumpState(ELegJumpState::Pushing);
+
+	SwitchJumpingLeg = !SwitchJumpingLeg;
 }

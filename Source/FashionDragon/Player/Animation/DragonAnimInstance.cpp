@@ -6,10 +6,13 @@
 #include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/MainCharacter.h"
 #include "Limbs/ControlledLeg.h"
+#include "Poses/DragonFootPlacement/DragonFootPlacementPose.h"
 #include "Poses/DragonIdle/DragonIdlePose.h"
 #include "Poses/DragonTrot/DragonTrotPose.h"
 #include "Poses/DragonWalk/DragonWalkPose.h"
 #include "Poses/DragonJump/DragonJumpPose.h"
+#include "Poses/DragonMomentum/DragonMomentumPose.h"
+#include "Poses/DragonRandomSway/DragonRandomSwayPose.h"
 
 /**
  * @brief Init
@@ -54,6 +57,8 @@ void UDragonAnimInstance::NativeInitializeAnimation()
 		new FDragonWalkPose(this),
 		new FDragonTrotPose(this),
 		new FDragonJumpPose(this),
+		new FDragonRandomSwayPose(this),
+		new FDragonMomentumPose(this),
 		new FDragonFootPlacementPose(this)
 	);
 }
@@ -64,6 +69,7 @@ void UDragonAnimInstance::NativeInitializeAnimation()
 void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 {
 	Super::NativeUpdateAnimation(DeltaTime);
+	if (DeltaTime <= KINDA_SMALL_NUMBER) { return; }
 
 	const auto OwningActor = Cast<AMainCharacter>(GetOwningActor());
 	if (!OwningActor)
@@ -94,6 +100,7 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 	for (int i = 0; i < ControlledHips.Num(); i++)
 	{
 		auto LocalEffector = FPoseEffector(ControlledHips[i]->Position, ControlledHips[i]->Rotation);
+		
 		for (const auto PoseDriver : StateMachine->PoseDrivers)
 		{
 			LocalEffector = PoseDriver->ToHipsEffector(LocalEffector, ControlledHips[i], DeltaTime);

@@ -57,16 +57,8 @@ inline void FProceduralLegDriver::ResetState() { CyclePosition = 0; VisualCycleP
 struct FDragonWalkStateData {
 	mutable FVector TargetPosition;
 	mutable FRotator TargetRotation;
-	/**
-	 * Maximum force an effector may apply to the bone in this state.
-	 * Effectively, maximum speed per second.
-	 */
-	float LinearForce = 10000.0f;
-	/**
-	 * Maximum force an effector may apply to the bone's rotation in this state.
-	 * Effectively, maximum speed (angles) per second.
-	 */
-	float AngularForce = 360.0f;
+	float LinearForce = 1.0f;
+	float AngularForce = 1.0f;
 	/**
 	 * Duration of the state in seconds.
 	 * Should not be modified dynamically.

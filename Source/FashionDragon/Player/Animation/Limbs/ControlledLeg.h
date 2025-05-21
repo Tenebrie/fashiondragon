@@ -26,6 +26,7 @@ struct FPlantedPositionData
 class FControlledLeg final : public FControlledBone
 {
 public:
+	FControlledLeg(FControlledLeg&) = default;
 	FControlledLeg(UDragonAnimInstance* AnimInstance, FName IKBoneName, const FVector& IKBoneOffset, const int Idx);
 
 private:
@@ -34,17 +35,22 @@ private:
 
 	bool IsGrounded = true;
 
+	FVector PreviousWorldPosition = FVector::ZeroVector;
+	FQuat PreviousWorldRotation = FQuat::Identity;
+
 public:
 	FName IKBoneName;
 	float MirrorScalar;
-	FVector IKBoneOffset = FVector::ZeroVector;
 	FVector Position = FVector::ZeroVector;
 	FRotator Rotation = FRotator::ZeroRotator;
+	FVector IKBoneOffset = FVector::ZeroVector;
 	FVector VisualPosition = FVector::ZeroVector;
 	FRotator VisualRotation = FRotator::ZeroRotator;
+	FVector LinearMomentum = FVector::ZeroVector;
+	FRotator AngularMomentum = FRotator::ZeroRotator;
 
 	virtual void Tick(const float DeltaTime) override;
-
+	
 	FVector GetWorldPosition(const FVector& FromPosition) const;
 	FVector GetWorldPosition() const { return GetWorldPosition(Position); }
 	FVector GetWorldPosition(const FPoseEffector& FromEffector) const { return GetWorldPosition(FromEffector.Position); }

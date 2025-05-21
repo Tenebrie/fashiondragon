@@ -41,12 +41,6 @@ public:
 	 */
 	virtual FPoseEffector ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context);
 
-	/**
-	 * @brief Similar to `ToEffector`, but the resulting positions are NOT persistent across frames.
-	 * This effector can apply any transformation that will not affect the persistent state.
-	 */
-	virtual FPoseEffector ToPostProcessEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context);
-
 	FControlledBone* GetBone() const { return Bone; }
 	FVector GetDesiredPosition() const { return DesiredPosition; }
 	FRotator GetDesiredRotation() const { return DesiredRotation; }

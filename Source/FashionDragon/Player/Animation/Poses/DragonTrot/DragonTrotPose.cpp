@@ -4,6 +4,7 @@
 
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
+#include "FashionDragon/Player/Animation/Poses/DragonWalk/DragonWalkPose.h"
 
 FDragonTrotLegDriver::FDragonTrotLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg): FProceduralLegDriver(AnimInstance, ControlledLeg)
 {}
@@ -55,8 +56,8 @@ FDragonTrotPose::FDragonTrotPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 {
 	BodyDriver = new FDragonWalkBodyDriver(Anim, &Anim->ControlledBody, 0, Anim->BackLeftLeg, Anim->BackRightLeg);
 	HipsDriver = new FDragonWalkHipSwayDriver(Anim, &Anim->ControlledHips,0,  Anim->BackLeftLeg, Anim->BackRightLeg);
-	FProceduralPose::BodyDriver = BodyDriver;
-	FProceduralPose::HipsDriver = HipsDriver;
+	BodyDrivers = { BodyDriver };
+	HipsDrivers = { HipsDriver };
 	
 	LeftLegDriver = new FDragonTrotLegDriver(Anim, Anim->BackLeftLeg);
 	RightLegDriver = new FDragonTrotLegDriver(Anim, Anim->BackRightLeg);

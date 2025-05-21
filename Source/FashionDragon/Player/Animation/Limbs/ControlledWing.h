@@ -21,7 +21,7 @@ public:
 	// Flap state [-1.0f, 1.0f]
 	float Flap = 0.0f;
 	// 0: Wing folded, 1: Wing fully extended
-	float Openness = 0.0f;
+	float Openness = 1.0f;
 
 	FName GetBoneName(int BoneIdx) const;
 };

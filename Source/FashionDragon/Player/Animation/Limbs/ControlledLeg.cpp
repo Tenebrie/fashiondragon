@@ -84,6 +84,7 @@ FPlantedPositionData FControlledLeg::GetPlantedWorldPosition(const FVector& AtPo
 void FControlledLeg::Tick(const float DeltaTime)
 {
 	FControlledBone::Tick(DeltaTime);
+	if (DeltaTime < KINDA_SMALL_NUMBER) { return; }
 
 	const auto PlantedPos = GetPlantedWorldPosition(2.0f);
 	if (PlantedPos.GroundHit && !IsGrounded)
@@ -91,6 +92,24 @@ void FControlledLeg::Tick(const float DeltaTime)
 		AnimInstance->GetCharacter()->OnLegPlanted.Broadcast(GetWorldPosition());
 	}
 	IsGrounded = PlantedPos.GroundHit;
+
+	const auto WorldPosition = GetWorldPosition();
+	const auto WorldRotation = GetWorldRotation();
+
+	constexpr float MomentumSmoothTime = 0.6f;
+	constexpr float MomentumDampingCoefficient = 1.0f;
+	
+	const FVector DeltaPos = WorldPosition - PreviousWorldPosition;
+	const FVector LinearVelocity = DeltaPos / DeltaTime;
+
+	const float Alpha = 1.f - FMath::Exp(-DeltaTime / MomentumSmoothTime);
+	LinearMomentum = FMath::Lerp(LinearMomentum, LinearVelocity, Alpha);
+
+	const float DecayFactor = FMath::Exp(-MomentumDampingCoefficient * DeltaTime);
+	LinearMomentum *= DecayFactor;
+	
+	PreviousWorldPosition = WorldPosition;
+	PreviousWorldRotation = WorldRotation;
 }
 
 FVector FControlledLeg::GetWorldPosition(const FVector& FromPosition) const

@@ -8,6 +8,16 @@ struct FDragonWingStateData
 {
 	float Flap = 0.0f;
 	float Openness = 0.0f;
+
+	/**
+	 * Duration of the state in seconds.
+	 * Should not be modified dynamically.
+	 */
+	float Duration = 1.0f;
+	/**
+	 * Playback speed. Can be safely modified dynamically.
+	 */
+	mutable float PlaybackSpeed = 1.0f;
 	
 	/**
 	 * Maximum force an effector may apply to the bone in this state.
@@ -19,16 +29,6 @@ struct FDragonWingStateData
 	 * Effectively, maximum speed (angles) per second.
 	 */
 	float AngularForce = 360.0f;
-	/**
-	 * Duration of the state in seconds.
-	 * Should not be modified dynamically.
-	 */
-	float Duration = 1.0f;
-
-	/**
-	 * Playback speed. Can be safely modified dynamically.
-	 */
-	mutable float PlaybackSpeed = 1.0f;
 
 	FVector StartArticulationPosition = FVector(0.0f, 0.0f, 0.0f);
 	FVector StartArticulationRotation = FVector(0.0f, 0.0f, 0.0f);

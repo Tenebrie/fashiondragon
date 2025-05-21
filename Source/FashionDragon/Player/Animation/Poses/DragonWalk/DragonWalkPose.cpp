@@ -5,6 +5,8 @@
 #include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
+#include "FashionDragon/Player/Animation/Poses/DragonIdle/Drivers/DragonIdleWingDriver.h"
+#include "FashionDragon/Player/Animation/Poses/DragonTrot/DragonTrotPose.h"
 #include "FashionDragon/Utils/Utils.h"
 
 // ============================================================================
@@ -72,9 +74,9 @@ void FDragonWalkHipSwayDriver::Tick(const float DeltaTime)
 	const auto RightLegOffset = -std::min(1.0, RightLeg->Position.Y / 750.0f);
 	const auto Value = LeftLegOffset + RightLegOffset;
 
-	const auto Sway = FMath::Sin(Value * PI) * 12.0f;
+	const auto Sway = FMath::Sin(Value * PI) * 8.0f;
 	
-	DesiredRotation = FRotator(0.0f, Sway, 0.0f);
+	DesiredRotation = FRotator(0.0f, Sway, Sway);
 }
 
 void FDragonWalkHipSwayDriver::SyncStateFrom(const FDragonWalkHipSwayDriver* TargetDriver)
@@ -125,8 +127,8 @@ FDragonWalkStateData FDragonWalkLegDriver::GetRawWalkStateData() const
 			{
 				.TargetPosition = FVector(0.0f, 0.0f, 0.0f),
 				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
-				.LinearForce = 2500.f,
-				.AngularForce = 360.0f,
+				.LinearForce = 2.5,
+				.AngularForce = 1.0f,
 				.Duration = 1.0f
 			}
 		},
@@ -134,8 +136,8 @@ FDragonWalkStateData FDragonWalkLegDriver::GetRawWalkStateData() const
 			{
 				.TargetPosition = FVector(0.0f, 0.0f, 150.0f),
 				.TargetRotation = FRotator(0.0f, 0.0f, 60.0f),
-				.LinearForce = 700.f,
-				.AngularForce = 30.0f,
+				.LinearForce = 0.7f,
+				.AngularForce = 0.1f,
 				.Duration = 0.3f
 			}
 		},
@@ -143,8 +145,8 @@ FDragonWalkStateData FDragonWalkLegDriver::GetRawWalkStateData() const
 			{
 				.TargetPosition = FVector(0.0f, 0.0f, 0.0f),
 				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
-				.LinearForce = 5000.f,
-				.AngularForce = 10.0f,
+				.LinearForce = 5.0f,
+				.AngularForce = 0.03f,
 				.Duration = 0.3f
 			}
 		},
@@ -152,8 +154,8 @@ FDragonWalkStateData FDragonWalkLegDriver::GetRawWalkStateData() const
 			{
 				.TargetPosition = FVector(0.0f, 0.0f, 0.0f),
 				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
-				.LinearForce = 10000.f,
-				.AngularForce = 360.0f,
+				.LinearForce = 10.f,
+				.AngularForce = 1.0f,
 				.Duration = 0.7f
 			}
 		},
@@ -161,8 +163,8 @@ FDragonWalkStateData FDragonWalkLegDriver::GetRawWalkStateData() const
 			{
 				.TargetPosition = FVector(-20.0f, 300.0f, 0.0f),
 				.TargetRotation = FRotator(0.0f, 15.0f, 0.0f),
-				.LinearForce = 25000.f,
-				.AngularForce = 360.0f,
+				.LinearForce = 2.0f,
+				.AngularForce = 1.0f,
 				.Duration = 0.7f,
 				.StartArticulationPosition = FVector(15.0f, 0.0f, 150.0f),
 				.StartArticulationRotation = FVector(0.0f, 0.0f, 60.0f),
@@ -174,8 +176,8 @@ FDragonWalkStateData FDragonWalkLegDriver::GetRawWalkStateData() const
 			{
 				.TargetPosition = FVector(0.0f, -250.0f, 200.0f),
 				.TargetRotation = FRotator(0.0f, 0.0f, 60.0f),
-				.LinearForce = 2000.0f,
-				.AngularForce = 360.0f,
+				.LinearForce = 2.0f,
+				.AngularForce = 1.0f,
 				.Duration = 0.5f
 			}
 		},
@@ -208,14 +210,20 @@ FDragonWalkPose::FDragonWalkPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 {
 	BodyDriver = new FDragonWalkBodyDriver(Anim, &Anim->ControlledBody, 0, Anim->BackLeftLeg, Anim->BackRightLeg);
 	HipsDriver = new FDragonWalkHipSwayDriver(Anim, &Anim->ControlledHips, 0, Anim->BackLeftLeg, Anim->BackRightLeg);
-	FProceduralPose::BodyDriver = BodyDriver;
-	FProceduralPose::HipsDriver = HipsDriver;
+	BodyDrivers = { BodyDriver };
+	HipsDrivers = { HipsDriver };
 
 	LeftLegDriver = new FDragonWalkLegDriver(Anim, Anim->BackLeftLeg);
 	RightLegDriver = new FDragonWalkLegDriver(Anim, Anim->BackRightLeg);
 	LegDrivers = {
 		LeftLegDriver,
 		RightLegDriver,
+	};
+
+	// Shares a driver with idle animation
+	WingDrivers = {
+		new FDragonIdleWingDriver(Anim, Anim->LeftWing),
+		new FDragonIdleWingDriver(Anim, Anim->RightWing),
 	};
 }
 

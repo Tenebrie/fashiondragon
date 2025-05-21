@@ -173,18 +173,17 @@ FPoseEffector FProceduralLegDriver::ToEffector(const FPoseEffector& BaseEffector
 	auto LinearSpeed = State.LinearForce * Context.BlendAlpha * Context.DeltaTime;
 	auto RotationSpeed = State.AngularForce * Context.BlendAlpha;
 
-	if (WalkingState == ELegWalkingState::Planted)
-	{
-		LinearSpeed *= 1.f;
-		RotationSpeed *= 0.1f;
-	}
+	// if (WalkingState == ELegWalkingState::Planted)
+	// {
+	// 	RotationSpeed *= 0.1f;
+	// }
 	
 	const auto Direction = (TargetPosition - BaseEffector.Position).GetSafeNormal();
-	const auto DistanceToMove = std::min(LinearSpeed, static_cast<float>((TargetPosition - BaseEffector.Position).Size()));
+	const auto DistanceToMove = std::min(LinearSpeed * 1000.0f, static_cast<float>((TargetPosition - BaseEffector.Position).Size()));
 	
 	auto NewRotation = BaseEffector.Rotation;
 	if (RotationSpeed > 0)
-		NewRotation = FMath::RInterpTo(BaseEffector.Rotation, TargetRotation, Context.DeltaTime, RotationSpeed);
+		NewRotation = FMath::RInterpTo(BaseEffector.Rotation, TargetRotation, Context.DeltaTime, RotationSpeed * 360.0f);
 
 	return BaseEffector
 		.AddPosition(Direction * DistanceToMove)

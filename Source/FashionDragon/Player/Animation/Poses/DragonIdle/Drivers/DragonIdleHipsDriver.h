@@ -4,6 +4,7 @@
 class FDragonIdleHipsDriver final : public FProceduralBoneDriver
 {
 	float TargetBlendAlpha = 1.0f;
+	float TailSwingCycle = 0.0f;
 public:
 	FDragonIdleHipsDriver(
 		UDragonAnimInstance* AnimInstance,

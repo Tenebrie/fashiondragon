@@ -5,6 +5,7 @@
 #include "Drivers/DragonIdleLegDriver.h"
 #include "Drivers/DragonIdleWingDriver.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
+#include "FashionDragon/Player/Animation/Poses/DragonWalk/DragonWalkPose.h"
 #include "FashionDragon/Utils/Utils.h"
 
 enum class ELegIdleState;
@@ -15,8 +16,8 @@ FDragonIdlePose::FDragonIdlePose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 {
 	BodyDriver = new FDragonIdleBodyDriver(Anim, &Anim->ControlledBody, 0);
 	HipsDriver = new FDragonIdleHipsDriver(Anim, &Anim->ControlledHips, 0);
-	FProceduralPose::BodyDriver = BodyDriver;
-	FProceduralPose::HipsDriver = HipsDriver;
+	BodyDrivers = { BodyDriver };
+	HipsDrivers = { HipsDriver };
 
 	LeftLegDriver = new FDragonIdleLegDriver(Anim, Anim->BackLeftLeg);
 	RightLegDriver = new FDragonIdleLegDriver(Anim, Anim->BackRightLeg);

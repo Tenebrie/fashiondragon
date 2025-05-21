@@ -1,5 +1,7 @@
 ﻿#include "ProceduralWingDriver.h"
 
+#include "FashionDragon/DebugTools/QuickDebug.h"
+
 FDragonWingStateData FProceduralWingDriver::GetTargetPosition() const
 {
 	return FDragonWingStateData { .Duration = 0.5f };
@@ -39,10 +41,10 @@ FPoseWingEffector FProceduralWingDriver::ToEffector(const FPoseWingEffector& Bas
 	
 	const auto LinearSpeed = State.LinearForce * Context.BlendAlpha * Context.DeltaTime;
 
-	const auto FlapDistToMove = std::min(LinearSpeed, State.Flap - Wing->Flap);
-	const auto OpennessDistToMove = std::min(LinearSpeed, State.Openness - Wing->Openness);
+	const auto FlapDistToMove = std::min(LinearSpeed, FMath::Abs(State.Flap - Wing->Flap));
+	const auto OpennessDistToMove = std::min(LinearSpeed, FMath::Abs(State.Openness - Wing->Openness));
 	
 	return BaseEffector
-		.AddFlap(FlapDistToMove)
-		.AddOpenness(OpennessDistToMove);
+		.AddFlap(FlapDistToMove * FMath::Sign(State.Flap - Wing->Flap))
+		.AddOpenness(OpennessDistToMove * FMath::Sign(State.Openness - Wing->Openness));
 }

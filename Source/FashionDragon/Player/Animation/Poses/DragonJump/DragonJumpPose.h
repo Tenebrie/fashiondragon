@@ -5,6 +5,7 @@ enum class ELegJumpState
 {
 	Pushing,
 	Retracting,
+	DelayedLanding,
 	Landing,
 	Impact,
 	Relaxed,
@@ -22,8 +23,11 @@ class FDragonJumpBodyDriver final : public FProceduralBoneDriver
 {
 	float TargetBlendAlpha = 1.0f;
 public:
-	FDragonJumpBodyDriver(UDragonAnimInstance* AnimInstance, TArray<FControlledBone*>* ControlledBones, const int DriverGroup):
-		FProceduralBoneDriver(AnimInstance, ControlledBones, DriverGroup) {}
+	FDragonJumpBodyDriver(
+		UDragonAnimInstance* AnimInstance,
+		TArray<FControlledBone*>* ControlledBones,
+		const auto DriverGroup = EBodyDriverGroup::General
+	): FProceduralBoneDriver(AnimInstance, ControlledBones, DriverGroup) {}
 	
 	virtual void Tick(float DeltaTime) override;
 	
@@ -36,6 +40,8 @@ public:
 
 class FDragonJumpLegDriver final : public FProceduralLegDriver
 {
+	float JumpLagBehind = 0.0f;
+	FVector JumpPositionOffset = FVector::ZeroVector;
 public:
 	FDragonJumpLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg);
 
@@ -49,6 +55,8 @@ public:
 	void SetJumpState(ELegJumpState NewJumpState);
 
 	FDragonJumpLegDriverStateChangedDelegate OnJumpStateChanged;
+
+	void UpdateRandomness(const bool LagBehind);
 };
 
 /**
@@ -56,6 +64,7 @@ public:
  */
 class FDragonJumpPose final : public FProceduralPose
 {
+	bool SwitchJumpingLeg = false;
 	FDragonJumpBodyDriver* BodyDriver;
 	FDragonJumpLegDriver* LeftLegDriver;
 	FDragonJumpLegDriver* RightLegDriver;

@@ -28,14 +28,7 @@ FPoseEffector FProceduralBoneDriver::ToEffector(const FPoseEffector& BaseEffecto
 	const auto NewPos = FMath::VInterpTo(BaseEffector.Position, DesiredPosition, Context.DeltaTime, DesiredForce * Context.BlendAlpha);
 	const auto NewRot = FMath::RInterpTo(BaseEffector.Rotation, DesiredRotation, Context.DeltaTime, DesiredForce * Context.BlendAlpha);
 
-	const auto Effector = BaseEffector
+	return BaseEffector
 		.SetPosition(NewPos)
 		.SetRotation(NewRot);
-	return Effector;
-}
-
-FPoseEffector FProceduralBoneDriver::ToPostProcessEffector(const FPoseEffector& BaseEffector,
-	const FPoseEffectorContext& Context)
-{
-	return BaseEffector;
 }

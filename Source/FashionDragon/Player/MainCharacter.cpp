@@ -59,8 +59,8 @@ void AMainCharacter::BeginPlay()
     GetCharacterMovement()->bOrientRotationToMovement = false;
     GetCharacterMovement()->JumpZVelocity = 600.f;
     GetCharacterMovement()->AirControl = 0.2f;
-    GetCharacterMovement()->MaxWalkSpeed = 800.f;
-    GetCharacterMovement()->MaxAcceleration = 1000.f;
+    GetCharacterMovement()->MaxWalkSpeed = 2000.f;
+    GetCharacterMovement()->MaxAcceleration = 2048.f;
     GetCharacterMovement()->BrakingDecelerationWalking = 1000.f;
     MeshRoot->SetUsingAbsoluteRotation(true);
 }

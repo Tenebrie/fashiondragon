@@ -1,12 +1,14 @@
 ﻿#pragma once
 #include <map>
 
-#include "Poses/DragonFootPlacement/DragonFootPlacementPose.h"
-#include "Poses/DragonIdle/DragonIdlePose.h"
-#include "Poses/DragonJump/DragonJumpPose.h"
-#include "Poses/DragonTrot/DragonTrotPose.h"
-#include "Poses/DragonWalk/DragonWalkPose.h"
-
+class FProceduralPose;
+class FDragonIdlePose;
+class FDragonWalkPose;
+class FDragonTrotPose;
+class FDragonJumpPose;
+class FDragonRandomSwayPose;
+class FDragonMomentumPose;
+class FDragonFootPlacementPose;
 class AMainCharacter;
 
 enum class EAnimationState
@@ -24,6 +26,8 @@ public:
 	FDragonWalkPose* WalkPoseDriver;
 	FDragonTrotPose* TrotPoseDriver;
 	FDragonJumpPose* JumpPoseDriver;
+	FDragonRandomSwayPose* RandomSwayDriver;
+	FDragonMomentumPose* MomentumDriver;
 	FDragonFootPlacementPose* FootPlacementDriver;
 
 	TArray<FProceduralPose*> PoseDrivers;
@@ -34,23 +38,10 @@ public:
 		FDragonWalkPose* WalkPoseDriver,
 		FDragonTrotPose* TrotPoseDriver,
 		FDragonJumpPose* JumpPoseDriver,
+		FDragonRandomSwayPose* RandomSwayDriver,
+		FDragonMomentumPose* MomentumDriver,
 		FDragonFootPlacementPose* FootPlacementDriver
-	):
-		IdlePoseDriver(IdlePoseDriver),
-		WalkPoseDriver(WalkPoseDriver),
-		TrotPoseDriver(TrotPoseDriver),
-		JumpPoseDriver(JumpPoseDriver),
-		FootPlacementDriver(FootPlacementDriver)
-	{
-		PoseDrivers = {
-			IdlePoseDriver,
-			WalkPoseDriver,
-			TrotPoseDriver,
-			JumpPoseDriver,
-			FootPlacementDriver,
-		};
-		InitTransitions();
-	}
+	);
 
 	float AnimationLockout = 0.0f;
 

@@ -1,5 +1,6 @@
 ﻿#include "DragonWingPoseAdapter.h"
 
+#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "PhysicsEngine/ConstraintInstance.h"
 
