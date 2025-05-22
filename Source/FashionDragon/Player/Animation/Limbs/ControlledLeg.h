@@ -44,8 +44,6 @@ public:
 	FVector Position = FVector::ZeroVector;
 	FRotator Rotation = FRotator::ZeroRotator;
 	FVector IKBoneOffset = FVector::ZeroVector;
-	FVector VisualPosition = FVector::ZeroVector;
-	FRotator VisualRotation = FRotator::ZeroRotator;
 	FVector LinearMomentum = FVector::ZeroVector;
 	FRotator AngularMomentum = FRotator::ZeroRotator;
 

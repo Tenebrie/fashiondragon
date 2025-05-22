@@ -5,8 +5,8 @@
 
 FDragonMomentumPose::FDragonMomentumPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
-	LeftLegDriver = new FDragonMomentumDriverLeg(Anim, Anim->BackLeftLeg);
-	RightLegDriver = new FDragonMomentumDriverLeg(Anim, Anim->BackRightLeg);
+	LeftLegDriver = new FDragonMomentumDriverLeg(Anim, Anim->BackLeftLeg.GetBone(EBodyDriverLayer::Momentum));
+	RightLegDriver = new FDragonMomentumDriverLeg(Anim, Anim->BackRightLeg.GetBone(EBodyDriverLayer::Momentum));
 	LegDrivers = {
 		LeftLegDriver,
 		RightLegDriver,
@@ -18,7 +18,7 @@ FPoseEffector FDragonMomentumDriverLeg::ToEffector(const FPoseEffector& BaseEffe
 {
 	const auto Transform = AnimInstance->GetSkelMeshComponent()->GetAttachParent()->GetComponentTransform().Inverse();
 	const auto WorldMomentum = Transform.GetRotation().RotateVector(Leg->LinearMomentum);
-	Debug::Print(WorldMomentum);
-	return BaseEffector.AddPosition(WorldMomentum * Context.DeltaTime);
-	// return BaseEffector;
+		
+	// return BaseEffector.SetPosition(WorldMomentum / 10.0f);
+	return BaseEffector;
 }

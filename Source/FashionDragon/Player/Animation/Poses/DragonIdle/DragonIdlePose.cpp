@@ -14,13 +14,13 @@ enum class ELegIdleState;
  */
 FDragonIdlePose::FDragonIdlePose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
-	BodyDriver = new FDragonIdleBodyDriver(Anim, &Anim->ControlledBody, 0);
-	HipsDriver = new FDragonIdleHipsDriver(Anim, &Anim->ControlledHips, 0);
+	BodyDriver = new FDragonIdleBodyDriver(Anim, Anim->ControlledBody.GetBone(EBodyDriverLayer::Primary));
+	HipsDriver = new FDragonIdleHipsDriver(Anim, Anim->ControlledHips.GetBone(EBodyDriverLayer::Primary));
 	BodyDrivers = { BodyDriver };
 	HipsDrivers = { HipsDriver };
 
-	LeftLegDriver = new FDragonIdleLegDriver(Anim, Anim->BackLeftLeg);
-	RightLegDriver = new FDragonIdleLegDriver(Anim, Anim->BackRightLeg);
+	LeftLegDriver = new FDragonIdleLegDriver(Anim, Anim->BackLeftLeg.GetBone(EBodyDriverLayer::Primary));
+	RightLegDriver = new FDragonIdleLegDriver(Anim, Anim->BackRightLeg.GetBone(EBodyDriverLayer::Primary));
 	LegDrivers = {
 		LeftLegDriver,
 		RightLegDriver,
@@ -41,8 +41,8 @@ FDragonIdlePose::FDragonIdlePose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 		}
 	});
 
-	LeftWingDriver = new FDragonIdleWingDriver(Anim, Anim->LeftWing);
-	RightWingDriver = new FDragonIdleWingDriver(Anim, Anim->RightWing);
+	LeftWingDriver = new FDragonIdleWingDriver(Anim, Anim->LeftWing.GetBone(EBodyDriverLayer::Primary));
+	RightWingDriver = new FDragonIdleWingDriver(Anim, Anim->RightWing.GetBone(EBodyDriverLayer::Primary));
 	WingDrivers = {
 		LeftWingDriver,
 		RightWingDriver,
@@ -81,4 +81,18 @@ void FDragonIdlePose::SyncStateFrom(const FDragonWalkPose* TargetPose) const
 	BodyDriver->ResetState();
 	LeftLegDriver->SyncIdleStateFrom(TargetPose->LeftLegDriver);
 	RightLegDriver->SyncIdleStateFrom(TargetPose->RightLegDriver);
+}
+
+void FDragonIdlePose::ResetState()
+{
+	BodyDriver->ResetState();
+	HipsDriver->ResetState();
+
+	LeftLegDriver->LockToWorldGround();
+	LeftLegDriver->SetIdleState(ELegIdleState::NeedsReturn);
+	RightLegDriver->LockToWorldGround();
+	RightLegDriver->SetIdleState(ELegIdleState::NeedsReturn);
+
+	const auto FurthestLeg = LeftLegDriver->GetLeg()->Position.Size() > RightLegDriver->GetLeg()->Position.Size() ? LeftLegDriver : RightLegDriver;
+	FurthestLeg->SetIdleState(ELegIdleState::ArticulatedReturn);
 }

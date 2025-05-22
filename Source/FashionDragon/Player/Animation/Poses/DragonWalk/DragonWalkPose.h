@@ -13,11 +13,10 @@ class FDragonWalkBodyDriver final : public FProceduralBoneDriver
 public:
 	FDragonWalkBodyDriver(
 		UDragonAnimInstance* AnimInstance,
-		TArray<FControlledBone*>* ControlledBones,
-		const int DriverGroup,
+		FControlledBone* Bone,
 		FControlledLeg* LeftLeg,
 		FControlledLeg* RightLeg
-	): FProceduralBoneDriver(AnimInstance, ControlledBones, DriverGroup),
+	): FProceduralBoneDriver(AnimInstance, Bone),
 		LeftLeg(LeftLeg), RightLeg(RightLeg)
 	{}
 
@@ -35,11 +34,10 @@ class FDragonWalkHipSwayDriver final : public FProceduralBoneDriver
 public:
 	FDragonWalkHipSwayDriver(
 		UDragonAnimInstance* AnimInstance,
-		TArray<FControlledBone*>* ControlledBones,
-		const int DriverGroup,
+		FControlledBone* Bone,
 		FControlledLeg* LeftLeg,
 		FControlledLeg* RightLeg
-	): FProceduralBoneDriver(AnimInstance, ControlledBones, DriverGroup),
+	): FProceduralBoneDriver(AnimInstance, Bone),
 		Hips(Bone), LeftLeg(LeftLeg), RightLeg(RightLeg) {}
 
 	virtual void Tick(float DeltaTime) override;

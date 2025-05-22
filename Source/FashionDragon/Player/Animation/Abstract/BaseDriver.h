@@ -25,24 +25,3 @@ public:
 	
 	virtual ~FBaseDriver() = default;
 };
-
-namespace EBodyDriverGroup
-{
-	enum EBodyDriverGroup: uint8
-	{
-		General = 0,
-		Jump = 1,
-		Sway = 2,
-		Momentum = 3,
-	};
-}
-
-namespace EHipsDriverGroup
-{
-	enum EHipsDriverGroup: uint8
-	{
-		General = 0,
-		Sway = 1,
-	};
-}
-

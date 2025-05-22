@@ -34,8 +34,8 @@ FPoseEffector FDragonFootPlacementLegDriver::ToPostProcessEffector(const FPoseEf
 
 FDragonFootPlacementPose::FDragonFootPlacementPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
-	LeftLegDriver = new FDragonFootPlacementLegDriver(Anim, Anim->BackLeftLeg);
-	RightLegDriver = new FDragonFootPlacementLegDriver(Anim, Anim->BackRightLeg);
+	LeftLegDriver = new FDragonFootPlacementLegDriver(Anim, Anim->BackLeftLeg.GetBone(EBodyDriverLayer::Primary));
+	RightLegDriver = new FDragonFootPlacementLegDriver(Anim, Anim->BackRightLeg.GetBone(EBodyDriverLayer::Primary));
 	LegDrivers = {
 		LeftLegDriver,
 		RightLegDriver,

@@ -8,9 +8,8 @@ class FDragonIdleHipsDriver final : public FProceduralBoneDriver
 public:
 	FDragonIdleHipsDriver(
 		UDragonAnimInstance* AnimInstance,
-		TArray<FControlledBone*>* ControlledBones,
-		const int DriverGroup
-	): FProceduralBoneDriver(AnimInstance, ControlledBones, DriverGroup) {}
+		FControlledBone* Bone
+	): FProceduralBoneDriver(AnimInstance, Bone) {}
 
 	virtual void Tick(float DeltaTime) override;
 

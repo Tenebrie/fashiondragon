@@ -25,9 +25,8 @@ class FDragonJumpBodyDriver final : public FProceduralBoneDriver
 public:
 	FDragonJumpBodyDriver(
 		UDragonAnimInstance* AnimInstance,
-		TArray<FControlledBone*>* ControlledBones,
-		const auto DriverGroup = EBodyDriverGroup::General
-	): FProceduralBoneDriver(AnimInstance, ControlledBones, DriverGroup) {}
+		FControlledBone* Bone
+	): FProceduralBoneDriver(AnimInstance, Bone) {}
 	
 	virtual void Tick(float DeltaTime) override;
 	

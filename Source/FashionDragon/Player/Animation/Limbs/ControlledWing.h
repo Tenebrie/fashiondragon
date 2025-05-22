@@ -24,4 +24,8 @@ public:
 	float Openness = 1.0f;
 
 	FName GetBoneName(int BoneIdx) const;
+
+	virtual void Tick(const float DeltaTime) {}
+
+	virtual ~FControlledWing() = default;
 };

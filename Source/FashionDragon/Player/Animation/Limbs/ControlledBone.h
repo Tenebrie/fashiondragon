@@ -3,6 +3,9 @@
 class FControlledBone
 {
 public:
+	FControlledBone() = default;
+	FControlledBone(const FControlledBone& Other) = default;
+	
 	FVector Position = FVector(0.0f, 0.0f, 0.0f);
 	FRotator Rotation = FRotator(0.0f, 0.0f, 0.0f);
 

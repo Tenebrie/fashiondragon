@@ -96,7 +96,7 @@ void FControlledLeg::Tick(const float DeltaTime)
 	const auto WorldPosition = GetWorldPosition();
 	const auto WorldRotation = GetWorldRotation();
 
-	constexpr float MomentumSmoothTime = 0.6f;
+	constexpr float MomentumSmoothTime = 0.2f;
 	constexpr float MomentumDampingCoefficient = 1.0f;
 	
 	const FVector DeltaPos = WorldPosition - PreviousWorldPosition;

@@ -21,36 +21,35 @@ void UDragonAnimInstance::NativeInitializeAnimation()
 {
 	LegPositions = TArray<FVector>();
 	LegRotations = TArray<FRotator>();
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 2; i++)
 	{
 		LegPositions.Add(FVector(0.0f, 0.0f, 0.0f));
 		LegRotations.Add(FRotator(0.0f, 0.0f, 0.0f));
 	}
 	WingPoseAdapter = new FDragonWingPoseAdapter(this);
 
-	ControlledBody = TArray<FControlledBone*>();
-	ControlledHips = TArray<FControlledBone*>();
+	ControlledBody = TFControlledBoneGroup(new FControlledBone());
+	ControlledHips = TFControlledBoneGroup(new FControlledBone());
 	
-	ControlledLegs = TArray<FControlledLeg*>();
-	BackLeftLeg = new FControlledLeg(
+	BackLeftLeg = TFControlledBoneGroup(new FControlledLeg(
 		this,
 		"Foot_Back_L",
 		FVector(99.491356, -147.297687, -331.874477),
-				0);
-	BackRightLeg = new FControlledLeg(
+				0));
+	BackRightLeg = TFControlledBoneGroup(new FControlledLeg(
 		this,
 		"Foot_Back_R",
 		FVector(-99.491317, -147.297662, -331.874409),
-				1);
-	ControlledLegs.Add(BackLeftLeg);
-	ControlledLegs.Add(BackRightLeg);
+				1));
+	ControlledLegs = TArray<TFControlledBoneGroup<FControlledLeg>*>();
+	ControlledLegs.Add(&BackLeftLeg);
+	ControlledLegs.Add(&BackRightLeg);
 	
-	LeftWing = new FControlledWing(this, 0);
-	RightWing = new FControlledWing(this, 1);
-	ControlledWings = {
-		LeftWing,
-		RightWing
-	};
+	LeftWing = TFControlledBoneGroup(new FControlledWing(this, 0));
+	RightWing = TFControlledBoneGroup(new FControlledWing(this, 1));
+	ControlledWings = TArray<TFControlledBoneGroup<FControlledWing>*>();
+	ControlledWings.Add(&LeftWing);
+	ControlledWings.Add(&RightWing);
 
 	StateMachine = new FDragonAnimStateMachine(
 		new FDragonIdlePose(this),
@@ -78,84 +77,40 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 	StateMachine->Tick(DeltaTime, OwningActor);
 
 	// Apply body driver
-	auto CumulativeEffector = FPoseEffector();
-	for (int i = 0; i < ControlledBody.Num(); i++)
-	{
-		auto LocalEffector = FPoseEffector(ControlledBody[i]->Position, ControlledBody[i]->Rotation);
-		
-		for (const auto PoseDriver : StateMachine->PoseDrivers)
-		{
-			LocalEffector = PoseDriver->ToBodyEffector(LocalEffector, ControlledBody[i], DeltaTime);
-		}
-		ControlledBody[i]->Position = LocalEffector.Position;
-		ControlledBody[i]->Rotation = LocalEffector.Rotation;
-		CumulativeEffector.Position += LocalEffector.Position;
-		CumulativeEffector.Rotation += LocalEffector.Rotation;
-	}
+	auto CumulativeEffector = ControlledBody.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToBodyEffector, DeltaTime);
 	GetSkelMeshComponent()->SetRelativeLocation(CumulativeEffector.Position);
 	GetSkelMeshComponent()->SetRelativeRotation(CumulativeEffector.Rotation);
 
 	// Apply hips driver
-	CumulativeEffector = FPoseEffector();
-	for (int i = 0; i < ControlledHips.Num(); i++)
-	{
-		auto LocalEffector = FPoseEffector(ControlledHips[i]->Position, ControlledHips[i]->Rotation);
-		
-		for (const auto PoseDriver : StateMachine->PoseDrivers)
-		{
-			LocalEffector = PoseDriver->ToHipsEffector(LocalEffector, ControlledHips[i], DeltaTime);
-		}
-		ControlledHips[i]->Position = LocalEffector.Position;
-		ControlledHips[i]->Rotation = LocalEffector.Rotation;
-		CumulativeEffector.Position += LocalEffector.Position;
-		CumulativeEffector.Rotation += LocalEffector.Rotation;
-	}
+	CumulativeEffector = ControlledHips.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToHipsEffector, DeltaTime);
 	SetBoneOffset("Hip", "Tail_001", CumulativeEffector.Position, CumulativeEffector.Rotation);
 
 	// Apply leg drivers
 	for (int i = 0; i < ControlledLegs.Num(); i++)
 	{
-		const auto Leg = ControlledLegs[i];
-
-		CumulativeEffector = FPoseEffector(Leg->Position, Leg->Rotation);
-		for (const auto PoseDriver : StateMachine->PoseDrivers)
-			CumulativeEffector = PoseDriver->ToLegEffector(CumulativeEffector, ControlledLegs[i], DeltaTime);
-
-		// Merge the positions and rotations of all effectors
-		Leg->Position = CumulativeEffector.Position;
-		Leg->Rotation = CumulativeEffector.Rotation;
-
-		CumulativeEffector = FPoseEffector(Leg->Position, Leg->Rotation);
-		for (const auto PoseDriver : StateMachine->PoseDrivers)
-			CumulativeEffector = PoseDriver->ToPostProcessLegEffector(CumulativeEffector, ControlledLegs[i], DeltaTime);
+		// TODO: Move PostProcess to a layer
+		CumulativeEffector = ControlledLegs[i]->MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToLegEffector, DeltaTime);
 
 		LegPositions[i] = CumulativeEffector.Position;
 		LegRotations[i] = CumulativeEffector.Rotation;
-		Leg->VisualPosition = CumulativeEffector.Position;
-		Leg->VisualRotation = CumulativeEffector.Rotation;
 	}
 
 	// Apply wing drivers
 	for (int i = 0; i < ControlledWings.Num(); i++)
 	{
-		const auto Wing = ControlledWings[i];
+		const auto WingGroup = ControlledWings[i];
+		const auto WingEffector = WingGroup->MakeWingEffector(StateMachine->PoseDrivers, &FProceduralPose::ToWingEffector, DeltaTime);
 
-		auto CumulativeWingEffector = FPoseWingEffector(Wing->Flap, Wing->Openness);
-		for (const auto PoseDriver : StateMachine->PoseDrivers)
-			CumulativeWingEffector = PoseDriver->ToWingEffector(CumulativeWingEffector, ControlledWings[i], DeltaTime);
-
-		Wing->Flap = CumulativeWingEffector.Flap;
-		Wing->Openness = CumulativeWingEffector.Openness;
-
-		WingPoseAdapter->ApplyEffector(Wing, CumulativeWingEffector);
+		for (const auto Layer : *WingGroup)
+			WingPoseAdapter->ApplyEffector(Layer, WingEffector);
 	}
 
-	for (FControlledBone* Body : ControlledBody)
-		Body->Tick(DeltaTime);
-	for (FControlledBone* Hips : ControlledHips)
-		Hips->Tick(DeltaTime);
-	for (FControlledLeg* Leg : ControlledLegs)
-		Leg->Tick(DeltaTime);
+	ControlledBody.Tick(DeltaTime);
+	ControlledHips.Tick(DeltaTime);
+	for (TFControlledBoneGroup<FControlledLeg>* ControlledLeg : ControlledLegs)
+		ControlledLeg->Tick(DeltaTime);
+	for (TFControlledBoneGroup<FControlledWing>* ControlledWing : ControlledWings)
+		ControlledWing->Tick(DeltaTime);
 }
 
 void UDragonAnimInstance::SetBoneOffset(const FName ParentBone, const FName ChildName, const FVector& Position, const FRotator& Rotation) const

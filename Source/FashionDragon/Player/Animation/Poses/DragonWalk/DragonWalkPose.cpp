@@ -208,13 +208,13 @@ void FDragonWalkLegDriver::Tick(const float DeltaTime)
 
 FDragonWalkPose::FDragonWalkPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
-	BodyDriver = new FDragonWalkBodyDriver(Anim, &Anim->ControlledBody, 0, Anim->BackLeftLeg, Anim->BackRightLeg);
-	HipsDriver = new FDragonWalkHipSwayDriver(Anim, &Anim->ControlledHips, 0, Anim->BackLeftLeg, Anim->BackRightLeg);
+	BodyDriver = new FDragonWalkBodyDriver(Anim, Anim->ControlledBody.GetBone(EBodyDriverLayer::Primary), Anim->BackLeftLeg.GetBone(EBodyDriverLayer::Primary), Anim->BackRightLeg.GetBone(EBodyDriverLayer::Primary));
+	HipsDriver = new FDragonWalkHipSwayDriver(Anim, Anim->ControlledHips.GetBone(EBodyDriverLayer::Primary), Anim->BackLeftLeg.GetBone(EBodyDriverLayer::Primary), Anim->BackRightLeg.GetBone(EBodyDriverLayer::Primary));
 	BodyDrivers = { BodyDriver };
 	HipsDrivers = { HipsDriver };
 
-	LeftLegDriver = new FDragonWalkLegDriver(Anim, Anim->BackLeftLeg);
-	RightLegDriver = new FDragonWalkLegDriver(Anim, Anim->BackRightLeg);
+	LeftLegDriver = new FDragonWalkLegDriver(Anim, Anim->BackLeftLeg.GetBone(EBodyDriverLayer::Primary));
+	RightLegDriver = new FDragonWalkLegDriver(Anim, Anim->BackRightLeg.GetBone(EBodyDriverLayer::Primary));
 	LegDrivers = {
 		LeftLegDriver,
 		RightLegDriver,
@@ -222,8 +222,8 @@ FDragonWalkPose::FDragonWalkPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 
 	// Shares a driver with idle animation
 	WingDrivers = {
-		new FDragonIdleWingDriver(Anim, Anim->LeftWing),
-		new FDragonIdleWingDriver(Anim, Anim->RightWing),
+		new FDragonIdleWingDriver(Anim, Anim->LeftWing.GetBone(EBodyDriverLayer::Primary)),
+		new FDragonIdleWingDriver(Anim, Anim->RightWing.GetBone(EBodyDriverLayer::Primary)),
 	};
 }
 

@@ -54,13 +54,13 @@ void FDragonTrotLegDriver::AdvanceState()
 
 FDragonTrotPose::FDragonTrotPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
-	BodyDriver = new FDragonWalkBodyDriver(Anim, &Anim->ControlledBody, 0, Anim->BackLeftLeg, Anim->BackRightLeg);
-	HipsDriver = new FDragonWalkHipSwayDriver(Anim, &Anim->ControlledHips,0,  Anim->BackLeftLeg, Anim->BackRightLeg);
+	BodyDriver = new FDragonWalkBodyDriver(Anim, Anim->ControlledBody.GetBone(EBodyDriverLayer::Primary), Anim->BackLeftLeg.GetBone(EBodyDriverLayer::Primary), Anim->BackRightLeg.GetBone(EBodyDriverLayer::Primary));
+	HipsDriver = new FDragonWalkHipSwayDriver(Anim, Anim->ControlledHips.GetBone(EBodyDriverLayer::Primary),  Anim->BackLeftLeg.GetBone(EBodyDriverLayer::Primary), Anim->BackRightLeg.GetBone(EBodyDriverLayer::Primary));
 	BodyDrivers = { BodyDriver };
 	HipsDrivers = { HipsDriver };
 	
-	LeftLegDriver = new FDragonTrotLegDriver(Anim, Anim->BackLeftLeg);
-	RightLegDriver = new FDragonTrotLegDriver(Anim, Anim->BackRightLeg);
+	LeftLegDriver = new FDragonTrotLegDriver(Anim, Anim->BackLeftLeg.GetBone(EBodyDriverLayer::Primary));
+	RightLegDriver = new FDragonTrotLegDriver(Anim, Anim->BackRightLeg.GetBone(EBodyDriverLayer::Primary));
 	LegDrivers = {
 		LeftLegDriver,
 		RightLegDriver,

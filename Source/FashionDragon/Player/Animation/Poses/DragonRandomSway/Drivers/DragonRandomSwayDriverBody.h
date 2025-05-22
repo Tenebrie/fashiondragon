@@ -8,8 +8,8 @@ class FDragonRandomSwayDriverBody final : public FProceduralBoneDriver
 	FPerlinNoiseGenerator PositionSwayNoise = FPerlinNoiseGenerator(20.0f, 0.15f);
 	FPerlinNoiseGenerator RotationSwayNoise = FPerlinNoiseGenerator(1.0f, 0.07f);
 public:
-	FDragonRandomSwayDriverBody(UDragonAnimInstance* AnimInstance, TArray<FControlledBone*>* ControlledBones, const int DriverGroup)
-		: FProceduralBoneDriver(AnimInstance, ControlledBones, DriverGroup)
+	FDragonRandomSwayDriverBody(UDragonAnimInstance* AnimInstance, FControlledBone* Bone)
+		: FProceduralBoneDriver(AnimInstance, Bone)
 	{
 	}
 

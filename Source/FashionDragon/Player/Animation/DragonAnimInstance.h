@@ -5,6 +5,7 @@
 #include "DragonAnimStateMachine.h"
 #include "Adapters/DragonWingPoseAdapter.h"
 #include "Animation/AnimInstance.h"
+#include "Structs/ControlledBoneGroup.h"
 #include "DragonAnimInstance.generated.h"
 
 class AMainCharacter;
@@ -14,8 +15,8 @@ class FASHIONDRAGON_API UDragonAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 	
-	TArray<FControlledLeg*> ControlledLegs;
-	TArray<FControlledWing*> ControlledWings;
+	TArray<TFControlledBoneGroup<FControlledLeg>*> ControlledLegs;
+	TArray<TFControlledBoneGroup<FControlledWing>*> ControlledWings;
 
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaTime) override;
@@ -25,12 +26,16 @@ class FASHIONDRAGON_API UDragonAnimInstance : public UAnimInstance
 
 public:
 	FDragonAnimStateMachine* StateMachine;
-	TArray<FControlledBone*> ControlledBody;
-	TArray<FControlledBone*> ControlledHips;
-	FControlledLeg* BackLeftLeg;
-	FControlledLeg* BackRightLeg;
-	FControlledWing* LeftWing;
-	FControlledWing* RightWing;
+	TFControlledBoneGroup<FControlledBone> ControlledBody;
+	TFControlledBoneGroup<FControlledBone> ControlledHips;
+	TFControlledBoneGroup<FControlledLeg> BackLeftLeg;
+	TFControlledBoneGroup<FControlledLeg> BackRightLeg;
+	TFControlledBoneGroup<FControlledWing> LeftWing;
+	TFControlledBoneGroup<FControlledWing> RightWing;
+	// FControlledLeg* BackLeftLeg;
+	// FControlledLeg* BackRightLeg;
+	// FControlledWing* LeftWing;
+	// FControlledWing* RightWing;
 
 	FDragonWingPoseAdapter* WingPoseAdapter;
 

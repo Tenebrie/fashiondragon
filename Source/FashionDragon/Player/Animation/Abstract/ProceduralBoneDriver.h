@@ -23,12 +23,9 @@ protected:
 	FVector ArticulationRotation = FVector::ZeroVector;
 	
 public:
-	FProceduralBoneDriver(UDragonAnimInstance* AnimInstance, TArray<FControlledBone*>* ControlledBones, const int DriverGroup):
-		FBaseDriver(AnimInstance)
+	FProceduralBoneDriver(UDragonAnimInstance* AnimInstance, FControlledBone* Bone):
+		FBaseDriver(AnimInstance), Bone(Bone)
 	{
-		while (ControlledBones->Num() < DriverGroup + 1)
-			ControlledBones->Add(new FControlledBone());
-		Bone = (*ControlledBones)[DriverGroup];
 	}
 
 	virtual void Tick(float DeltaTime);

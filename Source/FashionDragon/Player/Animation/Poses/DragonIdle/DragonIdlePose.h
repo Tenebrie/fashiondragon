@@ -23,4 +23,5 @@ public:
 	FDragonIdleWingDriver* RightWingDriver;
 
 	void SyncStateFrom(const FDragonWalkPose* TargetPose) const;
+	virtual void ResetState() override;
 };
