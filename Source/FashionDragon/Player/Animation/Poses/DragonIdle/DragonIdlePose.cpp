@@ -4,6 +4,7 @@
 #include "Drivers/DragonIdleHipsDriver.h"
 #include "Drivers/DragonIdleLegDriver.h"
 #include "Drivers/DragonIdleWingDriver.h"
+#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "FashionDragon/Player/Animation/Poses/DragonWalk/DragonWalkPose.h"
 #include "FashionDragon/Utils/Utils.h"
@@ -58,7 +59,7 @@ void FDragonIdlePose::Tick(const float DeltaTime)
 
 	const auto LeftLeg = LeftLegDriver->GetLeg();
 	const auto RightLeg = RightLegDriver->GetLeg();
-	
+
 	const auto ShouldLeftDisconnect = LeftLeg->Position.Size() > 25.0f || FUtils::GetRotatorDistance(LeftLeg->Rotation) > 15.0f;
 	if (RightLegDriver->IdleState != ELegIdleState::ArticulatedReturn && LeftLegDriver->IdleState == ELegIdleState::Planted && ShouldLeftDisconnect)
 	{

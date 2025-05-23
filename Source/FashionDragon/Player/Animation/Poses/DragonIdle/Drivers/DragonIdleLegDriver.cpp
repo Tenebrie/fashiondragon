@@ -1,5 +1,6 @@
 ﻿#include "DragonIdleLegDriver.h"
 
+#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/Animation/Enums/LegIdleState.h"
 #include "FashionDragon/Player/Animation/Poses/DragonWalk/DragonWalkPose.h"
 #include "FashionDragon/Utils/Utils.h"
@@ -20,19 +21,15 @@ FDragonWalkStateData FDragonIdleLegDriver::GetRawWalkStateData() const
 void FDragonIdleLegDriver::Tick(const float DeltaTime)
 {
 	FProceduralLegDriver::Tick(DeltaTime);
-	if (IdleState == ELegIdleState::Relaxed)
-	{
-		LockToWorldGround();
-		SetIdleState(ELegIdleState::Planted);
-	}
+	
 	if (IdleState == ELegIdleState::ArticulatedReturn && Leg->Position.Size() < 5.f)
 	{
 		LockToWorldGround();
 		SetIdleState(ELegIdleState::Planted);
 	}
 
-	const auto ShouldLeftDisconnect = Leg->Position.Size() > 150.0f || FUtils::GetRotatorDistance(Leg->Rotation) > 50.0f;
-	if (IdleState != ELegIdleState::ArticulatedReturn && IdleState == ELegIdleState::Planted && ShouldLeftDisconnect)
+	const auto ShouldDisconnect = Leg->Position.Size() > 150.0f || FUtils::GetRotatorDistance(Leg->Rotation) > 50.0f;
+	if (IdleState != ELegIdleState::ArticulatedReturn && IdleState == ELegIdleState::Planted && ShouldDisconnect)
 	{
 		SetIdleState(ELegIdleState::ArticulatedReturn);
 	}

@@ -20,6 +20,7 @@ class FASHIONDRAGON_API UDragonAnimInstance : public UAnimInstance
 
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaTime) override;
+	virtual void NativeBeginPlay() override; 
 
 	TMap<FName, FTransform> LastBoneOffsets;
 	void SetBoneOffset(FName ParentBone, FName ChildName, const FVector& Position, const FRotator& Rotation) const;
@@ -32,10 +33,6 @@ public:
 	TFControlledBoneGroup<FControlledLeg> BackRightLeg;
 	TFControlledBoneGroup<FControlledWing> LeftWing;
 	TFControlledBoneGroup<FControlledWing> RightWing;
-	// FControlledLeg* BackLeftLeg;
-	// FControlledLeg* BackRightLeg;
-	// FControlledWing* LeftWing;
-	// FControlledWing* RightWing;
 
 	FDragonWingPoseAdapter* WingPoseAdapter;
 

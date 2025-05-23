@@ -9,6 +9,7 @@ enum class EBodyDriverLayer: uint8
 	Jump = 1,
 	Sway = 2,
 	Momentum = 3,
+	LegPlacement = 4,
 };
 
 template <typename T, typename EffectorT>
@@ -30,8 +31,8 @@ public:
 	int GetLayerCount();
 
 	template<typename EffectorT>
-	EffectorT MakeEffector(TArray<FProceduralPose*> PoseDrivers, TMemFn<T, EffectorT> EffectorFunc, const float DeltaTime);
-	FPoseWingEffector MakeWingEffector(TArray<FProceduralPose*> PoseDrivers, TMemFn<T, FPoseWingEffector> EffectorFunc, const float DeltaTime);
+	EffectorT MakeEffector(TArray<FProceduralPose*> PoseDrivers, TMemFn<T, EffectorT> EffectorFunc, const float DeltaTime, const bool ApplyChanges, EffectorT Base = EffectorT());
+	FPoseWingEffector MakeWingEffector(TArray<FProceduralPose*> PoseDrivers, TMemFn<T, FPoseWingEffector> EffectorFunc, const float DeltaTime, const bool ApplyChanges, FPoseWingEffector Base = FPoseWingEffector());
 
 	// Support iterating
 	auto begin() { return ControlledBones.CreateIterator(); }
@@ -76,9 +77,11 @@ int TFControlledBoneGroup<T>::GetLayerCount()
 
 template <typename T>
 template <typename EffectorT>
-EffectorT TFControlledBoneGroup<T>::MakeEffector(TArray<FProceduralPose*> PoseDrivers, TMemFn<T, EffectorT> EffectorFunc, const float DeltaTime)
+EffectorT TFControlledBoneGroup<T>::MakeEffector(TArray<FProceduralPose*> PoseDrivers,
+                                                 TMemFn<T, EffectorT> EffectorFunc, const float DeltaTime,
+                                                 const bool ApplyChanges, EffectorT Base)
 {
-	auto CumulativeEffector = EffectorT();
+	auto CumulativeEffector = EffectorT(Base);
 	for (int i = 0; i < ControlledBones.Num(); i++)
 	{
 		T* Bone = GetBone(static_cast<EBodyDriverLayer>(i));
@@ -88,8 +91,11 @@ EffectorT TFControlledBoneGroup<T>::MakeEffector(TArray<FProceduralPose*> PoseDr
 		{
 			LocalEffector = (PoseDriver->*EffectorFunc)(LocalEffector, Bone, DeltaTime);
 		}
-		Bone->Position = LocalEffector.Position;
-		Bone->Rotation = LocalEffector.Rotation;
+		if (ApplyChanges)
+		{
+			Bone->Position = LocalEffector.Position;
+			Bone->Rotation = LocalEffector.Rotation;
+		}
 		CumulativeEffector.Position += LocalEffector.Position;
 		CumulativeEffector.Rotation += LocalEffector.Rotation;
 	}
@@ -100,7 +106,9 @@ template <typename T>
 FPoseWingEffector TFControlledBoneGroup<T>::MakeWingEffector(
 	TArray<FProceduralPose*> PoseDrivers,
 	const TMemFn<T, FPoseWingEffector> EffectorFunc,
-	const float DeltaTime)
+	const float DeltaTime,
+	const bool ApplyChanges,
+	FPoseWingEffector Base)
 {
 	auto CumulativeEffector = FPoseWingEffector();
 	for (int i = 0; i < ControlledBones.Num(); i++)
@@ -112,8 +120,11 @@ FPoseWingEffector TFControlledBoneGroup<T>::MakeWingEffector(
 			CumulativeWingEffector = (PoseDriver->*EffectorFunc)(CumulativeWingEffector, Wing, DeltaTime);
 		}
 
-		Wing->Flap = CumulativeWingEffector.Flap;
-		Wing->Openness = CumulativeWingEffector.Openness;
+		if (ApplyChanges)
+		{
+			Wing->Flap = CumulativeWingEffector.Flap;
+			Wing->Openness = CumulativeWingEffector.Openness;
+		}
 		CumulativeEffector.Flap += CumulativeWingEffector.Flap;
 		CumulativeEffector.Openness += CumulativeWingEffector.Openness;
 	}

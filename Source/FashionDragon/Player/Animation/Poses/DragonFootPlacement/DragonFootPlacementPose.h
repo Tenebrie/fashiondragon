@@ -4,7 +4,8 @@
 class FDragonFootPlacementLegDriver final : public FProceduralLegDriver
 {
 public:
-	FDragonFootPlacementLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg);
+	FDragonFootPlacementLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg)
+		: FProceduralLegDriver(AnimInstance, ControlledLeg) {}
 
 	virtual FPoseEffector ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context) override;
 	virtual FPoseEffector ToPostProcessEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context) override;

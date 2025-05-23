@@ -77,20 +77,21 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 	StateMachine->Tick(DeltaTime, OwningActor);
 
 	// Apply body driver
-	auto CumulativeEffector = ControlledBody.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToBodyEffector, DeltaTime);
+	auto CumulativeEffector = ControlledBody.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToBodyEffector, DeltaTime, true);
 	GetSkelMeshComponent()->SetRelativeLocation(CumulativeEffector.Position);
 	GetSkelMeshComponent()->SetRelativeRotation(CumulativeEffector.Rotation);
 
 	// Apply hips driver
-	CumulativeEffector = ControlledHips.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToHipsEffector, DeltaTime);
+	CumulativeEffector = ControlledHips.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToHipsEffector, DeltaTime, true);
 	SetBoneOffset("Hip", "Tail_001", CumulativeEffector.Position, CumulativeEffector.Rotation);
 
 	// Apply leg drivers
 	for (int i = 0; i < ControlledLegs.Num(); i++)
 	{
-		// TODO: Move PostProcess to a layer
-		CumulativeEffector = ControlledLegs[i]->MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToLegEffector, DeltaTime);
-
+		CumulativeEffector = FPoseEffector();
+		CumulativeEffector = ControlledLegs[i]->MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToLegEffector, DeltaTime, true);
+		CumulativeEffector = ControlledLegs[i]->MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToPostProcessLegEffector, DeltaTime, false);
+		
 		LegPositions[i] = CumulativeEffector.Position;
 		LegRotations[i] = CumulativeEffector.Rotation;
 	}
@@ -99,7 +100,7 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 	for (int i = 0; i < ControlledWings.Num(); i++)
 	{
 		const auto WingGroup = ControlledWings[i];
-		const auto WingEffector = WingGroup->MakeWingEffector(StateMachine->PoseDrivers, &FProceduralPose::ToWingEffector, DeltaTime);
+		const auto WingEffector = WingGroup->MakeWingEffector(StateMachine->PoseDrivers, &FProceduralPose::ToWingEffector, DeltaTime, true);
 
 		for (const auto Layer : *WingGroup)
 			WingPoseAdapter->ApplyEffector(Layer, WingEffector);
@@ -111,6 +112,12 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 		ControlledLeg->Tick(DeltaTime);
 	for (TFControlledBoneGroup<FControlledWing>* ControlledWing : ControlledWings)
 		ControlledWing->Tick(DeltaTime);
+}
+
+void UDragonAnimInstance::NativeBeginPlay()
+{
+	Super::NativeBeginPlay();
+	StateMachine->IdlePoseDriver->ResetState();
 }
 
 void UDragonAnimInstance::SetBoneOffset(const FName ParentBone, const FName ChildName, const FVector& Position, const FRotator& Rotation) const
