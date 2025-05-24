@@ -21,6 +21,7 @@ public:
 	
 	float GetCyclePosition() const { return CyclePosition; }
 	float GetVisualCyclePosition() const { return VisualCyclePosition; }
+	void SetCyclePosition(const float NewCyclePosition) { CyclePosition = NewCyclePosition; }
 
 	float GetBlendAlpha() const { return BlendAlpha; }
 	virtual void SetBlendAlpha(const float NewBlendAlpha) { BlendAlpha = NewBlendAlpha; }

@@ -1,16 +1,5 @@
 ﻿#pragma once
-
-// All layers are fully virtualized, and their output is summed
-enum class EDriverLayer: uint8
-{
-	// Main movement drivers (idle, walk, jump for legs)
-	Primary = 0,
-	// Independent movement components
-	Jump = 1,
-	Sway = 2,
-	Momentum = 3,
-	LegPlacement = 4,
-};
+#include "FashionDragon/Player/Animation/Enums/DriverLayer.h"
 
 template <typename T, typename EffectorT>
 using TMemFn = EffectorT (FProceduralPose::*)(const EffectorT&, const T*, const float) const;
@@ -50,6 +39,7 @@ TFControlledBoneGroup<T>::TFControlledBoneGroup(T* ReferenceBone): ReferenceBone
 {
 	ControlledBones = TArray<T*>();
 	PostProcessBone = new T(*ReferenceBone);
+	PostProcessBone->CanProduceEvents = true;
 }
 
 template <typename T>
@@ -57,6 +47,7 @@ void TFControlledBoneGroup<T>::Tick(const float DeltaTime)
 {
 	for (auto ControlledBone : ControlledBones)
 		ControlledBone->Tick(DeltaTime);
+	PostProcessBone->Tick(DeltaTime);
 }
 
 template <typename T>
@@ -116,7 +107,9 @@ EffectorT TFControlledBoneGroup<T>::MakePostProcessEffector(EffectorT BaseEffect
 {
 	auto Effector = EffectorT(BaseEffector);
 	T* Bone = GetPostProcessBone();
-		
+
+	Bone->Position = Effector.Position;
+	Bone->Rotation = Effector.Rotation;
 	for (const auto PoseDriver : PoseDrivers)
 	{
 		Effector = (PoseDriver->*EffectorFunc)(Effector, Bone, DeltaTime);

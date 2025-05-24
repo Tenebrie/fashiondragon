@@ -3,6 +3,7 @@
 #include "FashionDragon/Player/Animation/Abstract/ProceduralPose.h"
 
 class FDragonWalkPose;
+class FDragonTrotPose;
 class FDragonWalkBodyDriver;
 class FDragonWalkHipSwayDriver;
 
@@ -20,10 +21,12 @@ class FDragonSprintPose final : public FProceduralPose
 {
 public:
 	explicit FDragonSprintPose(UDragonAnimInstance* Anim);
-	
+
+	FDragonWalkBodyDriver* BodyDriver;
+	FDragonWalkHipSwayDriver* HipsDriver;
 	FDragonSprintLegDriver* LeftLegDriver;
 	FDragonSprintLegDriver* RightLegDriver;
-	template<typename DriverT>
-	void SyncStateFrom(const DriverT* TargetPose) const;
+	void SyncStateFrom(const FDragonWalkPose* SourcePose) const;
+	void SyncStateFrom(const FDragonTrotPose* SourcePose) const;
 	virtual void ResetState() override;
 };

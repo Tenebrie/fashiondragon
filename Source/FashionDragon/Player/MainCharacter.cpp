@@ -181,13 +181,13 @@ void AMainCharacter::SwitchToMovementMode(const ECharacterMovementMode NewMode)
     switch (NewMode)
     {
     case ECharacterMovementMode::Walking:
-        WalkSpeed = 600.0f;
+        WalkSpeed = 800.0f;
         break;
     case ECharacterMovementMode::Trotting:
-        WalkSpeed = 1000.0f;
+        WalkSpeed = 1600.0f;
         break;
     case ECharacterMovementMode::Sprinting:
-        WalkSpeed = 1800.0f;
+        WalkSpeed = 2400.0f;
         break;
     }
 

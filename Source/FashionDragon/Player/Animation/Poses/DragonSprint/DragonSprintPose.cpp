@@ -26,7 +26,7 @@ void FDragonSprintLegDriver::Tick(const float DeltaTime)
 	// If the leg is stretched too far, disconnect
 	if (WalkingState == ELegWalkingState::Planted && Leg->Position.Size() > 350.0f && Leg->Position.Y < 0.0f)
 	{
-		SetWalkingState(ELegWalkingState::Inertia, true);
+		// SetWalkingState(ELegWalkingState::Inertia, true);
 	}
 }
 
@@ -45,7 +45,7 @@ void FDragonSprintLegDriver::AdvanceState()
 		break;
 	case ELegWalkingState::Planted:
 	case ELegWalkingState::SeekingGround:
-		SetWalkingState(ELegWalkingState::Stepping);
+		SetWalkingState(ELegWalkingState::Inertia);
 		break;
 	case ELegWalkingState::Stepping:
 		LockToWorldGround();
@@ -53,6 +53,9 @@ void FDragonSprintLegDriver::AdvanceState()
 	}
 }
 
+constexpr float StepDuration = 1.2f;
+constexpr float PlantedDuration = 0.7f;
+constexpr float InertiaDuration = 0.5f;
 FDragonWalkStateData FDragonSprintLegDriver::GetRawWalkStateData() const
 {
 	const std::map<ELegWalkingState, FDragonWalkStateData> AnimData =
@@ -90,7 +93,7 @@ FDragonWalkStateData FDragonSprintLegDriver::GetRawWalkStateData() const
 				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
 				.LinearForce = 10.f,
 				.AngularForce = 1.0f,
-				.Duration = 1.2f
+				.Duration = PlantedDuration
 			}
 		},
 		{ ELegWalkingState::Stepping,
@@ -99,7 +102,7 @@ FDragonWalkStateData FDragonSprintLegDriver::GetRawWalkStateData() const
 				.TargetRotation = FRotator(0.0f, 15.0f, 0.0f),
 				.LinearForce = 80.0f,
 				.AngularForce = 1.0f,
-				.Duration = 1.2f,
+				.Duration = StepDuration,
 				.StartArticulationPosition = FVector(0.0f, 0.0f, 0.0f),
 				.StartArticulationRotation = FVector(0.0f, 0.0f, 0.0f),
 				.EndArticulationPosition = FVector(0.0f, 0.0f, 30.0f),
@@ -112,7 +115,7 @@ FDragonWalkStateData FDragonSprintLegDriver::GetRawWalkStateData() const
 				.TargetRotation = FRotator(0.0f, 0.0f, 60.0f),
 				.LinearForce = 2.0f,
 				.AngularForce = 1.0f,
-				.Duration = 0.5f
+				.Duration = InertiaDuration
 			}
 		},
 	};
@@ -122,10 +125,10 @@ FDragonWalkStateData FDragonSprintLegDriver::GetRawWalkStateData() const
 
 FDragonSprintPose::FDragonSprintPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
-	// BodyDriver = new FDragonWalkBodyDriver(Anim, Anim->ControlledBody.GetBone(EDriverLayer::Primary), Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
-	// HipsDriver = new FDragonWalkHipSwayDriver(Anim, Anim->ControlledHips.GetBone(EDriverLayer::Primary),  Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
-	// BodyDrivers = { BodyDriver };
-	// HipsDrivers = { HipsDriver };
+	BodyDriver = new FDragonWalkBodyDriver(Anim, Anim->ControlledBody.GetBone(EDriverLayer::Primary), Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
+	HipsDriver = new FDragonWalkHipSwayDriver(Anim, Anim->ControlledHips.GetBone(EDriverLayer::Primary),  Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
+	BodyDrivers = { BodyDriver };
+	HipsDrivers = { HipsDriver };
 	
 	LeftLegDriver = new FDragonSprintLegDriver(Anim, Anim->BackLeftLeg.GetBone(EDriverLayer::Primary));
 	RightLegDriver = new FDragonSprintLegDriver(Anim, Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
@@ -135,20 +138,48 @@ FDragonSprintPose::FDragonSprintPose(UDragonAnimInstance* Anim): FProceduralPose
 	};
 }
 
-template<typename DriverT>
-void FDragonSprintPose::SyncStateFrom(const DriverT* TargetPose) const
+void FDragonSprintPose::SyncStateFrom(const FDragonWalkPose* SourcePose) const
 {
-	LeftLegDriver->SyncStateFrom(TargetPose->LeftLegDriver);
-	RightLegDriver->SyncStateFrom(TargetPose->RightLegDriver);
+	LeftLegDriver->SyncStateFrom(SourcePose->LeftLegDriver);
+	RightLegDriver->SyncStateFrom(SourcePose->RightLegDriver);
+
+	const auto LeadingLeg = LeftLegDriver->WalkingState == ELegWalkingState::Stepping ? LeftLegDriver : RightLegDriver;
+	const auto OtherLeg = LeadingLeg == LeftLegDriver ? RightLegDriver : LeftLegDriver;
+	if (LeadingLeg->GetCyclePosition() < PlantedDuration)
+	{
+		OtherLeg->LockToWorldGround();
+		OtherLeg->SetCyclePosition(LeadingLeg->GetCyclePosition());
+	}
+	else
+	{
+		OtherLeg->SetWalkingState(ELegWalkingState::Inertia);
+		OtherLeg->SetCyclePosition(LeadingLeg->GetCyclePosition() - PlantedDuration);
+	}
 }
 
-template void FDragonSprintPose::SyncStateFrom(const FDragonWalkPose*) const;
-template void FDragonSprintPose::SyncStateFrom(const FDragonTrotPose*) const;
+void FDragonSprintPose::SyncStateFrom(const FDragonTrotPose* SourcePose) const
+{
+	LeftLegDriver->SyncStateFrom(SourcePose->LeftLegDriver);
+	RightLegDriver->SyncStateFrom(SourcePose->RightLegDriver);
+
+	const auto LeadingLeg = LeftLegDriver->WalkingState == ELegWalkingState::Stepping ? LeftLegDriver : RightLegDriver;
+	const auto OtherLeg = LeadingLeg == LeftLegDriver ? RightLegDriver : LeftLegDriver;
+	if (LeadingLeg->GetCyclePosition() < PlantedDuration)
+	{
+		OtherLeg->LockToWorldGround();
+		OtherLeg->SetCyclePosition(LeadingLeg->GetCyclePosition());
+	}
+	else
+	{
+		OtherLeg->SetWalkingState(ELegWalkingState::Inertia);
+		OtherLeg->SetCyclePosition(LeadingLeg->GetCyclePosition() - PlantedDuration);
+	}
+}
 
 void FDragonSprintPose::ResetState()
 {
-	// BodyDriver->ResetState();
-	// HipsDriver->ResetState();
+	BodyDriver->ResetState();
+	HipsDriver->ResetState();
 	LeftLegDriver->LockToWorldGround();
 	RightLegDriver->SetWalkingState(ELegWalkingState::Stepping);
 }

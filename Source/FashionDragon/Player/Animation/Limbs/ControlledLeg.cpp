@@ -48,16 +48,6 @@ FPlantedPositionData FControlledLeg::GetPlantedWorldPosition(const FVector& AtPo
 	bool GroundHit = true;
 	FVector GroundPosition = FVector::ZeroVector;
 	FVector FootLocation = FVector::ZeroVector;
-	// if (bHitOnFootBase && bHitOnFootTip && HitResultA.ImpactPoint.Z > HitResultB.ImpactPoint.Z)
-	// {
-	// 	GroundPosition = HitResultA.ImpactPoint;
-	// 	FootLocation = WorldFootBase;
-	// }
-	// else if (bHitOnFootBase && bHitOnFootTip)
-	// {
-	// 	GroundPosition = HitResultB.ImpactPoint;
-	// 	FootLocation = WorldFootTip;
-	// }
 	if (bHitOnFootBase && bHitOnFootTip)
 	{
 		GroundPosition = (HitResultA.ImpactPoint + HitResultB.ImpactPoint) / 2.0f;
@@ -76,6 +66,8 @@ FPlantedPositionData FControlledLeg::GetPlantedWorldPosition(const FVector& AtPo
 	else
 	{
 		GroundHit = false;
+		GroundPosition = FVector::ZeroVector;
+		FootLocation = FVector::ZeroVector;
 	}
 
 	// TODO: Replace `* 2.0f` with actual mesh scale factor/transform multiplication
@@ -91,12 +83,15 @@ void FControlledLeg::Tick(const float DeltaTime)
 	FControlledBone::Tick(DeltaTime);
 	if (DeltaTime < KINDA_SMALL_NUMBER) { return; }
 
-	const auto PlantedPos = GetPlantedWorldPosition(2.0f);
-	if (PlantedPos.GroundHit && !IsGrounded)
+	if (CanProduceEvents)
 	{
-		AnimInstance->GetCharacter()->OnLegPlanted.Broadcast(GetWorldPosition());
+		const auto PlantedPos = GetPlantedWorldPosition(2.0f);
+		if (PlantedPos.GroundHit && !IsGrounded)
+		{
+			AnimInstance->GetCharacter()->OnLegPlanted.Broadcast(GetWorldPosition());
+		}
+		IsGrounded = PlantedPos.GroundHit;
 	}
-	IsGrounded = PlantedPos.GroundHit;
 
 	const auto WorldPosition = GetWorldPosition();
 	const auto WorldRotation = GetWorldRotation();

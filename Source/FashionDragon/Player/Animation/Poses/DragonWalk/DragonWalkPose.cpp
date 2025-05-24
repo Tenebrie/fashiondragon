@@ -30,10 +30,8 @@ void FDragonWalkBodyDriver::Tick(const float DeltaTime)
 	auto TargetLean = -10.0f;
 
 	const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
-	if (OwningActor->MovementMode == ECharacterMovementMode::Sprinting)
-	{
-		TargetLean += 10.0f;
-	}
+	const auto HorizontalMovementSpeed = OwningActor->GetVelocity().Size2D();
+	TargetLean += FMath::Clamp(HorizontalMovementSpeed * 0.003f, 0.0f, 10.0f);
 
 	const auto InputRotation = GetInputRotation();
 	auto Bank = FMath::Sin(InputRotation) * 10.0f;
@@ -120,6 +118,9 @@ void FDragonWalkLegDriver::AdvanceState()
 	}
 }
 
+constexpr float StepDuration = 0.9f;
+constexpr float PlantedDuration = 0.45f;
+constexpr float InertiaDuration = 0.45f;
 FDragonWalkStateData FDragonWalkLegDriver::GetRawWalkStateData() const
 {
 	const std::map<ELegWalkingState, FDragonWalkStateData> AnimData =
@@ -229,10 +230,23 @@ FDragonWalkPose::FDragonWalkPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 }
 
 template<typename DriverT>
-void FDragonWalkPose::SyncStateFrom(const DriverT* TargetPose) const
+void FDragonWalkPose::SyncStateFrom(const DriverT* SourcePose) const
 {
-	LeftLegDriver->SyncStateFrom(TargetPose->LeftLegDriver);
-	RightLegDriver->SyncStateFrom(TargetPose->RightLegDriver);
+	LeftLegDriver->SyncStateFrom(SourcePose->LeftLegDriver);
+	RightLegDriver->SyncStateFrom(SourcePose->RightLegDriver);
+
+	// const auto LeadingLeg = LeftLegDriver->WalkingState == ELegWalkingState::Stepping ? LeftLegDriver : RightLegDriver;
+	// const auto OtherLeg = LeadingLeg == LeftLegDriver ? RightLegDriver : LeftLegDriver;
+	// if (LeadingLeg->GetCyclePosition() < PlantedDuration)
+	// {
+	// 	OtherLeg->LockToWorldGround();
+	// 	OtherLeg->SetCyclePosition(LeadingLeg->GetCyclePosition());
+	// }
+	// else
+	// {
+	// 	OtherLeg->SetWalkingState(ELegWalkingState::Relaxed);
+	// 	OtherLeg->SetCyclePosition(LeadingLeg->GetCyclePosition() - PlantedDuration);
+	// }
 }
 
 template void FDragonWalkPose::SyncStateFrom(const FDragonTrotPose*) const;

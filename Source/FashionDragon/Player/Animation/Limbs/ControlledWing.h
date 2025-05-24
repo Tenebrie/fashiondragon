@@ -17,6 +17,7 @@ public:
 		}
 	}
 
+	bool CanProduceEvents = false;
 	float MirrorModifier = 1.0f;
 	// Flap state [-1.0f, 1.0f]
 	float Flap = 0.0f;

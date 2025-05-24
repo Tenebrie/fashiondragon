@@ -69,6 +69,6 @@ public:
 	FDragonWalkLegDriver* LeftLegDriver;
 	FDragonWalkLegDriver* RightLegDriver;
 	template<typename DriverT>
-	void SyncStateFrom(const DriverT* TargetPose) const;
+	void SyncStateFrom(const DriverT* SourcePose) const;
 	virtual void ResetState() override;
 };

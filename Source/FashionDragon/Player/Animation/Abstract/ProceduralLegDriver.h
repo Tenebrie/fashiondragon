@@ -4,6 +4,12 @@
 
 struct FDragonWalkStateData;
 
+DECLARE_MULTICAST_DELEGATE_TwoParams(
+	FDragonLegDriverWalkStateChangedDelegate,
+	ELegWalkingState OldState,
+	ELegWalkingState NewState
+);
+
 /**
  * @brief Abstract base class for procedural leg drivers
  */
@@ -20,9 +26,11 @@ public:
 	virtual FPoseEffector ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context);
 	virtual FPoseEffector ToPostProcessEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context) { return BaseEffector; }
 
+	float CycleDuration = 1.0f;
 	ELegWalkingState WalkingState = ELegWalkingState::Relaxed;
 	void SetWalkingState(ELegWalkingState NewState, const bool KeepCycle = false);
 	bool LockToWorldGround(const bool KeepCycle = false);
+	FDragonLegDriverWalkStateChangedDelegate OnWalkStateChanged;
 
 	FControlledLeg* GetLeg() const { return Leg; }
 	FVector GetDesiredPosition() const { return DesiredPosition; }
@@ -41,7 +49,6 @@ protected:
 	FVector ArticulationPosition = FVector::ZeroVector;
 	FVector ArticulationRotation = FVector::ZeroVector;
 
-	float CycleDuration = 1.0f;
 	FVector LockedWorldPosition = FVector::ZeroVector;
 	FRotator LockedWorldRotation = FRotator::ZeroRotator;
 	

@@ -2,9 +2,11 @@
 
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "Curves/BezierUtilities.h"
+#include "FashionDragon/DebugTools/QuickDebug.h"
 
 void FProceduralLegDriver::SetWalkingState(const ELegWalkingState NewState, const bool KeepCycle)
 {
+	OnWalkStateChanged.Broadcast(WalkingState, NewState);
 	WalkingState = NewState;
 	VisualCyclePosition = 0.0f;
 	if (!KeepCycle)
@@ -141,7 +143,7 @@ FDragonWalkStateData FProceduralLegDriver::AlignPoseToInputDirection(FDragonWalk
 	const auto StepScale = (InputRotation + 2.0f) / 3.0f;
 	Data.TargetPosition *= StepScale;
 	Data.TargetPosition.Z = OriginalZ;
-	Data.PlaybackSpeed = 1.0f / StepScale;
+	Data.PlaybackSpeed = PoseData.PlaybackSpeed / StepScale;
 
 	if (WalkingState == ELegWalkingState::Stepping || WalkingState == ELegWalkingState::Relaxed)
 	{
@@ -149,6 +151,7 @@ FDragonWalkStateData FProceduralLegDriver::AlignPoseToInputDirection(FDragonWalk
 		if (Planted.GroundHit)
 			Data.TargetPosition += Planted.DeltaPosition;
 	}
+	
 	return Data;
 }
 
@@ -174,8 +177,8 @@ FPoseEffector FProceduralLegDriver::ToEffector(const FPoseEffector& BaseEffector
 
 	const auto TargetPosition = DesiredPosition;
 	const auto TargetRotation = DesiredRotation;
-	auto LinearSpeed = State.LinearForce * Context.BlendAlpha * Context.DeltaTime;
-	auto RotationSpeed = State.AngularForce * Context.BlendAlpha;
+	auto LinearSpeed = State.LinearForce * Context.BlendAlpha * Context.DeltaTime * State.PlaybackSpeed;
+	auto RotationSpeed = State.AngularForce * Context.BlendAlpha * State.PlaybackSpeed;
 
 	// if (WalkingState == ELegWalkingState::Planted)
 	// {

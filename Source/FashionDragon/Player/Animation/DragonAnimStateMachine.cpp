@@ -172,13 +172,13 @@ void FDragonAnimStateMachine::BlendDrivers(const float DeltaTime) const
 		DominantDriver = JumpPoseDriver;
 	}
 
-	DominantDriver->AddBlendAlpha(DeltaTime * 100.0f);
+	DominantDriver->AddBlendAlpha(DeltaTime * 1000.0f);
 	
 	for (FProceduralPose* PoseDriver : PoseDrivers)
 	{
 		if (PoseDriver != DominantDriver)
 		{
-			PoseDriver->AddBlendAlpha(-DeltaTime * 100.0f);
+			PoseDriver->AddBlendAlpha(-DeltaTime * 1000.0f);
 		}
 	}
 
