@@ -1,4 +1,6 @@
 ﻿#include "DragonFootPlacementPose.h"
+
+#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 
 /**
@@ -19,7 +21,7 @@ FPoseEffector FDragonFootPlacementLegDriver::ToEffector(const FPoseEffector& Bas
 	const auto LocalPosition = Transform.InverseTransformPosition(SourcePosition) - Leg->IKBoneOffset;
 	const auto LocalRotation = Transform.InverseTransformRotation(FQuat(SourceRotation)).Rotator();
 
-	return BaseEffector.SetPosition(LocalPosition).SetRotation(LocalRotation);
+	return Effector.SetPosition(LocalPosition).SetRotation(LocalRotation);
 }
 
 FDragonFootPlacementPose::FDragonFootPlacementPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)

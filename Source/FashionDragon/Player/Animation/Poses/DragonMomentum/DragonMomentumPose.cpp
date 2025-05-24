@@ -1,5 +1,6 @@
 ﻿#include "DragonMomentumPose.h"
 
+#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -11,6 +12,22 @@ FDragonMomentumPose::FDragonMomentumPose(UDragonAnimInstance* Anim): FProcedural
 		LeftLegDriver,
 		RightLegDriver,
 	};
+}
+
+void FDragonMomentumDriverLeg::NativeBeginPlay()
+{
+	FProceduralLegDriver::NativeBeginPlay();
+	
+	FVector Position = FVector::ZeroVector;
+	FRotator Rotation = FRotator::ZeroRotator;
+	for (const auto Layer : *AnimInstance->ControlledLegs[Leg->GetIdx()])
+	{
+		Position += Layer->Position;
+		Rotation += Layer->Rotation;
+	}
+	
+	PreviousWorldPosition = Leg->GetWorldPosition(Position);
+	PreviousWorldRotation = Leg->GetWorldRotation(Rotation.Quaternion());
 }
 
 void FDragonMomentumDriverLeg::Tick(const float DeltaTime)
@@ -27,8 +44,6 @@ FPoseEffector FDragonMomentumDriverLeg::ToEffector(const FPoseEffector& BaseEffe
 		Position += Layer->Position;
 		Rotation += Layer->Rotation;
 	}
-
-	// const auto MovementSpeed = AnimInstance->GetCharacter()->GetVelocity().Size();
 
 	float Stiffness = 20.f;
 	const auto PlantedPos = Leg->GetPlantedWorldPosition(Position, Rotation, 150.0f);

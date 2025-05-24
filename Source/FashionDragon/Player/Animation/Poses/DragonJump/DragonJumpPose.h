@@ -21,6 +21,7 @@ class FDragonJumpPose;
 
 class FDragonJumpBodyDriver final : public FProceduralBoneDriver
 {
+	float ImpactMultiplier = 1.0f;
 	float TargetBlendAlpha = 1.0f;
 public:
 	FDragonJumpBodyDriver(
@@ -70,5 +71,6 @@ class FDragonJumpPose final : public FProceduralPose
 public:
 	explicit FDragonJumpPose(UDragonAnimInstance* Anim);
 
+	void StartFalling();
 	virtual void ResetState() override;
 };

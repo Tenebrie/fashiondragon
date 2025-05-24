@@ -45,6 +45,7 @@ public:
 
 	float AnimationLockout = 0.0f;
 
+	void NativeBeginPlay();
 	void InitTransitions();
 	void Tick(float DeltaTime, const AMainCharacter* OwningActor);
 	

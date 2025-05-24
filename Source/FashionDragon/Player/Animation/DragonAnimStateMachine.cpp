@@ -39,6 +39,13 @@ FDragonAnimStateMachine::FDragonAnimStateMachine(
 	InitTransitions();
 }
 
+void FDragonAnimStateMachine::NativeBeginPlay()
+{
+	IdlePoseDriver->ResetState();
+	for (FProceduralPose* PoseDriver : PoseDrivers)
+		PoseDriver->NativeBeginPlay();
+}
+
 void FDragonAnimStateMachine::InitTransitions()
 {
 	Transitions = {
@@ -130,6 +137,11 @@ void FDragonAnimStateMachine::Tick(const float DeltaTime, const AMainCharacter* 
 		if (MovementVector.Size() == 0 && (AnimationState == EAnimationState::Walking || AnimationState == EAnimationState::Running))
 		{
 			SetState(EAnimationState::Idle);
+		}
+		if (AnimationState != EAnimationState::Jumping && OwningActor->GetCharacterMovement()->IsFalling())
+		{
+			SetState(EAnimationState::Jumping);
+			JumpPoseDriver->StartFalling();
 		}
 	}
 

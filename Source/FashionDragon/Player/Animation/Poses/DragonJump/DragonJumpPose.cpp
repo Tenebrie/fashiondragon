@@ -2,6 +2,7 @@
 
 #include <map>
 
+#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 
 void FDragonJumpBodyDriver::Tick(const float DeltaTime)
@@ -24,15 +25,15 @@ void FDragonJumpBodyDriver::Tick(const float DeltaTime)
 		DesiredPosition = FVector(0.0f, 0.0f, 100.0f);
 		DesiredForce = 4.f;
 	}
-	else if (JumpingState == ELegJumpState::Landing)
+	else if (JumpingState == ELegJumpState::Landing || JumpingState == ELegJumpState::DelayedLanding)
 	{
 		DesiredPosition = FVector(0.0f, 0.0f, 100.0f);
 		DesiredForce = 4.f;
 	}
 	else if (JumpingState == ELegJumpState::Impact)
 	{
-		DesiredPosition = FVector(0.0f, 0.0f, -75.0f);
-		DesiredRotation = FRotator(0.0f, 0.0f, 7.5f);
+		DesiredPosition = FVector(0.0f, 0.0f, -75.0f) * ImpactMultiplier;
+		DesiredRotation = FRotator(0.0f, 0.0f, 7.5f) * ImpactMultiplier;
 		DesiredForce = 10.f;
 	}
 	else
@@ -44,6 +45,11 @@ void FDragonJumpBodyDriver::Tick(const float DeltaTime)
 
 void FDragonJumpBodyDriver::SetJumpState(const ELegJumpState NewJumpState)
 {
+	if (NewJumpState == ELegJumpState::Impact && JumpingState != ELegJumpState::Impact)
+	{
+		const auto FallingSpeed = -AnimInstance->GetOwningActor()->GetVelocity().Z;
+		ImpactMultiplier = 0.5f + FMath::Clamp(FallingSpeed / 1500.0f, 0.0f, 2.0f);
+	}
 	JumpingState = NewJumpState;
 }
 
@@ -61,7 +67,9 @@ void FDragonJumpLegDriver::Tick(const float DeltaTime)
 {
 	FProceduralLegDriver::Tick(DeltaTime);
 
-	if (JumpingState == ELegJumpState::Retracting && AnimInstance->GetOwningActor()->GetVelocity().Z < 0.0f && Leg->GetPlantedWorldPosition(500).GroundHit)
+	const auto FallingSpeed = AnimInstance->GetOwningActor()->GetVelocity().Z;
+	const auto CheckForGroundDist = -FallingSpeed * (0.05f + 0.075f + 0.5f) + 150.0f;
+	if (JumpingState == ELegJumpState::Retracting && AnimInstance->GetOwningActor()->GetVelocity().Z < 0.0f && CheckForGroundDist > 0 && Leg->GetPlantedWorldPosition(CheckForGroundDist).GroundHit)
 	{
 		SetJumpState(ELegJumpState::DelayedLanding);
 	}
@@ -198,6 +206,19 @@ FDragonJumpPose::FDragonJumpPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 	{
 		BodyDriver->SetJumpState(NewState);
 	});
+}
+
+/**
+ * Set state to falling immediately, skipping the jumping part.
+ */
+void FDragonJumpPose::StartFalling()
+{
+	LeftLegDriver->UpdateRandomness(SwitchJumpingLeg);
+	RightLegDriver->UpdateRandomness(!SwitchJumpingLeg);
+	LeftLegDriver->SetJumpState(ELegJumpState::Retracting);
+	RightLegDriver->SetJumpState(ELegJumpState::Retracting);
+
+	SwitchJumpingLeg = !SwitchJumpingLeg;
 }
 
 void FDragonJumpPose::ResetState()

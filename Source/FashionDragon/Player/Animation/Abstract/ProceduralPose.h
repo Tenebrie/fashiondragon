@@ -19,6 +19,7 @@ protected:
 public:
 	explicit FProceduralPose(UDragonAnimInstance* AnimInstance);
 
+	virtual void NativeBeginPlay();
 	virtual void Tick(float DeltaTime);
 	virtual void ResetState() {};
 	FPoseEffector ToBodyEffector(const FPoseEffector& BaseEffector, const FControlledBone* Body, const float DeltaTime) const;

@@ -27,8 +27,8 @@ class FDragonTrotPose final : public FProceduralPose
 public:
 	explicit FDragonTrotPose(UDragonAnimInstance* Anim);
 
-	FDragonWalkBodyDriver* BodyDriver;
-	FDragonWalkHipSwayDriver* HipsDriver;
+	// FDragonWalkBodyDriver* BodyDriver;
+	// FDragonWalkHipSwayDriver* HipsDriver;
 	FDragonTrotLegDriver* LeftLegDriver;
 	FDragonTrotLegDriver* RightLegDriver;
 	void SyncStateFrom(const FDragonWalkPose* TargetPose) const;

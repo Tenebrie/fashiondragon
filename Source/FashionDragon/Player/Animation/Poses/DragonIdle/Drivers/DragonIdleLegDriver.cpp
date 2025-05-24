@@ -24,7 +24,7 @@ void FDragonIdleLegDriver::Tick(const float DeltaTime)
 	FProceduralLegDriver::Tick(DeltaTime);
 
 	// TODO: Fix the logic for cliffs or uneven surfaces (the leg position will rarely be able to go to 0)
-	if (IdleState == ELegIdleState::ArticulatedReturn && Leg->Position.Size() < 5.f)
+	if (IdleState == ELegIdleState::ArticulatedReturn && Leg->Position.Size() < 5.f && FUtils::GetRotatorDistance(Leg->Rotation) < 5.f)
 	{
 		LockToWorldGround();
 		SetIdleState(ELegIdleState::Planted);

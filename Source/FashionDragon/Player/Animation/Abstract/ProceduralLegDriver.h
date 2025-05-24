@@ -12,7 +12,7 @@ class FProceduralLegDriver : public FBaseDriver
 public:
 	virtual void AdvanceState() = 0;
 	virtual FDragonWalkStateData GetRawWalkStateData() const = 0;
-	
+
 	virtual void Tick(float DeltaTime);
 	virtual void ResetState();
 

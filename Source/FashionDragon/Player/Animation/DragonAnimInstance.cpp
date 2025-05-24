@@ -116,7 +116,7 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 void UDragonAnimInstance::NativeBeginPlay()
 {
 	Super::NativeBeginPlay();
-	StateMachine->IdlePoseDriver->ResetState();
+	StateMachine->NativeBeginPlay();
 }
 
 void UDragonAnimInstance::SetBoneOffset(const FName ParentBone, const FName ChildName, const FVector& Position, const FRotator& Rotation) const

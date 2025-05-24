@@ -6,17 +6,26 @@ FProceduralPose::FProceduralPose(UDragonAnimInstance* AnimInstance):
 	AnimInstance(AnimInstance)
 {}
 
+void FProceduralPose::NativeBeginPlay()
+{
+	for (const auto &BodyDriver : BodyDrivers)
+		BodyDriver->NativeBeginPlay();
+	for (const auto &HipsDriver : HipsDrivers)
+		HipsDriver->NativeBeginPlay();
+	for (const auto &LegDriver : LegDrivers)
+		LegDriver->NativeBeginPlay();
+	for (const auto &WingDriver : WingDrivers)
+		WingDriver->NativeBeginPlay();
+}
+
 void FProceduralPose::Tick(const float DeltaTime)
 {
 	for (const auto &BodyDriver : BodyDrivers)
 		BodyDriver->Tick(DeltaTime);
-
 	for (const auto &HipsDriver : HipsDrivers)
 		HipsDriver->Tick(DeltaTime);
-	
 	for (const auto &LegDriver : LegDrivers)
 		LegDriver->Tick(DeltaTime);
-
 	for (const auto &WingDriver : WingDrivers)
 		WingDriver->Tick(DeltaTime);
 }
