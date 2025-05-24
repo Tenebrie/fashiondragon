@@ -15,5 +15,6 @@ public:
 	inline static const UInputAction* CameraMove = Action(EInputActionValueType::Axis2D);
 	inline static const UInputAction* Jump = Action(EInputActionValueType::Boolean);
 	inline static const UInputAction* Sprint = Action(EInputActionValueType::Boolean);
+	inline static const UInputAction* TogglePreferredMovement = Action(EInputActionValueType::Boolean);
 	inline static const UInputAction* CastASpell = Action(EInputActionValueType::Boolean);
 };

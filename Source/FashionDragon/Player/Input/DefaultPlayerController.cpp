@@ -39,6 +39,8 @@ void ADefaultPlayerController::SetupInputMappings()
 		AddMapping(Context, UActions::Sprint, EKeys::LeftShift);
 		AddMapping(Context, UActions::Sprint, EKeys::Gamepad_LeftThumbstick);
 
+		AddMapping(Context, UActions::TogglePreferredMovement, EKeys::CapsLock);
+
 		AddMapping(Context, UActions::CastASpell, EKeys::Q);
 	}
 

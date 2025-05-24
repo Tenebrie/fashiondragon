@@ -13,6 +13,7 @@
 #include "Poses/DragonJump/DragonJumpPose.h"
 #include "Poses/DragonMomentum/DragonMomentumPose.h"
 #include "Poses/DragonRandomSway/DragonRandomSwayPose.h"
+#include "Poses/DragonSprint/DragonSprintPose.h"
 
 /**
  * @brief Init
@@ -55,6 +56,7 @@ void UDragonAnimInstance::NativeInitializeAnimation()
 		new FDragonIdlePose(this),
 		new FDragonWalkPose(this),
 		new FDragonTrotPose(this),
+		new FDragonSprintPose(this),
 		new FDragonJumpPose(this),
 		new FDragonRandomSwayPose(this),
 		new FDragonMomentumPose(this),

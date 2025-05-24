@@ -2,7 +2,6 @@
 
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "Curves/BezierUtilities.h"
-#include "FashionDragon/DebugTools/QuickDebug.h"
 
 void FProceduralLegDriver::SetWalkingState(const ELegWalkingState NewState, const bool KeepCycle)
 {
@@ -156,13 +155,17 @@ FDragonWalkStateData FProceduralLegDriver::AlignPoseToInputDirection(FDragonWalk
 void FProceduralLegDriver::SyncStateFrom(const FProceduralLegDriver* TargetDriver)
 {
 	WalkingState = TargetDriver->WalkingState;
-	CyclePosition = TargetDriver->CyclePosition;
-	VisualCyclePosition = TargetDriver->VisualCyclePosition;
 	LockedWorldPosition = TargetDriver->LockedWorldPosition;
 	LockedWorldRotation = TargetDriver->LockedWorldRotation;
 	DesiredPosition = TargetDriver->GetDesiredPosition();
 	DesiredRotation = TargetDriver->GetDesiredRotation();
-	CycleDuration = GetTargetPosition().Duration;
+	
+	const auto StateData = GetTargetPosition();
+	const auto TargetStateData = TargetDriver->GetTargetPosition();
+	CycleDuration = StateData.Duration;
+
+	CyclePosition = TargetDriver->CyclePosition * CycleDuration / FMath::Max(0.01f, TargetDriver->CycleDuration);
+	VisualCyclePosition = TargetDriver->VisualCyclePosition * CycleDuration / FMath::Max(0.01f, TargetStateData.Duration);
 }
 
 FPoseEffector FProceduralLegDriver::ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context)

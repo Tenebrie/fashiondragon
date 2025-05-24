@@ -5,6 +5,7 @@ class FProceduralPose;
 class FDragonIdlePose;
 class FDragonWalkPose;
 class FDragonTrotPose;
+class FDragonSprintPose;
 class FDragonJumpPose;
 class FDragonRandomSwayPose;
 class FDragonMomentumPose;
@@ -15,7 +16,8 @@ enum class EAnimationState
 {
 	Idle,
 	Walking,
-	Running,
+	Trotting,
+	Sprinting,
 	Jumping,
 };
 
@@ -25,6 +27,7 @@ public:
 	FDragonIdlePose* IdlePoseDriver;
 	FDragonWalkPose* WalkPoseDriver;
 	FDragonTrotPose* TrotPoseDriver;
+	FDragonSprintPose* SprintPoseDriver;
 	FDragonJumpPose* JumpPoseDriver;
 	FDragonRandomSwayPose* RandomSwayDriver;
 	FDragonMomentumPose* MomentumDriver;
@@ -37,6 +40,7 @@ public:
 		FDragonIdlePose* IdlePoseDriver,
 		FDragonWalkPose* WalkPoseDriver,
 		FDragonTrotPose* TrotPoseDriver,
+		FDragonSprintPose* SprintPoseDriver,
 		FDragonJumpPose* JumpPoseDriver,
 		FDragonRandomSwayPose* RandomSwayDriver,
 		FDragonMomentumPose* MomentumDriver,

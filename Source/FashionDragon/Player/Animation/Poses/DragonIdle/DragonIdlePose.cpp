@@ -7,6 +7,8 @@
 #include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "FashionDragon/Player/Animation/Poses/DragonWalk/DragonWalkPose.h"
+#include "FashionDragon/Player/Animation/Poses/DragonTrot/DragonTrotPose.h"
+#include "FashionDragon/Player/Animation/Poses/DragonSprint/DragonSprintPose.h"
 #include "FashionDragon/Utils/Utils.h"
 
 enum class ELegIdleState;
@@ -73,16 +75,18 @@ void FDragonIdlePose::Tick(const float DeltaTime)
 	}
 }
 
-/**
- * @brief Sync state from walk pose on transition
- * TODO: Check if necessary anymore?
- */
-void FDragonIdlePose::SyncStateFrom(const FDragonWalkPose* TargetPose) const
+template<typename DriverT>
+void FDragonIdlePose::SyncStateFrom(const DriverT* TargetPose) const
 {
 	BodyDriver->ResetState();
+	HipsDriver->ResetState();
 	LeftLegDriver->SyncIdleStateFrom(TargetPose->LeftLegDriver);
 	RightLegDriver->SyncIdleStateFrom(TargetPose->RightLegDriver);
 }
+
+template void FDragonIdlePose::SyncStateFrom(const FDragonWalkPose*) const;
+template void FDragonIdlePose::SyncStateFrom(const FDragonTrotPose*) const;
+template void FDragonIdlePose::SyncStateFrom(const FDragonSprintPose*) const;
 
 void FDragonIdlePose::ResetState()
 {

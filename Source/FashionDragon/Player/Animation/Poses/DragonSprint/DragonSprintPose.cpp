@@ -5,6 +5,7 @@
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "FashionDragon/Player/Animation/Poses/DragonWalk/DragonWalkPose.h"
+#include "FashionDragon/Player/Animation/Poses/DragonTrot/DragonTrotPose.h"
 
 FDragonSprintLegDriver::FDragonSprintLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg): FProceduralLegDriver(AnimInstance, ControlledLeg)
 {}
@@ -134,13 +135,15 @@ FDragonSprintPose::FDragonSprintPose(UDragonAnimInstance* Anim): FProceduralPose
 	};
 }
 
-void FDragonSprintPose::SyncStateFrom(const FDragonWalkPose* TargetPose) const
+template<typename DriverT>
+void FDragonSprintPose::SyncStateFrom(const DriverT* TargetPose) const
 {
-	// BodyDriver->SyncStateFrom(TargetPose->BodyDriver);
-	// HipsDriver->SyncStateFrom(TargetPose->HipsDriver);
 	LeftLegDriver->SyncStateFrom(TargetPose->LeftLegDriver);
 	RightLegDriver->SyncStateFrom(TargetPose->RightLegDriver);
 }
+
+template void FDragonSprintPose::SyncStateFrom(const FDragonWalkPose*) const;
+template void FDragonSprintPose::SyncStateFrom(const FDragonTrotPose*) const;
 
 void FDragonSprintPose::ResetState()
 {

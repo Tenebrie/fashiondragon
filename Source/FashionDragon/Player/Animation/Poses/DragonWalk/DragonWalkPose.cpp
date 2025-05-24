@@ -6,6 +6,7 @@
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "FashionDragon/Player/Animation/Poses/DragonIdle/Drivers/DragonIdleWingDriver.h"
+#include "FashionDragon/Player/Animation/Poses/DragonSprint/DragonSprintPose.h"
 #include "FashionDragon/Player/Animation/Poses/DragonTrot/DragonTrotPose.h"
 #include "FashionDragon/Utils/Utils.h"
 
@@ -29,7 +30,7 @@ void FDragonWalkBodyDriver::Tick(const float DeltaTime)
 	auto TargetLean = -10.0f;
 
 	const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
-	if (OwningActor->IsSprinting)
+	if (OwningActor->MovementMode == ECharacterMovementMode::Sprinting)
 	{
 		TargetLean += 10.0f;
 	}
@@ -227,13 +228,15 @@ FDragonWalkPose::FDragonWalkPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 	};
 }
 
-void FDragonWalkPose::SyncStateFrom(const FDragonTrotPose* TargetPose) const
+template<typename DriverT>
+void FDragonWalkPose::SyncStateFrom(const DriverT* TargetPose) const
 {
-	// BodyDriver->SyncStateFrom(TargetPose->BodyDriver);
-	// HipsDriver->SyncStateFrom(TargetPose->HipsDriver);
 	LeftLegDriver->SyncStateFrom(TargetPose->LeftLegDriver);
 	RightLegDriver->SyncStateFrom(TargetPose->RightLegDriver);
 }
+
+template void FDragonWalkPose::SyncStateFrom(const FDragonTrotPose*) const;
+template void FDragonWalkPose::SyncStateFrom(const FDragonSprintPose*) const;
 
 // TODO: If it's not been enough time since we have been here, don't reset, but continue the previous state
 void FDragonWalkPose::ResetState()

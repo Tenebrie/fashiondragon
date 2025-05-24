@@ -5,6 +5,7 @@
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "FashionDragon/Player/Animation/Poses/DragonWalk/DragonWalkPose.h"
+#include "FashionDragon/Player/Animation/Poses/DragonSprint/DragonSprintPose.h"
 
 FDragonTrotLegDriver::FDragonTrotLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg): FProceduralLegDriver(AnimInstance, ControlledLeg)
 {}
@@ -89,7 +90,7 @@ FDragonWalkStateData FDragonTrotLegDriver::GetRawWalkStateData() const
 				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
 				.LinearForce = 10.f,
 				.AngularForce = 1.0f,
-				.Duration = 1.2f
+				.Duration = 0.6f
 			}
 		},
 		{ ELegWalkingState::Stepping,
@@ -98,7 +99,7 @@ FDragonWalkStateData FDragonTrotLegDriver::GetRawWalkStateData() const
 				.TargetRotation = FRotator(0.0f, 15.0f, 0.0f),
 				.LinearForce = 80.0f,
 				.AngularForce = 1.0f,
-				.Duration = 1.2f,
+				.Duration = 0.6f,
 				.StartArticulationPosition = FVector(0.0f, 0.0f, 0.0f),
 				.StartArticulationRotation = FVector(0.0f, 0.0f, 0.0f),
 				.EndArticulationPosition = FVector(0.0f, 0.0f, 30.0f),
@@ -134,13 +135,15 @@ FDragonTrotPose::FDragonTrotPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 	};
 }
 
-void FDragonTrotPose::SyncStateFrom(const FDragonWalkPose* TargetPose) const
+template<typename DriverT>
+void FDragonTrotPose::SyncStateFrom(const DriverT* TargetPose) const
 {
-	// BodyDriver->SyncStateFrom(TargetPose->BodyDriver);
-	// HipsDriver->SyncStateFrom(TargetPose->HipsDriver);
 	LeftLegDriver->SyncStateFrom(TargetPose->LeftLegDriver);
 	RightLegDriver->SyncStateFrom(TargetPose->RightLegDriver);
 }
+
+template void FDragonTrotPose::SyncStateFrom(const FDragonWalkPose*) const;
+template void FDragonTrotPose::SyncStateFrom(const FDragonSprintPose*) const;
 
 void FDragonTrotPose::ResetState()
 {

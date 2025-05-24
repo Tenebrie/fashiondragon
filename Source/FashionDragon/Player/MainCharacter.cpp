@@ -101,6 +101,8 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
     Input->BindAction(UActions::Sprint, ETriggerEvent::Started, this, &AMainCharacter::StartSprint);
     Input->BindAction(UActions::Sprint, ETriggerEvent::Completed & ETriggerEvent::Canceled, this, &AMainCharacter::StopSprint);
+
+    Input->BindAction(UActions::TogglePreferredMovement, ETriggerEvent::Started, this, &AMainCharacter::TogglePreferredMovement);
     
     Input->BindAction(UActions::CastASpell, ETriggerEvent::Triggered, this, &AMainCharacter::CastSomeSpell);
 }
@@ -155,18 +157,40 @@ void AMainCharacter::ReleaseJump()
 {
 }
 
-void AMainCharacter::StartSprint()
-{
-    GetCharacterMovement()->MaxWalkSpeed = 1800.f;
-    IsSprinting = true;
-}
+void AMainCharacter::StartSprint() { SwitchToMovementMode(ECharacterMovementMode::Sprinting); }
+void AMainCharacter::StopSprint() { SwitchToMovementMode(PreferredMovementMode); }
 
-void AMainCharacter::StopSprint()
+void AMainCharacter::TogglePreferredMovement()
 {
-    GetCharacterMovement()->MaxWalkSpeed = 600.f;
-    IsSprinting = false;
+    if (PreferredMovementMode == ECharacterMovementMode::Walking)
+        PreferredMovementMode = ECharacterMovementMode::Trotting;
+    else
+        PreferredMovementMode = ECharacterMovementMode::Walking;
+
+    if (MovementMode != ECharacterMovementMode::Sprinting)
+        SwitchToMovementMode(PreferredMovementMode);
 }
 
 void AMainCharacter::CastSomeSpell()
 {
+}
+
+void AMainCharacter::SwitchToMovementMode(const ECharacterMovementMode NewMode)
+{
+    auto WalkSpeed = 600.f;
+    switch (NewMode)
+    {
+    case ECharacterMovementMode::Walking:
+        WalkSpeed = 600.0f;
+        break;
+    case ECharacterMovementMode::Trotting:
+        WalkSpeed = 1000.0f;
+        break;
+    case ECharacterMovementMode::Sprinting:
+        WalkSpeed = 1800.0f;
+        break;
+    }
+
+    GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+    MovementMode = NewMode;
 }

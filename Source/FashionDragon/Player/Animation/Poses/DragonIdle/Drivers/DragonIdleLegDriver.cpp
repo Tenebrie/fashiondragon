@@ -4,6 +4,8 @@
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "FashionDragon/Player/Animation/Enums/LegIdleState.h"
 #include "FashionDragon/Player/Animation/Poses/DragonWalk/DragonWalkPose.h"
+#include "FashionDragon/Player/Animation/Poses/DragonTrot/DragonTrotPose.h"
+#include "FashionDragon/Player/Animation/Poses/DragonSprint/DragonSprintPose.h"
 #include "FashionDragon/Utils/Utils.h"
 
 FDragonWalkStateData FDragonIdleLegDriver::GetRawWalkStateData() const
@@ -66,14 +68,19 @@ void FDragonIdleLegDriver::SetIdleState(const ELegIdleState NewState, const bool
 	IdleState = NewState;
 }
 
-void FDragonIdleLegDriver::SyncIdleStateFrom(const FDragonWalkLegDriver* TargetDriver)
+template<typename DriverT>
+void FDragonIdleLegDriver::SyncIdleStateFrom(const DriverT* TargetDriver)
 {
 	ResetState();
 	if (TargetDriver->WalkingState == ELegWalkingState::Planted)
 	{
 		LockToWorldGround();
-		SetIdleState(ELegIdleState::NeedsReturn);
+		SetIdleState(ELegIdleState::NeedsReturn, true);
 	}
 	else
-		SetIdleState(ELegIdleState::ArticulatedReturn);
+		SetIdleState(ELegIdleState::ArticulatedReturn, true);
 }
+
+template void FDragonIdleLegDriver::SyncIdleStateFrom(const FDragonWalkLegDriver*);
+template void FDragonIdleLegDriver::SyncIdleStateFrom(const FDragonTrotLegDriver*);
+template void FDragonIdleLegDriver::SyncIdleStateFrom(const FDragonSprintLegDriver*);

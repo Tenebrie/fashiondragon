@@ -10,6 +10,13 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLegPlanted, FVector, SpawnLocation);
 
+enum class ECharacterMovementMode
+{
+	Walking,
+	Trotting,
+	Sprinting,
+};
+
 UCLASS()
 class FASHIONDRAGON_API AMainCharacter : public ACharacter
 {
@@ -19,7 +26,8 @@ public:
 	// Sets default values for this character's properties
 	AMainCharacter();
 
-	bool IsSprinting;
+	ECharacterMovementMode MovementMode;
+	ECharacterMovementMode PreferredMovementMode = ECharacterMovementMode::Trotting;
 	
 	UPROPERTY(BlueprintAssignable, Category="Events")
 	FOnLegPlanted OnLegPlanted;
@@ -51,7 +59,9 @@ protected:
 	void ReleaseJump();
 	void StartSprint();
 	void StopSprint();
+	void TogglePreferredMovement();
 	void CastSomeSpell();
+	void SwitchToMovementMode(ECharacterMovementMode NewMode);
 
 public:
 	virtual void PostInitializeComponents() override;

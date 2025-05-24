@@ -1,6 +1,7 @@
 ﻿#include "DragonAnimStateMachine.h"
 
 #include "FashionDragon/Player/MainCharacter.h"
+#include "FashionDragon/Utils/Utils.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Poses/DragonFootPlacement/DragonFootPlacementPose.h"
 #include "Poses/DragonIdle/DragonIdlePose.h"
@@ -8,12 +9,14 @@
 #include "Poses/DragonRandomSway/DragonRandomSwayPose.h"
 #include "Poses/DragonTrot/DragonTrotPose.h"
 #include "Poses/DragonWalk/DragonWalkPose.h"
+#include "Poses/DragonSprint/DragonSprintPose.h"
 #include "Poses/DragonMomentum/DragonMomentumPose.h"
 
 FDragonAnimStateMachine::FDragonAnimStateMachine(
 	FDragonIdlePose* IdlePoseDriver,
 	FDragonWalkPose* WalkPoseDriver,
 	FDragonTrotPose* TrotPoseDriver,
+	FDragonSprintPose* SprintPoseDriver,
 	FDragonJumpPose* JumpPoseDriver,
 	FDragonRandomSwayPose* RandomSwayDriver,
 	FDragonMomentumPose* MomentumDriver,
@@ -22,6 +25,7 @@ FDragonAnimStateMachine::FDragonAnimStateMachine(
 	IdlePoseDriver(IdlePoseDriver),
 	WalkPoseDriver(WalkPoseDriver),
 	TrotPoseDriver(TrotPoseDriver),
+	SprintPoseDriver(SprintPoseDriver),
 	JumpPoseDriver(JumpPoseDriver),
 	RandomSwayDriver(RandomSwayDriver),
 	MomentumDriver(MomentumDriver),
@@ -31,6 +35,7 @@ FDragonAnimStateMachine::FDragonAnimStateMachine(
 		IdlePoseDriver,
 		WalkPoseDriver,
 		TrotPoseDriver,
+		SprintPoseDriver,
 		JumpPoseDriver,
 		RandomSwayDriver,
 		MomentumDriver,
@@ -50,56 +55,35 @@ void FDragonAnimStateMachine::InitTransitions()
 {
 	Transitions = {
 		{ EAnimationState::Idle, {
-			{ EAnimationState::Walking, [this]
-			{
-				WalkPoseDriver->ResetState();
-				WalkPoseDriver->SetBlendAlpha(1.0f);
-			}},
-			{ EAnimationState::Running, [this]
-			{
-				TrotPoseDriver->ResetState();
-				TrotPoseDriver->SetBlendAlpha(1.0f);
-			}},
-			{ EAnimationState::Jumping, [this]
-			{
-				JumpPoseDriver->ResetState();
-				JumpPoseDriver->SetBlendAlpha(1.0f);
-			}},
+			{ EAnimationState::Walking, [this] { WalkPoseDriver->ResetState(); }},
+			{ EAnimationState::Trotting, [this] { TrotPoseDriver->ResetState(); }},
+			{ EAnimationState::Sprinting, [this] { SprintPoseDriver->ResetState(); }},
+			{ EAnimationState::Jumping, [this] { JumpPoseDriver->ResetState(); }},
 		}},
 		{ EAnimationState::Jumping, {
-			{ EAnimationState::Idle, [this]
-			{
-				IdlePoseDriver->ResetState();
-			}},
-			{ EAnimationState::Walking, [this]
-			{
-				WalkPoseDriver->ResetState();
-			}},
-			{ EAnimationState::Running, [this]
-			{
-				TrotPoseDriver->ResetState();
-			}},
-			{ EAnimationState::Jumping, [this]
-			{
-				JumpPoseDriver->ResetState();
-			}},
+			{ EAnimationState::Idle, [this] { IdlePoseDriver->ResetState(); }},
+			{ EAnimationState::Walking, [this] { WalkPoseDriver->ResetState(); }},
+			{ EAnimationState::Trotting, [this] { TrotPoseDriver->ResetState(); }},
+			{ EAnimationState::Sprinting, [this] { SprintPoseDriver->ResetState(); }},
+			{ EAnimationState::Jumping, [this] { JumpPoseDriver->ResetState(); }},
 		}},
 		{ EAnimationState::Walking, {
-			{ EAnimationState::Idle, [this] { IdlePoseDriver->SyncStateFrom(WalkPoseDriver); } },
-			{ EAnimationState::Running, [this] { TrotPoseDriver->SyncStateFrom(WalkPoseDriver); } },
-			{ EAnimationState::Jumping, [this]
-			{
-				JumpPoseDriver->ResetState();
-				JumpPoseDriver->SetBlendAlpha(1.0f);
-			} },
+			{ EAnimationState::Idle, [this] { IdlePoseDriver->SyncStateFrom(WalkPoseDriver); }},
+			{ EAnimationState::Trotting, [this] { TrotPoseDriver->SyncStateFrom(WalkPoseDriver); }},
+			{ EAnimationState::Sprinting, [this] { SprintPoseDriver->SyncStateFrom(WalkPoseDriver); }},
+			{ EAnimationState::Jumping, [this] { JumpPoseDriver->ResetState(); }},
 		}},
-		{ EAnimationState::Running, {
+		{ EAnimationState::Trotting, {
+			{ EAnimationState::Idle, [this] { IdlePoseDriver->SyncStateFrom(TrotPoseDriver); }},
 			{ EAnimationState::Walking, [this] { WalkPoseDriver->SyncStateFrom(TrotPoseDriver); } },
-			{ EAnimationState::Jumping, [this]
-			{
-				JumpPoseDriver->ResetState();
-				JumpPoseDriver->SetBlendAlpha(1.0f);
-			} },
+			{ EAnimationState::Sprinting, [this] { SprintPoseDriver->SyncStateFrom(TrotPoseDriver); } },
+			{ EAnimationState::Jumping, [this] { JumpPoseDriver->ResetState(); }},
+		}},
+		{ EAnimationState::Sprinting, {
+			{ EAnimationState::Idle, [this] { IdlePoseDriver->SyncStateFrom(SprintPoseDriver); }},
+			{ EAnimationState::Walking, [this] { WalkPoseDriver->SyncStateFrom(SprintPoseDriver); } },
+			{ EAnimationState::Trotting, [this] { TrotPoseDriver->SyncStateFrom(SprintPoseDriver); } },
+			{ EAnimationState::Jumping, [this] { JumpPoseDriver->ResetState(); }},
 		}}
 	};
 }
@@ -122,21 +106,28 @@ void FDragonAnimStateMachine::Tick(const float DeltaTime, const AMainCharacter* 
 
 	if (AnimationLockout <= 0.0f)
 	{
+		const bool CanSwitchWalkAnim = FUtils::IsOneOf(AnimationState,
+			EAnimationState::Idle, EAnimationState::Walking, EAnimationState::Trotting, EAnimationState::Sprinting);
+		
 		if (AnimationState == EAnimationState::Jumping && !OwningActor->GetCharacterMovement()->IsFalling())
 		{
 			SetState(EAnimationState::Idle);
 		}
-		if (MovementVector.Size() > 0 && !OwningActor->IsSprinting && (AnimationState == EAnimationState::Idle || AnimationState == EAnimationState::Running))
+		if (MovementVector.Size() == 0 && CanSwitchWalkAnim && AnimationState != EAnimationState::Idle)
+		{
+			SetState(EAnimationState::Idle);
+		}
+		if (MovementVector.Size() > 0 && CanSwitchWalkAnim && AnimationState != EAnimationState::Walking && OwningActor->MovementMode == ECharacterMovementMode::Walking)
 		{
 			SetState(EAnimationState::Walking);
 		}
-		if (MovementVector.Size() > 0 && OwningActor->IsSprinting && (AnimationState == EAnimationState::Idle || AnimationState == EAnimationState::Walking))
+		if (MovementVector.Size() > 0 && CanSwitchWalkAnim && AnimationState != EAnimationState::Trotting && OwningActor->MovementMode == ECharacterMovementMode::Trotting)
 		{
-			SetState(EAnimationState::Running);
+			SetState(EAnimationState::Trotting);
 		}
-		if (MovementVector.Size() == 0 && (AnimationState == EAnimationState::Walking || AnimationState == EAnimationState::Running))
+		if (MovementVector.Size() > 0 && CanSwitchWalkAnim && AnimationState != EAnimationState::Sprinting && OwningActor->MovementMode == ECharacterMovementMode::Sprinting)
 		{
-			SetState(EAnimationState::Idle);
+			SetState(EAnimationState::Sprinting);
 		}
 		if (AnimationState != EAnimationState::Jumping && OwningActor->GetCharacterMovement()->IsFalling())
 		{
@@ -168,9 +159,13 @@ void FDragonAnimStateMachine::BlendDrivers(const float DeltaTime) const
 	{
 		DominantDriver = WalkPoseDriver;
 	}
-	else if (AnimationState == EAnimationState::Running)
+	else if (AnimationState == EAnimationState::Trotting)
 	{
 		DominantDriver = TrotPoseDriver;
+	}
+	else if (AnimationState == EAnimationState::Sprinting)
+	{
+		DominantDriver = SprintPoseDriver;
 	}
 	else if (AnimationState == EAnimationState::Jumping)
 	{
