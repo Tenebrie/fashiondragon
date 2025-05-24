@@ -156,7 +156,7 @@ FDragonWalkStateData FDragonWalkLegDriver::GetRawWalkStateData() const
 				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
 				.LinearForce = 10.f,
 				.AngularForce = 1.0f,
-				.Duration = 0.7f
+				.Duration = 0.9f
 			}
 		},
 		{ ELegWalkingState::Stepping,
@@ -165,7 +165,7 @@ FDragonWalkStateData FDragonWalkLegDriver::GetRawWalkStateData() const
 				.TargetRotation = FRotator(0.0f, 15.0f, 0.0f),
 				.LinearForce = 2.0f,
 				.AngularForce = 1.0f,
-				.Duration = 0.7f,
+				.Duration = 0.9f,
 				.StartArticulationPosition = FVector(15.0f, 0.0f, 150.0f),
 				.StartArticulationRotation = FVector(0.0f, 0.0f, 60.0f),
 				.EndArticulationPosition = FVector(15.0f, 0.0f, 30.0f),
@@ -208,13 +208,13 @@ void FDragonWalkLegDriver::Tick(const float DeltaTime)
 
 FDragonWalkPose::FDragonWalkPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
-	BodyDriver = new FDragonWalkBodyDriver(Anim, Anim->ControlledBody.GetBone(EBodyDriverLayer::Primary), Anim->BackLeftLeg.GetBone(EBodyDriverLayer::Primary), Anim->BackRightLeg.GetBone(EBodyDriverLayer::Primary));
-	HipsDriver = new FDragonWalkHipSwayDriver(Anim, Anim->ControlledHips.GetBone(EBodyDriverLayer::Primary), Anim->BackLeftLeg.GetBone(EBodyDriverLayer::Primary), Anim->BackRightLeg.GetBone(EBodyDriverLayer::Primary));
+	BodyDriver = new FDragonWalkBodyDriver(Anim, Anim->ControlledBody.GetBone(EDriverLayer::Primary), Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
+	HipsDriver = new FDragonWalkHipSwayDriver(Anim, Anim->ControlledHips.GetBone(EDriverLayer::Primary), Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
 	BodyDrivers = { BodyDriver };
 	HipsDrivers = { HipsDriver };
 
-	LeftLegDriver = new FDragonWalkLegDriver(Anim, Anim->BackLeftLeg.GetBone(EBodyDriverLayer::Primary));
-	RightLegDriver = new FDragonWalkLegDriver(Anim, Anim->BackRightLeg.GetBone(EBodyDriverLayer::Primary));
+	LeftLegDriver = new FDragonWalkLegDriver(Anim, Anim->BackLeftLeg.GetBone(EDriverLayer::Primary));
+	RightLegDriver = new FDragonWalkLegDriver(Anim, Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
 	LegDrivers = {
 		LeftLegDriver,
 		RightLegDriver,
@@ -222,15 +222,15 @@ FDragonWalkPose::FDragonWalkPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 
 	// Shares a driver with idle animation
 	WingDrivers = {
-		new FDragonIdleWingDriver(Anim, Anim->LeftWing.GetBone(EBodyDriverLayer::Primary)),
-		new FDragonIdleWingDriver(Anim, Anim->RightWing.GetBone(EBodyDriverLayer::Primary)),
+		new FDragonIdleWingDriver(Anim, Anim->LeftWing.GetBone(EDriverLayer::Primary)),
+		new FDragonIdleWingDriver(Anim, Anim->RightWing.GetBone(EDriverLayer::Primary)),
 	};
 }
 
 void FDragonWalkPose::SyncStateFrom(const FDragonTrotPose* TargetPose) const
 {
-	BodyDriver->SyncStateFrom(TargetPose->BodyDriver);
-	HipsDriver->SyncStateFrom(TargetPose->HipsDriver);
+	// BodyDriver->SyncStateFrom(TargetPose->BodyDriver);
+	// HipsDriver->SyncStateFrom(TargetPose->HipsDriver);
 	LeftLegDriver->SyncStateFrom(TargetPose->LeftLegDriver);
 	RightLegDriver->SyncStateFrom(TargetPose->RightLegDriver);
 }

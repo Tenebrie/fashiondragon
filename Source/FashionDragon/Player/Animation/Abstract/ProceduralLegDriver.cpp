@@ -2,6 +2,7 @@
 
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "Curves/BezierUtilities.h"
+#include "FashionDragon/DebugTools/QuickDebug.h"
 
 void FProceduralLegDriver::SetWalkingState(const ELegWalkingState NewState, const bool KeepCycle)
 {

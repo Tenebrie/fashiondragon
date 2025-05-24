@@ -15,12 +15,12 @@ FControlledLeg::FControlledLeg(UDragonAnimInstance* AnimInstance, const FName IK
  */
 FPlantedPositionData FControlledLeg::GetPlantedWorldPosition(const FVector& AtPosition, const FRotator& AtRotation, const float SweepDown) const
 {
-	// const auto FootRotation = GetWorldRotation(AtRotation.Quaternion());
+	const auto FootRotation = GetWorldRotation(AtRotation.Quaternion());
 	const auto WorldFootBase = GetWorldPosition(AtPosition);
 
 	// TODO: Fix. As the rotation is not taken into account, this is checking for flat collision.
-	// const auto WorldFootTip = WorldFootBase + FootRotation.RotateVector(FVector(0, 20, 0));
-	const auto WorldFootTip = WorldFootBase + FVector(0, 20, 0);
+	const auto WorldFootTip = WorldFootBase + FootRotation.RotateVector(FVector(0, 20, 0));
+	// const auto WorldFootTip = WorldFootBase + FVector(0, 20, 0);
 
 	constexpr float TraceDistance = 300.0f;
 
@@ -48,15 +48,20 @@ FPlantedPositionData FControlledLeg::GetPlantedWorldPosition(const FVector& AtPo
 	bool GroundHit = true;
 	FVector GroundPosition = FVector::ZeroVector;
 	FVector FootLocation = FVector::ZeroVector;
-	if (bHitOnFootBase && bHitOnFootTip && HitResultA.ImpactPoint.Z > HitResultB.ImpactPoint.Z)
+	// if (bHitOnFootBase && bHitOnFootTip && HitResultA.ImpactPoint.Z > HitResultB.ImpactPoint.Z)
+	// {
+	// 	GroundPosition = HitResultA.ImpactPoint;
+	// 	FootLocation = WorldFootBase;
+	// }
+	// else if (bHitOnFootBase && bHitOnFootTip)
+	// {
+	// 	GroundPosition = HitResultB.ImpactPoint;
+	// 	FootLocation = WorldFootTip;
+	// }
+	if (bHitOnFootBase && bHitOnFootTip)
 	{
-		GroundPosition = HitResultA.ImpactPoint;
-		FootLocation = WorldFootBase;
-	}
-	else if (bHitOnFootBase && bHitOnFootTip)
-	{
-		GroundPosition = HitResultB.ImpactPoint;
-		FootLocation = WorldFootTip;
+		GroundPosition = (HitResultA.ImpactPoint + HitResultB.ImpactPoint) / 2.0f;
+		FootLocation = (WorldFootBase + WorldFootTip) / 2.0f;
 	}
 	else if (bHitOnFootBase)
 	{
@@ -96,8 +101,8 @@ void FControlledLeg::Tick(const float DeltaTime)
 	const auto WorldPosition = GetWorldPosition();
 	const auto WorldRotation = GetWorldRotation();
 
-	constexpr float MomentumSmoothTime = 0.2f;
-	constexpr float MomentumDampingCoefficient = 1.0f;
+	constexpr float MomentumSmoothTime = 2.5f;
+	constexpr float MomentumDampingCoefficient = 0.2f;
 	
 	const FVector DeltaPos = WorldPosition - PreviousWorldPosition;
 	const FVector LinearVelocity = DeltaPos / DeltaTime;

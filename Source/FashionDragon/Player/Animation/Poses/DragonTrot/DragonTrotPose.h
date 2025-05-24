@@ -16,7 +16,7 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 	virtual void AdvanceState() override;
-	virtual FDragonWalkStateData GetRawWalkStateData() const override { return {}; }
+	virtual FDragonWalkStateData GetRawWalkStateData() const override;
 };
 
 /**

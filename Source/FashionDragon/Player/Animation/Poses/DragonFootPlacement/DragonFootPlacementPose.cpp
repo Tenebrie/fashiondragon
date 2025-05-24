@@ -6,11 +6,6 @@
  */
 FPoseEffector FDragonFootPlacementLegDriver::ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context)
 {
-	return BaseEffector;
-}
-
-FPoseEffector FDragonFootPlacementLegDriver::ToPostProcessEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context)
-{
 	const auto GroundData = Leg->GetPlantedWorldPosition(BaseEffector);
 
 	const auto Effector = BaseEffector
@@ -29,8 +24,8 @@ FPoseEffector FDragonFootPlacementLegDriver::ToPostProcessEffector(const FPoseEf
 
 FDragonFootPlacementPose::FDragonFootPlacementPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
-	LeftLegDriver = new FDragonFootPlacementLegDriver(Anim, Anim->BackLeftLeg.GetBone(EBodyDriverLayer::Primary));
-	RightLegDriver = new FDragonFootPlacementLegDriver(Anim, Anim->BackRightLeg.GetBone(EBodyDriverLayer::Primary));
+	LeftLegDriver = new FDragonFootPlacementLegDriver(Anim, Anim->BackLeftLeg.GetPostProcessBone());
+	RightLegDriver = new FDragonFootPlacementLegDriver(Anim, Anim->BackRightLeg.GetPostProcessBone());
 	LegDrivers = {
 		LeftLegDriver,
 		RightLegDriver,

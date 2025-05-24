@@ -48,7 +48,8 @@ public:
 	FRotator AngularMomentum = FRotator::ZeroRotator;
 
 	virtual void Tick(const float DeltaTime) override;
-	
+
+	int GetIdx() const { return Idx; }
 	FVector GetWorldPosition(const FVector& FromPosition) const;
 	FVector GetWorldPosition() const { return GetWorldPosition(Position); }
 	FVector GetWorldPosition(const FPoseEffector& FromEffector) const { return GetWorldPosition(FromEffector.Position); }

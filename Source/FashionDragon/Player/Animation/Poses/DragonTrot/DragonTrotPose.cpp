@@ -52,34 +52,100 @@ void FDragonTrotLegDriver::AdvanceState()
 	}
 }
 
+FDragonWalkStateData FDragonTrotLegDriver::GetRawWalkStateData() const
+{
+	const std::map<ELegWalkingState, FDragonWalkStateData> AnimData =
+	{
+		{ ELegWalkingState::Relaxed,
+			{
+				.TargetPosition = FVector(0.0f, 0.0f, 0.0f),
+				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
+				.LinearForce = 2.5,
+				.AngularForce = 1.0f,
+				.Duration = 1.0f
+			}
+		},
+		{ ELegWalkingState::Raised,
+			{
+				.TargetPosition = FVector(0.0f, 0.0f, 150.0f),
+				.TargetRotation = FRotator(0.0f, 0.0f, 60.0f),
+				.LinearForce = 0.7f,
+				.AngularForce = 0.1f,
+				.Duration = 0.3f
+			}
+		},
+		{ ELegWalkingState::SeekingGround,
+			{
+				.TargetPosition = FVector(0.0f, 0.0f, 0.0f),
+				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
+				.LinearForce = 5.0f,
+				.AngularForce = 0.03f,
+				.Duration = 0.3f
+			}
+		},
+		{ ELegWalkingState::Planted,
+			{
+				.TargetPosition = FVector(0.0f, 0.0f, 0.0f),
+				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
+				.LinearForce = 10.f,
+				.AngularForce = 1.0f,
+				.Duration = 1.2f
+			}
+		},
+		{ ELegWalkingState::Stepping,
+			{
+				.TargetPosition = FVector(-20.0f, 400.0f, 0.0f),
+				.TargetRotation = FRotator(0.0f, 15.0f, 0.0f),
+				.LinearForce = 80.0f,
+				.AngularForce = 1.0f,
+				.Duration = 1.2f,
+				.StartArticulationPosition = FVector(0.0f, 0.0f, 0.0f),
+				.StartArticulationRotation = FVector(0.0f, 0.0f, 0.0f),
+				.EndArticulationPosition = FVector(0.0f, 0.0f, 30.0f),
+				.EndArticulationRotation = FVector(0.0f, 0.0f, 10.0f),
+			}
+		},
+		{ ELegWalkingState::Inertia,
+			{
+				.TargetPosition = FVector(0.0f, -450.0f, 180.0f),
+				.TargetRotation = FRotator(0.0f, 0.0f, 60.0f),
+				.LinearForce = 2.0f,
+				.AngularForce = 1.0f,
+				.Duration = 0.5f
+			}
+		},
+	};
+	
+	return AnimData.at(WalkingState);
+}
+
 FDragonTrotPose::FDragonTrotPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
-	BodyDriver = new FDragonWalkBodyDriver(Anim, Anim->ControlledBody.GetBone(EBodyDriverLayer::Primary), Anim->BackLeftLeg.GetBone(EBodyDriverLayer::Primary), Anim->BackRightLeg.GetBone(EBodyDriverLayer::Primary));
-	HipsDriver = new FDragonWalkHipSwayDriver(Anim, Anim->ControlledHips.GetBone(EBodyDriverLayer::Primary),  Anim->BackLeftLeg.GetBone(EBodyDriverLayer::Primary), Anim->BackRightLeg.GetBone(EBodyDriverLayer::Primary));
-	BodyDrivers = { BodyDriver };
-	HipsDrivers = { HipsDriver };
+	// BodyDriver = new FDragonWalkBodyDriver(Anim, Anim->ControlledBody.GetBone(EDriverLayer::Primary), Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
+	// HipsDriver = new FDragonWalkHipSwayDriver(Anim, Anim->ControlledHips.GetBone(EDriverLayer::Primary),  Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
+	// BodyDrivers = { BodyDriver };
+	// HipsDrivers = { HipsDriver };
 	
-	LeftLegDriver = new FDragonTrotLegDriver(Anim, Anim->BackLeftLeg.GetBone(EBodyDriverLayer::Primary));
-	RightLegDriver = new FDragonTrotLegDriver(Anim, Anim->BackRightLeg.GetBone(EBodyDriverLayer::Primary));
+	LeftLegDriver = new FDragonTrotLegDriver(Anim, Anim->BackLeftLeg.GetBone(EDriverLayer::Primary));
+	RightLegDriver = new FDragonTrotLegDriver(Anim, Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
 	LegDrivers = {
 		LeftLegDriver,
 		RightLegDriver,
 	};
-	LeftLegDriver->SetWalkingState(ELegWalkingState::Planted);
 }
 
 void FDragonTrotPose::SyncStateFrom(const FDragonWalkPose* TargetPose) const
 {
-	BodyDriver->SyncStateFrom(TargetPose->BodyDriver);
-	HipsDriver->SyncStateFrom(TargetPose->HipsDriver);
+	// BodyDriver->SyncStateFrom(TargetPose->BodyDriver);
+	// HipsDriver->SyncStateFrom(TargetPose->HipsDriver);
 	LeftLegDriver->SyncStateFrom(TargetPose->LeftLegDriver);
 	RightLegDriver->SyncStateFrom(TargetPose->RightLegDriver);
 }
 
 void FDragonTrotPose::ResetState()
 {
-	BodyDriver->ResetState();
-	HipsDriver->ResetState();
+	// BodyDriver->ResetState();
+	// HipsDriver->ResetState();
 	LeftLegDriver->LockToWorldGround();
 	RightLegDriver->SetWalkingState(ELegWalkingState::Stepping);
 }

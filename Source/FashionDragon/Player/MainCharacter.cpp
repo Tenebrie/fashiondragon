@@ -12,6 +12,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "PhysicsEngine/PhysicalAnimationComponent.h"
 #include "EnhancedInputComponent.h"
+#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "Input/Actions.h"
 
 // Sets default values
@@ -156,13 +157,13 @@ void AMainCharacter::ReleaseJump()
 
 void AMainCharacter::StartSprint()
 {
-    GetCharacterMovement()->MaxWalkSpeed = 2500.f;
+    GetCharacterMovement()->MaxWalkSpeed = 1800.f;
     IsSprinting = true;
 }
 
 void AMainCharacter::StopSprint()
 {
-    GetCharacterMovement()->MaxWalkSpeed = 800.f;
+    GetCharacterMovement()->MaxWalkSpeed = 600.f;
     IsSprinting = false;
 }
 

@@ -15,13 +15,13 @@ enum class ELegIdleState;
  */
 FDragonIdlePose::FDragonIdlePose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
-	BodyDriver = new FDragonIdleBodyDriver(Anim, Anim->ControlledBody.GetBone(EBodyDriverLayer::Primary));
-	HipsDriver = new FDragonIdleHipsDriver(Anim, Anim->ControlledHips.GetBone(EBodyDriverLayer::Primary));
+	BodyDriver = new FDragonIdleBodyDriver(Anim, Anim->ControlledBody.GetBone(EDriverLayer::Primary));
+	HipsDriver = new FDragonIdleHipsDriver(Anim, Anim->ControlledHips.GetBone(EDriverLayer::Primary));
 	BodyDrivers = { BodyDriver };
 	HipsDrivers = { HipsDriver };
 
-	LeftLegDriver = new FDragonIdleLegDriver(Anim, Anim->BackLeftLeg.GetBone(EBodyDriverLayer::Primary));
-	RightLegDriver = new FDragonIdleLegDriver(Anim, Anim->BackRightLeg.GetBone(EBodyDriverLayer::Primary));
+	LeftLegDriver = new FDragonIdleLegDriver(Anim, Anim->BackLeftLeg.GetBone(EDriverLayer::Primary));
+	RightLegDriver = new FDragonIdleLegDriver(Anim, Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
 	LegDrivers = {
 		LeftLegDriver,
 		RightLegDriver,
@@ -42,8 +42,8 @@ FDragonIdlePose::FDragonIdlePose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 		}
 	});
 
-	LeftWingDriver = new FDragonIdleWingDriver(Anim, Anim->LeftWing.GetBone(EBodyDriverLayer::Primary));
-	RightWingDriver = new FDragonIdleWingDriver(Anim, Anim->RightWing.GetBone(EBodyDriverLayer::Primary));
+	LeftWingDriver = new FDragonIdleWingDriver(Anim, Anim->LeftWing.GetBone(EDriverLayer::Primary));
+	RightWingDriver = new FDragonIdleWingDriver(Anim, Anim->RightWing.GetBone(EDriverLayer::Primary));
 	WingDrivers = {
 		LeftWingDriver,
 		RightWingDriver,

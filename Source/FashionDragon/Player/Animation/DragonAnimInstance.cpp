@@ -77,30 +77,29 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 	StateMachine->Tick(DeltaTime, OwningActor);
 
 	// Apply body driver
-	auto CumulativeEffector = ControlledBody.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToBodyEffector, DeltaTime, true);
-	GetSkelMeshComponent()->SetRelativeLocation(CumulativeEffector.Position);
-	GetSkelMeshComponent()->SetRelativeRotation(CumulativeEffector.Rotation);
+	auto Effector = ControlledBody.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToBodyEffector, DeltaTime);
+	GetSkelMeshComponent()->SetRelativeLocation(Effector.Position);
+	GetSkelMeshComponent()->SetRelativeRotation(Effector.Rotation);
 
 	// Apply hips driver
-	CumulativeEffector = ControlledHips.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToHipsEffector, DeltaTime, true);
-	SetBoneOffset("Hip", "Tail_001", CumulativeEffector.Position, CumulativeEffector.Rotation);
+	Effector = ControlledHips.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToHipsEffector, DeltaTime);
+	SetBoneOffset("Hip", "Tail_001", Effector.Position, Effector.Rotation);
 
 	// Apply leg drivers
 	for (int i = 0; i < ControlledLegs.Num(); i++)
 	{
-		CumulativeEffector = FPoseEffector();
-		CumulativeEffector = ControlledLegs[i]->MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToLegEffector, DeltaTime, true);
-		CumulativeEffector = ControlledLegs[i]->MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToPostProcessLegEffector, DeltaTime, false);
+		Effector = ControlledLegs[i]->MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToLegEffector, DeltaTime);
+		Effector = ControlledLegs[i]->MakePostProcessEffector(Effector, StateMachine->PoseDrivers, &FProceduralPose::ToLegEffector, DeltaTime);
 		
-		LegPositions[i] = CumulativeEffector.Position;
-		LegRotations[i] = CumulativeEffector.Rotation;
+		LegPositions[i] = Effector.Position;
+		LegRotations[i] = Effector.Rotation;
 	}
 
 	// Apply wing drivers
 	for (int i = 0; i < ControlledWings.Num(); i++)
 	{
 		const auto WingGroup = ControlledWings[i];
-		const auto WingEffector = WingGroup->MakeWingEffector(StateMachine->PoseDrivers, &FProceduralPose::ToWingEffector, DeltaTime, true);
+		const auto WingEffector = WingGroup->MakeWingEffector(StateMachine->PoseDrivers, &FProceduralPose::ToWingEffector, DeltaTime);
 
 		for (const auto Layer : *WingGroup)
 			WingPoseAdapter->ApplyEffector(Layer, WingEffector);

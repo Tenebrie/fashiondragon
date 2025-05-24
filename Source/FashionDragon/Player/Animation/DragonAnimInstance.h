@@ -14,9 +14,6 @@ UCLASS()
 class FASHIONDRAGON_API UDragonAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
-	
-	TArray<TFControlledBoneGroup<FControlledLeg>*> ControlledLegs;
-	TArray<TFControlledBoneGroup<FControlledWing>*> ControlledWings;
 
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaTime) override;
@@ -29,6 +26,8 @@ public:
 	FDragonAnimStateMachine* StateMachine;
 	TFControlledBoneGroup<FControlledBone> ControlledBody;
 	TFControlledBoneGroup<FControlledBone> ControlledHips;
+	TArray<TFControlledBoneGroup<FControlledLeg>*> ControlledLegs;
+	TArray<TFControlledBoneGroup<FControlledWing>*> ControlledWings;
 	TFControlledBoneGroup<FControlledLeg> BackLeftLeg;
 	TFControlledBoneGroup<FControlledLeg> BackRightLeg;
 	TFControlledBoneGroup<FControlledWing> LeftWing;

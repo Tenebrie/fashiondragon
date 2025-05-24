@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "FashionDragon/Player/Animation/Abstract/ProceduralPose.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // class FDragonWalkPose;
 // class FDragonIdleBodyDriver;
@@ -26,12 +27,18 @@ public:
 
 class FDragonMomentumDriverLeg final : public FProceduralLegDriver
 {
+	FVector MomentumOffset = FVector::ZeroVector;
+	FVectorSpringState SpringState = FVectorSpringState();
+	FVectorSpringState SpringStateVertical = FVectorSpringState();
+	FVector PreviousWorldPosition = FVector::ZeroVector;
+	FQuat PreviousWorldRotation = FQuat::Identity;
 public:
 	FDragonMomentumDriverLeg(UDragonAnimInstance* AnimInstance, FControlledLeg* Leg)
 		: FProceduralLegDriver(AnimInstance, Leg)
 	{
 	}
 
+	virtual void Tick(float DeltaTime) override;
 	virtual FPoseEffector ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context) override;
 	virtual void AdvanceState() override {}
 	virtual FDragonWalkStateData GetRawWalkStateData() const override { return {}; }

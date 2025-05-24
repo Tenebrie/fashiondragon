@@ -1,6 +1,7 @@
 ﻿#include "DragonIdleLegDriver.h"
 
 #include "FashionDragon/DebugTools/QuickDebug.h"
+#include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "FashionDragon/Player/Animation/Enums/LegIdleState.h"
 #include "FashionDragon/Player/Animation/Poses/DragonWalk/DragonWalkPose.h"
 #include "FashionDragon/Utils/Utils.h"
@@ -21,7 +22,8 @@ FDragonWalkStateData FDragonIdleLegDriver::GetRawWalkStateData() const
 void FDragonIdleLegDriver::Tick(const float DeltaTime)
 {
 	FProceduralLegDriver::Tick(DeltaTime);
-	
+
+	// TODO: Fix the logic for cliffs or uneven surfaces (the leg position will rarely be able to go to 0)
 	if (IdleState == ELegIdleState::ArticulatedReturn && Leg->Position.Size() < 5.f)
 	{
 		LockToWorldGround();
