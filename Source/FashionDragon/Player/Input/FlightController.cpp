@@ -1,6 +1,7 @@
 ﻿#include "FlightController.h"
 
 #include "FashionDragon/DebugTools/QuickDebug.h"
+#include "FashionDragon/Player/MainCharacter.h"
 
 UFlightController::UFlightController()
 {
@@ -11,5 +12,9 @@ void UFlightController::TickComponent(const float DeltaTime, const ELevelTick Ti
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	Debug::Print("Test");
+}
+
+AMainCharacter* UFlightController::GetCharacter() const
+{
+	return Cast<AMainCharacter>(GetOwner());
 }

@@ -118,9 +118,9 @@ void FDragonWalkLegDriver::AdvanceState()
 	}
 }
 
-inline constexpr float StepDuration = 0.9f;
-inline constexpr float PlantedDuration = 0.45f;
-inline constexpr float InertiaDuration = 0.45f;
+#define STEP_DURATION 0.9f
+#define PLANTED_DURATION 0.45f
+#define INERTIA_DURATION 0.45f
 FDragonWalkStateData FDragonWalkLegDriver::GetRawWalkStateData() const
 {
 	const std::map<ELegWalkingState, FDragonWalkStateData> AnimData =

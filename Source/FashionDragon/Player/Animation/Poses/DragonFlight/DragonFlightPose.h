@@ -9,15 +9,15 @@ public:
 		FControlledWing* ControlledWing
 	): FProceduralWingDriver(AnimInstance, ControlledWing) {}
 
-	virtual FDragonWingStateData GetTargetPosition() const override;
+	// virtual FDragonWingStateData GetTargetPosition() const override;
 };
 
-class FDragonJumpPose final : public FProceduralPose
+class FDragonFlightPose final : public FProceduralPose
 {
 	FDragonFlightWingDriver* LeftWingDriver;
 	FDragonFlightWingDriver* RightWingDriver;
 public:
-	explicit FDragonJumpPose(UDragonAnimInstance* Anim);
+	explicit FDragonFlightPose(UDragonAnimInstance* Anim);
 
 	virtual void ResetState() override;
 };
