@@ -21,30 +21,21 @@ void FProceduralWingDriver::Tick(const float DeltaTime)
 	CycleDuration = State.Duration;
 	CyclePosition = std::min(CycleDuration, CyclePosition + AdvanceValue);
 	VisualCyclePosition = std::min(State.Duration, VisualCyclePosition + AdvanceValue);
-	if (CyclePosition >= State.Duration)
-	{
-		Inverted = true;
-		CyclePosition = State.Duration;
-		VisualCyclePosition = State.Duration;
-	}
-	else if (CyclePosition <= 0.0f)
-	{
-		Inverted = false;
-		CyclePosition = 0.0f;
-		VisualCyclePosition = 0.0f;
-	}
+}
+
+void FProceduralWingDriver::ResetState()
+{
+	CyclePosition = 0.0f;
+	VisualCyclePosition = 0.0f;
 }
 
 FPoseWingEffector FProceduralWingDriver::ToEffector(const FPoseWingEffector& BaseEffector, const FPoseEffectorContext& Context)
 {
 	const auto State = GetTargetPosition();
 	
-	const auto LinearSpeed = State.LinearForce * Context.BlendAlpha * Context.DeltaTime;
+	if (Context.BlendAlpha <= 0.0f) { return BaseEffector; }
 
-	const auto FlapDistToMove = std::min(LinearSpeed, FMath::Abs(State.Flap - Wing->Flap));
-	const auto OpennessDistToMove = std::min(LinearSpeed, FMath::Abs(State.Openness - Wing->Openness));
-	
 	return BaseEffector
-		.AddFlap(FlapDistToMove * FMath::Sign(State.Flap - Wing->Flap))
-		.AddOpenness(OpennessDistToMove * FMath::Sign(State.Openness - Wing->Openness));
+		.SetFlap(FMath::FInterpTo(BaseEffector.Flap, State.Flap, Context.DeltaTime, State.TransitionSpeed * Context.BlendAlpha))
+		.SetOpenness(FMath::FInterpTo(BaseEffector.Openness, State.Openness, Context.DeltaTime, State.TransitionSpeed * Context.BlendAlpha));
 }

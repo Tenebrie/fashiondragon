@@ -5,6 +5,7 @@
 #include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
+#include "FashionDragon/Player/Animation/Poses/DragonIdle/Drivers/DragonIdleWingDriver.h"
 #include "FashionDragon/Player/Animation/Poses/DragonWalk/DragonWalkPose.h"
 #include "FashionDragon/Player/Animation/Poses/DragonSprint/DragonSprintPose.h"
 
@@ -98,9 +99,9 @@ void FDragonTrotLegDriver::AdvanceState()
 	}
 }
 
-constexpr float StepDuration = 0.9f;
-constexpr float PlantedDuration = 0.45f;
-constexpr float InertiaDuration = 0.45f;
+inline constexpr float StepDuration = 0.9f;
+inline constexpr float PlantedDuration = 0.45f;
+inline constexpr float InertiaDuration = 0.45f;
 FDragonWalkStateData FDragonTrotLegDriver::GetRawWalkStateData() const
 {
 	const std::map<ELegWalkingState, FDragonWalkStateData> AnimData =
@@ -192,6 +193,12 @@ FDragonTrotPose::FDragonTrotPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 		if (NewState == ELegWalkingState::Stepping)
 			BodyDriver->SetLeadingLeg(RightLegDriver);
 	});
+
+	// Shares a driver with idle animation
+	WingDrivers = {
+		new FDragonIdleWingDriver(Anim, Anim->LeftWing.GetBone(EDriverLayer::Primary)),
+		new FDragonIdleWingDriver(Anim, Anim->RightWing.GetBone(EDriverLayer::Primary)),
+	};
 }
 
 void FDragonTrotPose::SyncStateFrom(const FDragonWalkPose* SourcePose) const

@@ -66,25 +66,29 @@ void FDragonWingPoseAdapter::ApplyEffector(
 	auto ThirdFingerPose = GetNeutralPose(5, Wing->MirrorModifier);
 	auto FourthFingerPose = GetNeutralPose(6, Wing->MirrorModifier);
 	
-	const auto RootRotation = RootPose->Value + FRotator(45.0f * Effector.Flap, 0.0f, 0.0f);
-	RootPose->Value = RootRotation;
+	// Flap
+	const auto Flap = Effector.Flap;
+	RootPose->Value.Pitch += Flap * 45.0f;
+	RootPose->Value.Yaw += Flap * 30.0f;
 
+	// Openness
 	const auto Closeness = 1.0f - Effector.Openness;
-	RootPose->Value.Yaw += Closeness * 70.0f;
-	RootPose->Value.Roll += Closeness * 45.0f;
-	ChildPose->Value.Yaw -= Closeness * 160.0f;
-	ThirdPose->Value.Pitch -= Closeness * 150.0f;
-	ThirdPose->Value.Yaw += Closeness * 90.0f;
-	ThirdPose->Value.Roll += Closeness * 90.0f;
-	FirstFingerPose->Value.Yaw += Closeness * 80.0f;
-	FirstFingerPose->Value.Pitch -= Closeness * 120.0f;
-	SecondFingerPose->Value.Yaw += Closeness * 60.0f;
-	SecondFingerPose->Value.Pitch -= Closeness * 80.0f;
-	SecondFingerPose->Value.Roll += Closeness * 60.0f;
-	ThirdFingerPose->Value.Roll -= Closeness * 60.0f;
-	ThirdFingerPose->Value.Pitch -= Closeness * 50.0f;
-	ThirdFingerPose->Value.Yaw += Closeness * 70.0f;
-	FourthFingerPose->Value.Yaw -= Closeness * 25.0f;
+	// RootPose->Value.Pitch += Closeness * 30.0f;
+	// RootPose->Value.Yaw += Closeness * 70.0f;
+	// RootPose->Value.Roll += Closeness * 45.0f;
+	// ChildPose->Value.Yaw -= Closeness * 160.0f;
+	// ThirdPose->Value.Pitch -= Closeness * 150.0f;
+	// ThirdPose->Value.Yaw += Closeness * 90.0f;
+	// ThirdPose->Value.Roll += Closeness * 90.0f;
+	// FirstFingerPose->Value.Yaw += Closeness * 80.0f;
+	// FirstFingerPose->Value.Pitch -= Closeness * 120.0f;
+	// SecondFingerPose->Value.Yaw += Closeness * 60.0f;
+	// SecondFingerPose->Value.Pitch -= Closeness * 80.0f;
+	// SecondFingerPose->Value.Roll += Closeness * 60.0f;
+	// ThirdFingerPose->Value.Roll -= Closeness * 60.0f;
+	// ThirdFingerPose->Value.Pitch -= Closeness * 50.0f;
+	// ThirdFingerPose->Value.Yaw += Closeness * 70.0f;
+	// FourthFingerPose->Value.Yaw -= Closeness * 25.0f;
 
 	RootPose = ApplyMirror(RootPose, Wing->MirrorModifier);
 	ChildPose = ApplyMirror(ChildPose, Wing->MirrorModifier);

@@ -17,4 +17,12 @@ struct FPoseWingEffector
 	{
 		return FPoseWingEffector(Flap, Openness + Delta);
 	}
+	FPoseWingEffector SetFlap(const float NewFlap) const
+	{
+		return FPoseWingEffector(NewFlap, Openness);
+	}
+	FPoseWingEffector SetOpenness(const float NewOpenness) const
+	{
+		return FPoseWingEffector(Flap, NewOpenness);
+	}
 };

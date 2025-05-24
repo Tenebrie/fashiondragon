@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "FashionDragon/Player/Animation/Abstract/ProceduralPose.h"
 
+class FDragonJumpWingDriver;
+
 enum class ELegJumpState
 {
 	Pushing,
@@ -68,6 +70,8 @@ class FDragonJumpPose final : public FProceduralPose
 	FDragonJumpBodyDriver* BodyDriver;
 	FDragonJumpLegDriver* LeftLegDriver;
 	FDragonJumpLegDriver* RightLegDriver;
+	FDragonJumpWingDriver* LeftWingDriver;
+	FDragonJumpWingDriver* RightWingDriver;
 public:
 	explicit FDragonJumpPose(UDragonAnimInstance* Anim);
 

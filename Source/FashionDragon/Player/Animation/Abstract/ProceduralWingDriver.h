@@ -19,16 +19,7 @@ struct FDragonWingStateData
 	 */
 	mutable float PlaybackSpeed = 1.0f;
 	
-	/**
-	 * Maximum force an effector may apply to the bone in this state.
-	 * Effectively, maximum speed per second.
-	 */
-	float LinearForce = 10000.0f;
-	/**
-	 * Maximum force an effector may apply to the bone's rotation in this state.
-	 * Effectively, maximum speed (angles) per second.
-	 */
-	float AngularForce = 360.0f;
+	float TransitionSpeed = 1.0f;
 
 	FVector StartArticulationPosition = FVector(0.0f, 0.0f, 0.0f);
 	FVector StartArticulationRotation = FVector(0.0f, 0.0f, 0.0f);
@@ -54,6 +45,7 @@ public:
 	FProceduralWingDriver(UDragonAnimInstance* AnimInstance, FControlledWing* ControlledWing);
 
 	virtual void Tick(float DeltaTime);
+	virtual void ResetState();
 
 	virtual FPoseWingEffector ToEffector(const FPoseWingEffector& BaseEffector, const FPoseEffectorContext& Context);
 

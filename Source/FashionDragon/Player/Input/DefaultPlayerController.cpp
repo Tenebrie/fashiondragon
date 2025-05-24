@@ -10,11 +10,13 @@ void ADefaultPlayerController::SetupInputComponent()
 	const ULocalPlayer* LocalPlayer = GetLocalPlayer();
 	if (!LocalPlayer) { return; }
 
-	const auto InputSubsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-	if (!InputSubsystem) { return; }
+	const auto LocalInputSubsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+	if (!LocalInputSubsystem) { return; }
+
+	InputSubsystem = LocalInputSubsystem;
 
 	SetupInputMappings();
-	InputSubsystem->AddMappingContext(DragonGroundInputContext, 0);
+	SetControlMode(EControlMode::Ground);
 }
 
 void ADefaultPlayerController::SetupInputMappings()
@@ -45,4 +47,25 @@ void ADefaultPlayerController::SetupInputMappings()
 	}
 
 	DragonFlyingInputContext = MakeInputContext();
+}
+
+void ADefaultPlayerController::SetControlMode(EControlMode Mode) const
+{
+	if (!InputSubsystem) { return; }
+
+	if (Mode == EControlMode::Ground)
+	{
+		InputSubsystem->RemoveMappingContext(DragonFlyingInputContext);
+		InputSubsystem->AddMappingContext(DragonGroundInputContext, 0);
+	}
+	else if (Mode == EControlMode::Flying)
+	{
+		InputSubsystem->RemoveMappingContext(DragonGroundInputContext);
+		InputSubsystem->AddMappingContext(DragonFlyingInputContext, 0);
+	}
+	else
+	{
+		InputSubsystem->RemoveMappingContext(DragonGroundInputContext);
+		InputSubsystem->RemoveMappingContext(DragonFlyingInputContext);
+	}
 }

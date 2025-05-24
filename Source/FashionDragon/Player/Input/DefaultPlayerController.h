@@ -3,6 +3,15 @@
 
 #include "DefaultPlayerController.generated.h"
 
+class UEnhancedInputLocalPlayerSubsystem;
+
+enum class EControlMode : uint8
+{
+	None,
+	Ground,
+	Flying,
+};
+
 UCLASS()
 class FASHIONDRAGON_API ADefaultPlayerController : public ABasePlayerController
 {
@@ -10,8 +19,15 @@ class FASHIONDRAGON_API ADefaultPlayerController : public ABasePlayerController
 
 	virtual void SetupInputComponent() override;
 	void SetupInputMappings();
+
+	UPROPERTY()
+	UEnhancedInputLocalPlayerSubsystem* InputSubsystem;
+
+	EControlMode ControlMode = EControlMode::None;
 	
 public:
+	void SetControlMode(EControlMode Mode) const;
+	
 	UPROPERTY() UInputMappingContext* DragonGroundInputContext;
 	UPROPERTY() UInputMappingContext* DragonFlyingInputContext;
 };

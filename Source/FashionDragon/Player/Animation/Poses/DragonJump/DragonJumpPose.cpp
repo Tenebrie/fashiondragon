@@ -2,6 +2,7 @@
 
 #include <map>
 
+#include "Drivers/DragonJumpWingDriver.h"
 #include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 
@@ -206,6 +207,13 @@ FDragonJumpPose::FDragonJumpPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 	{
 		BodyDriver->SetJumpState(NewState);
 	});
+
+	LeftWingDriver = new FDragonJumpWingDriver(Anim, Anim->LeftWing.GetBone(EDriverLayer::Primary));
+	RightWingDriver = new FDragonJumpWingDriver(Anim, Anim->RightWing.GetBone(EDriverLayer::Primary));
+	WingDrivers = {
+		LeftWingDriver,
+		RightWingDriver,
+	};
 }
 
 /**
@@ -217,6 +225,8 @@ void FDragonJumpPose::StartFalling()
 	RightLegDriver->UpdateRandomness(!SwitchJumpingLeg);
 	LeftLegDriver->SetJumpState(ELegJumpState::Retracting);
 	RightLegDriver->SetJumpState(ELegJumpState::Retracting);
+	LeftWingDriver->ResetState();
+	RightWingDriver->ResetState();
 
 	SwitchJumpingLeg = !SwitchJumpingLeg;
 }
@@ -227,6 +237,8 @@ void FDragonJumpPose::ResetState()
 	RightLegDriver->UpdateRandomness(!SwitchJumpingLeg);
 	LeftLegDriver->SetJumpState(ELegJumpState::Pushing);
 	RightLegDriver->SetJumpState(ELegJumpState::Pushing);
+	LeftWingDriver->ResetState();
+	RightWingDriver->ResetState();
 
 	SwitchJumpingLeg = !SwitchJumpingLeg;
 }

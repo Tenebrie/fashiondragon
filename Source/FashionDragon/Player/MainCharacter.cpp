@@ -14,6 +14,7 @@
 #include "EnhancedInputComponent.h"
 #include "FashionDragon/DebugTools/QuickDebug.h"
 #include "Input/Actions.h"
+#include "Input/FlightController.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -64,6 +65,9 @@ void AMainCharacter::BeginPlay()
     GetCharacterMovement()->MaxAcceleration = 2048.f;
     GetCharacterMovement()->BrakingDecelerationWalking = 1000.f;
     MeshRoot->SetUsingAbsoluteRotation(true);
+
+    FlightController = NewObject<UFlightController>(this, TEXT("FlightController"));
+    FlightController->RegisterComponent();
 }
 
 // Called every frame
@@ -102,7 +106,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
     Input->BindAction(UActions::Sprint, ETriggerEvent::Started, this, &AMainCharacter::StartSprint);
     Input->BindAction(UActions::Sprint, ETriggerEvent::Completed & ETriggerEvent::Canceled, this, &AMainCharacter::StopSprint);
 
-    Input->BindAction(UActions::TogglePreferredMovement, ETriggerEvent::Started, this, &AMainCharacter::TogglePreferredMovement);
+    Input->BindAction(UActions::TogglePreferredMovement, ETriggerEvent::Started, this, &AMainCharacter::TogglePreferredGroundMovement);
     
     Input->BindAction(UActions::CastASpell, ETriggerEvent::Triggered, this, &AMainCharacter::CastSomeSpell);
 }
@@ -151,42 +155,46 @@ void AMainCharacter::StartJump()
         AnimInstance->StateMachine->SetState(EAnimationState::Jumping);
         AnimInstance->StateMachine->AnimationLockout = 0.2f;
     }
+    else
+    {
+        LaunchCharacter(FVector(0, 0, 2500), false, true);
+    }
 }
 
 void AMainCharacter::ReleaseJump()
 {
 }
 
-void AMainCharacter::StartSprint() { SwitchToMovementMode(ECharacterMovementMode::Sprinting); }
-void AMainCharacter::StopSprint() { SwitchToMovementMode(PreferredMovementMode); }
+void AMainCharacter::StartSprint() { SwitchGroundMovementMode(EGroundMovementMode::Sprinting); }
+void AMainCharacter::StopSprint() { SwitchGroundMovementMode(PreferredMovementMode); }
 
-void AMainCharacter::TogglePreferredMovement()
+void AMainCharacter::TogglePreferredGroundMovement()
 {
-    if (PreferredMovementMode == ECharacterMovementMode::Walking)
-        PreferredMovementMode = ECharacterMovementMode::Trotting;
+    if (PreferredMovementMode == EGroundMovementMode::Walking)
+        PreferredMovementMode = EGroundMovementMode::Trotting;
     else
-        PreferredMovementMode = ECharacterMovementMode::Walking;
+        PreferredMovementMode = EGroundMovementMode::Walking;
 
-    if (MovementMode != ECharacterMovementMode::Sprinting)
-        SwitchToMovementMode(PreferredMovementMode);
+    if (MovementMode != EGroundMovementMode::Sprinting)
+        SwitchGroundMovementMode(PreferredMovementMode);
 }
 
 void AMainCharacter::CastSomeSpell()
 {
 }
 
-void AMainCharacter::SwitchToMovementMode(const ECharacterMovementMode NewMode)
+void AMainCharacter::SwitchGroundMovementMode(const EGroundMovementMode NewMode)
 {
     auto WalkSpeed = 600.f;
     switch (NewMode)
     {
-    case ECharacterMovementMode::Walking:
+    case EGroundMovementMode::Walking:
         WalkSpeed = 800.0f;
         break;
-    case ECharacterMovementMode::Trotting:
+    case EGroundMovementMode::Trotting:
         WalkSpeed = 1600.0f;
         break;
-    case ECharacterMovementMode::Sprinting:
+    case EGroundMovementMode::Sprinting:
         WalkSpeed = 2400.0f;
         break;
     }

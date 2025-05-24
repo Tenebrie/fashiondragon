@@ -5,12 +5,13 @@
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
 #include "GameFramework/Character.h"
+#include "Input/FlightController.h"
 #include "PhysicsEngine/PhysicalAnimationComponent.h"
 #include "MainCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLegPlanted, FVector, SpawnLocation);
 
-enum class ECharacterMovementMode
+enum class EGroundMovementMode
 {
 	Walking,
 	Trotting,
@@ -26,8 +27,11 @@ public:
 	// Sets default values for this character's properties
 	AMainCharacter();
 
-	ECharacterMovementMode MovementMode;
-	ECharacterMovementMode PreferredMovementMode = ECharacterMovementMode::Trotting;
+	EGroundMovementMode MovementMode;
+	EGroundMovementMode PreferredMovementMode = EGroundMovementMode::Trotting;
+	
+	UPROPERTY()
+	UFlightController* FlightController;
 	
 	UPROPERTY(BlueprintAssignable, Category="Events")
 	FOnLegPlanted OnLegPlanted;
@@ -59,9 +63,9 @@ protected:
 	void ReleaseJump();
 	void StartSprint();
 	void StopSprint();
-	void TogglePreferredMovement();
+	void TogglePreferredGroundMovement();
 	void CastSomeSpell();
-	void SwitchToMovementMode(ECharacterMovementMode NewMode);
+	void SwitchGroundMovementMode(EGroundMovementMode NewMode);
 
 public:
 	virtual void PostInitializeComponents() override;

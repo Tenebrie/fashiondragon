@@ -117,15 +117,15 @@ void FDragonAnimStateMachine::Tick(const float DeltaTime, const AMainCharacter* 
 		{
 			SetState(EAnimationState::Idle);
 		}
-		if (MovementVector.Size() > 0 && CanSwitchWalkAnim && AnimationState != EAnimationState::Walking && OwningActor->MovementMode == ECharacterMovementMode::Walking)
+		if (MovementVector.Size() > 0 && CanSwitchWalkAnim && AnimationState != EAnimationState::Walking && OwningActor->MovementMode == EGroundMovementMode::Walking)
 		{
 			SetState(EAnimationState::Walking);
 		}
-		if (MovementVector.Size() > 0 && CanSwitchWalkAnim && AnimationState != EAnimationState::Trotting && OwningActor->MovementMode == ECharacterMovementMode::Trotting)
+		if (MovementVector.Size() > 0 && CanSwitchWalkAnim && AnimationState != EAnimationState::Trotting && OwningActor->MovementMode == EGroundMovementMode::Trotting)
 		{
 			SetState(EAnimationState::Trotting);
 		}
-		if (MovementVector.Size() > 0 && CanSwitchWalkAnim && AnimationState != EAnimationState::Sprinting && OwningActor->MovementMode == ECharacterMovementMode::Sprinting)
+		if (MovementVector.Size() > 0 && CanSwitchWalkAnim && AnimationState != EAnimationState::Sprinting && OwningActor->MovementMode == EGroundMovementMode::Sprinting)
 		{
 			SetState(EAnimationState::Sprinting);
 		}
