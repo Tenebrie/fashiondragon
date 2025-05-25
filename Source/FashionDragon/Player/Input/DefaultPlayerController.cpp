@@ -47,9 +47,16 @@ void ADefaultPlayerController::SetupInputMappings()
 	}
 
 	DragonFlyingInputContext = MakeInputContext();
+	{
+		const auto Context = DragonFlyingInputContext;
+		AddMapping(Context, UActions::FlightCamera, EKeys::MouseX);
+		AddMapping(Context, UActions::FlightCamera, EKeys::MouseY).Swizzle();
+		AddMapping(Context, UActions::FlightCamera, EKeys::Gamepad_RightX).DeadZone(0.1f);
+		AddMapping(Context, UActions::FlightCamera, EKeys::Gamepad_RightY).Swizzle().Negate().DeadZone(0.1f);
+	}
 }
 
-void ADefaultPlayerController::SetControlMode(EControlMode Mode) const
+void ADefaultPlayerController::SetControlMode(const EControlMode Mode) const
 {
 	if (!InputSubsystem) { return; }
 

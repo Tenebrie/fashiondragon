@@ -1,13 +1,13 @@
 ﻿#include "DragonJumpWingDriver.h"
 
-FDragonWingStateData FDragonJumpWingDriver::GetTargetPosition() const
+FDragonWingStateData FDragonJumpWingDriver::GetRawStateData() const
 {
 	return FDragonWingStateData
 	{
-		.Flap = -1.0f,
-		.Openness = 1.0f,
-		.Duration = 5.5f,
-		.TransitionSpeed = 2.0f,
+		.Flap = FArticulatedValue(-1.0f),
+		.Openness = FArticulatedValue(1.0f),
+		.Duration = 0.5f,
+		.TransitionSpeed = 5.0f,
 	};
 }
 

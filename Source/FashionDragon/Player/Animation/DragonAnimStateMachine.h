@@ -7,6 +7,7 @@ class FDragonWalkPose;
 class FDragonTrotPose;
 class FDragonSprintPose;
 class FDragonJumpPose;
+class FDragonFlightPose;
 class FDragonRandomSwayPose;
 class FDragonMomentumPose;
 class FDragonFootPlacementPose;
@@ -19,6 +20,7 @@ enum class EAnimationState
 	Trotting,
 	Sprinting,
 	Jumping,
+	Flight,
 };
 
 class FDragonAnimStateMachine
@@ -29,6 +31,7 @@ public:
 	FDragonTrotPose* TrotPoseDriver;
 	FDragonSprintPose* SprintPoseDriver;
 	FDragonJumpPose* JumpPoseDriver;
+	FDragonFlightPose* FlightPoseDriver;
 	FDragonRandomSwayPose* RandomSwayDriver;
 	FDragonMomentumPose* MomentumDriver;
 	FDragonFootPlacementPose* FootPlacementDriver;
@@ -42,6 +45,7 @@ public:
 		FDragonTrotPose* TrotPoseDriver,
 		FDragonSprintPose* SprintPoseDriver,
 		FDragonJumpPose* JumpPoseDriver,
+		FDragonFlightPose* FlightPoseDriver,
 		FDragonRandomSwayPose* RandomSwayDriver,
 		FDragonMomentumPose* MomentumDriver,
 		FDragonFootPlacementPose* FootPlacementDriver

@@ -59,6 +59,7 @@ protected:
 	// Input callbacks
 	void GroundMovement(const FInputActionValue& Value);
 	void CameraMove(const FInputActionValue& Value);
+	void FlightCameraMove(const FInputActionValue& Value);
 	void StartJump();
 	void ReleaseJump();
 	void StartSprint();

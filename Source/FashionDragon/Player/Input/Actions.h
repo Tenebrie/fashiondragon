@@ -17,4 +17,6 @@ public:
 	inline static const UInputAction* Sprint = Action(EInputActionValueType::Boolean);
 	inline static const UInputAction* TogglePreferredMovement = Action(EInputActionValueType::Boolean);
 	inline static const UInputAction* CastASpell = Action(EInputActionValueType::Boolean);
+
+	inline static const UInputAction* FlightCamera = Action(EInputActionValueType::Axis2D);
 };

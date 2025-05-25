@@ -70,6 +70,8 @@ void FDragonWingPoseAdapter::ApplyEffector(
 	const auto Flap = Effector.Flap;
 	RootPose->Value.Pitch += Flap * 45.0f;
 	RootPose->Value.Yaw += Flap * 30.0f;
+	// RootPose->Value.Roll += 50.0f;
+	ChildPose->Value.Pitch += Flap * 30.0f;
 
 	// Openness
 	const auto Closeness = 1.0f - Effector.Openness;

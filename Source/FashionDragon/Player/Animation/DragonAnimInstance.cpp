@@ -6,6 +6,7 @@
 #include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/MainCharacter.h"
 #include "Limbs/ControlledLeg.h"
+#include "Poses/DragonFlight/DragonFlightPose.h"
 #include "Poses/DragonFootPlacement/DragonFootPlacementPose.h"
 #include "Poses/DragonIdle/DragonIdlePose.h"
 #include "Poses/DragonTrot/DragonTrotPose.h"
@@ -58,6 +59,7 @@ void UDragonAnimInstance::NativeInitializeAnimation()
 		new FDragonTrotPose(this),
 		new FDragonSprintPose(this),
 		new FDragonJumpPose(this),
+		new FDragonFlightPose(this),
 		new FDragonRandomSwayPose(this),
 		new FDragonMomentumPose(this),
 		new FDragonFootPlacementPose(this)
@@ -101,7 +103,8 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 	for (int i = 0; i < ControlledWings.Num(); i++)
 	{
 		const auto WingGroup = ControlledWings[i];
-		const auto WingEffector = WingGroup->MakeWingEffector(StateMachine->PoseDrivers, &FProceduralPose::ToWingEffector, DeltaTime);
+		auto WingEffector = WingGroup->MakeWingEffector(StateMachine->PoseDrivers, &FProceduralPose::ToWingEffector, DeltaTime);
+		WingEffector = WingGroup->MakePostProcessWingEffector(WingEffector, StateMachine->PoseDrivers, &FProceduralPose::ToWingEffector, DeltaTime);
 
 		for (const auto Layer : *WingGroup)
 			WingPoseAdapter->ApplyEffector(Layer, WingEffector);

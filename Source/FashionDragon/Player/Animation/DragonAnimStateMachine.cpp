@@ -4,6 +4,7 @@
 #include "FashionDragon/Utils/Utils.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Poses/DragonFootPlacement/DragonFootPlacementPose.h"
+#include "Poses/DragonFlight/DragonFlightPose.h"
 #include "Poses/DragonIdle/DragonIdlePose.h"
 #include "Poses/DragonJump/DragonJumpPose.h"
 #include "Poses/DragonRandomSway/DragonRandomSwayPose.h"
@@ -18,6 +19,7 @@ FDragonAnimStateMachine::FDragonAnimStateMachine(
 	FDragonTrotPose* TrotPoseDriver,
 	FDragonSprintPose* SprintPoseDriver,
 	FDragonJumpPose* JumpPoseDriver,
+	FDragonFlightPose* FlightPoseDriver,
 	FDragonRandomSwayPose* RandomSwayDriver,
 	FDragonMomentumPose* MomentumDriver,
 	FDragonFootPlacementPose* FootPlacementDriver
@@ -27,6 +29,7 @@ FDragonAnimStateMachine::FDragonAnimStateMachine(
 	TrotPoseDriver(TrotPoseDriver),
 	SprintPoseDriver(SprintPoseDriver),
 	JumpPoseDriver(JumpPoseDriver),
+	FlightPoseDriver(FlightPoseDriver),
 	RandomSwayDriver(RandomSwayDriver),
 	MomentumDriver(MomentumDriver),
 	FootPlacementDriver(FootPlacementDriver)
@@ -37,6 +40,7 @@ FDragonAnimStateMachine::FDragonAnimStateMachine(
 		TrotPoseDriver,
 		SprintPoseDriver,
 		JumpPoseDriver,
+		FlightPoseDriver,
 		RandomSwayDriver,
 		MomentumDriver,
 		FootPlacementDriver,
@@ -99,10 +103,6 @@ void FDragonAnimStateMachine::Tick(const float DeltaTime, const AMainCharacter* 
 		OwningActor->GetLastMovementInputVector().Y,
 		0.0f
 	);
-	// if (AnimationState == Jumping)
-	// {
-	// 	AnimationLockout = 0.5f;
-	// }
 
 	if (AnimationLockout <= 0.0f)
 	{
@@ -133,6 +133,11 @@ void FDragonAnimStateMachine::Tick(const float DeltaTime, const AMainCharacter* 
 		{
 			SetState(EAnimationState::Jumping);
 			JumpPoseDriver->StartFalling();
+		}
+		if (AnimationState != EAnimationState::Flight && OwningActor->FlightController->IsFlying())
+		{
+			SetState(EAnimationState::Flight);
+			FlightPoseDriver->ResetState();
 		}
 	}
 
@@ -170,6 +175,10 @@ void FDragonAnimStateMachine::BlendDrivers(const float DeltaTime) const
 	else if (AnimationState == EAnimationState::Jumping)
 	{
 		DominantDriver = JumpPoseDriver;
+	}
+	else if (AnimationState == EAnimationState::Flight)
+	{
+		DominantDriver = FlightPoseDriver;
 	}
 
 	DominantDriver->AddBlendAlpha(DeltaTime * 1000.0f);

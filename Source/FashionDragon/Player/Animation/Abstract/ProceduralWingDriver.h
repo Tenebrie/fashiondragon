@@ -4,27 +4,25 @@
 #include "FashionDragon/Player/Animation/Limbs/ControlledWing.h"
 #include "FashionDragon/Player/Animation/Structs/PoseWingEffector.h"
 
+struct FArticulatedValue
+{
+	float Value = 0.0f;
+	float StartArticulation = 0.0f;
+	float EndArticulation = 0.0f;
+
+	FArticulatedValue() = default;
+	explicit FArticulatedValue(const float Value): Value(Value) {}
+	FArticulatedValue(const float Value, const float StartArticulation, const float EndArticulation)
+		: Value(Value), StartArticulation(StartArticulation), EndArticulation(EndArticulation) {}
+};
+
 struct FDragonWingStateData
 {
-	float Flap = 0.0f;
-	float Openness = 0.0f;
+	FArticulatedValue Flap = FArticulatedValue();
+	FArticulatedValue Openness = FArticulatedValue();
 
-	/**
-	 * Duration of the state in seconds.
-	 * Should not be modified dynamically.
-	 */
 	float Duration = 1.0f;
-	/**
-	 * Playback speed. Can be safely modified dynamically.
-	 */
-	mutable float PlaybackSpeed = 1.0f;
-	
 	float TransitionSpeed = 1.0f;
-
-	FVector StartArticulationPosition = FVector(0.0f, 0.0f, 0.0f);
-	FVector StartArticulationRotation = FVector(0.0f, 0.0f, 0.0f);
-	FVector EndArticulationPosition = FVector(0.0f, 0.0f, 0.0f);
-	FVector EndArticulationRotation = FVector(0.0f, 0.0f, 0.0f);
 };
 
 /**
@@ -35,11 +33,16 @@ class FProceduralWingDriver: public FBaseDriver
 protected:
 	FControlledWing* Wing;
 
-	float CycleDuration = 1.0f;
-	bool Inverted = false;
+	float DesiredFlap = 0.0f;
+	float DesiredOpenness = 0.0f;
 
-	// virtual void AdvanceState();
-	virtual FDragonWingStateData GetTargetPosition() const;
+	float StartedFlapFrom = 0.0f;
+	float StartedOpennessFrom = 0.0f;
+	
+	float CycleDuration = 1.0f;
+
+	virtual FDragonWingStateData GetRawStateData() const;
+	void RecalculatePose();
 	
 public:
 	FProceduralWingDriver(UDragonAnimInstance* AnimInstance, FControlledWing* ControlledWing);

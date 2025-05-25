@@ -14,6 +14,7 @@
 #include "EnhancedInputComponent.h"
 #include "FashionDragon/DebugTools/QuickDebug.h"
 #include "Input/Actions.h"
+#include "Input/DefaultPlayerController.h"
 #include "Input/FlightController.h"
 
 // Sets default values
@@ -64,7 +65,7 @@ void AMainCharacter::BeginPlay()
     GetCharacterMovement()->MaxWalkSpeed = 2000.f;
     GetCharacterMovement()->MaxAcceleration = 2048.f;
     GetCharacterMovement()->BrakingDecelerationWalking = 1000.f;
-    MeshRoot->SetUsingAbsoluteRotation(true);
+    // MeshRoot->SetUsingAbsoluteRotation(true);
 
     FlightController = NewObject<UFlightController>(this, TEXT("FlightController"));
     FlightController->RegisterComponent();
@@ -87,6 +88,10 @@ void AMainCharacter::Tick(const float DeltaTime)
 
     const FRotator NewRot = FRotator(0.f, NewYaw, 0.f);
     MeshRoot->SetWorldRotation(NewRot);
+
+    // Return camera to default in flight
+    const FRotator TargetRotationTwo = FRotator(0, 0, 0);
+    SpringArmComponent->SetRelativeRotation(FMath::RInterpTo(SpringArmComponent->GetRelativeRotation(), TargetRotationTwo, GetWorld()->GetDeltaSeconds(), 5.0f));
 }
 
 // Called to bind functionality to input
@@ -99,6 +104,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
     
     Input->BindAction(UActions::GroundMovement, ETriggerEvent::Triggered, this, &AMainCharacter::GroundMovement);
     Input->BindAction(UActions::CameraMove, ETriggerEvent::Triggered, this, &AMainCharacter::CameraMove);
+    Input->BindAction(UActions::FlightCamera, ETriggerEvent::Triggered, this, &AMainCharacter::FlightCameraMove);
     
     Input->BindAction(UActions::Jump, ETriggerEvent::Started, this, &AMainCharacter::StartJump);
     Input->BindAction(UActions::Jump, ETriggerEvent::Completed & ETriggerEvent::Canceled, this, &AMainCharacter::ReleaseJump);
@@ -145,6 +151,16 @@ void AMainCharacter::CameraMove(const FInputActionValue& Value)
     }
 }
 
+void AMainCharacter::FlightCameraMove(const FInputActionValue& Value)
+{
+    const FVector2D Delta = Value.Get<FVector2D>();
+
+    const auto DeltaRot = FRotator(Delta.Y, 0, 0.f);
+
+    AddActorWorldRotation(DeltaRot);
+    AddControllerYawInput(Delta.X * 0.5f);
+}
+
 void AMainCharacter::StartJump()
 {
     if (GetCharacterMovement()->IsMovingOnGround())
@@ -157,7 +173,12 @@ void AMainCharacter::StartJump()
     }
     else
     {
-        LaunchCharacter(FVector(0, 0, 2500), false, true);
+        FlightController->StartFlight();
+        const auto PlayerController = Cast<ADefaultPlayerController>(GetController());
+        PlayerController->SetControlMode(EControlMode::Flying);
+
+        GetCharacterMovement()->AirControl = 1.0f;
+        GetCharacterMovement()->MaxWalkSpeed = 0.f;
     }
 }
 

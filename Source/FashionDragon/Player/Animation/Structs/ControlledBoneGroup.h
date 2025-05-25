@@ -26,6 +26,7 @@ public:
 	template<typename EffectorT>
 	EffectorT MakePostProcessEffector(EffectorT BaseEffector, TArray<FProceduralPose*> PoseDrivers, TMemFn<T, EffectorT> EffectorFunc, const float DeltaTime);
 	FPoseWingEffector MakeWingEffector(TArray<FProceduralPose*> PoseDrivers, TMemFn<T, FPoseWingEffector> EffectorFunc, const float DeltaTime);
+	FPoseWingEffector MakePostProcessWingEffector(FPoseWingEffector BaseEffector, TArray<FProceduralPose*> PoseDrivers, TMemFn<T, FPoseWingEffector> EffectorFunc, const float DeltaTime);
 
 	// Support iterating
 	auto begin() { return ControlledBones.CreateIterator(); }
@@ -139,4 +140,20 @@ FPoseWingEffector TFControlledBoneGroup<T>::MakeWingEffector(
 		CumulativeEffector.Openness += CumulativeWingEffector.Openness;
 	}
 	return CumulativeEffector;
+}
+
+template <typename T>
+FPoseWingEffector TFControlledBoneGroup<T>::MakePostProcessWingEffector(FPoseWingEffector BaseEffector,
+	TArray<FProceduralPose*> PoseDrivers, TMemFn<T, FPoseWingEffector> EffectorFunc, const float DeltaTime)
+{
+	auto Effector = FPoseWingEffector(BaseEffector);
+	T* Bone = GetPostProcessBone();
+
+	Bone->Flap = Effector.Flap;
+	Bone->Openness = Effector.Openness;
+	for (const auto PoseDriver : PoseDrivers)
+	{
+		Effector = (PoseDriver->*EffectorFunc)(Effector, Bone, DeltaTime);
+	}
+	return Effector;
 }

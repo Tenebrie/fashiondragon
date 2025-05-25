@@ -1,15 +1,26 @@
 ﻿#pragma once
 #include "FashionDragon/Player/Animation/Abstract/ProceduralPose.h"
 
+enum class EDragonFlightState
+{
+	Pushing,
+	Retracting,
+};
+
 class FDragonFlightWingDriver final : public FProceduralWingDriver
 {
+	virtual FDragonWingStateData GetRawStateData() const override;
+	
 public:
 	FDragonFlightWingDriver(
 		UDragonAnimInstance* AnimInstance,
 		FControlledWing* ControlledWing
 	): FProceduralWingDriver(AnimInstance, ControlledWing) {}
 
-	// virtual FDragonWingStateData GetTargetPosition() const override;
+	EDragonFlightState FlightState = EDragonFlightState::Pushing;
+
+	virtual void Tick(float DeltaTime) override;
+	void AdvanceState();
 };
 
 class FDragonFlightPose final : public FProceduralPose

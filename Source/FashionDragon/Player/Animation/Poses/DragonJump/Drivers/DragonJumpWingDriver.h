@@ -9,5 +9,5 @@ public:
 		FControlledWing* ControlledWing
 	): FProceduralWingDriver(AnimInstance, ControlledWing) {}
 
-	virtual FDragonWingStateData GetTargetPosition() const override;
+	virtual FDragonWingStateData GetRawStateData() const override;
 };
