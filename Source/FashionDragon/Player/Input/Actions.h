@@ -3,20 +3,26 @@
 
 #include "Actions.generated.h"
 
+using FInputActionFactory = std::function<UInputAction*()>;
+
 UCLASS()
 class UActions : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 
-	static const UInputAction* Action(EInputActionValueType Type);
+	inline static int ActionCount = 0;
+	static TArray<UInputAction*> InputActions;
+	static FInputActionFactory Action(EInputActionValueType Type);
+
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 public:
-	inline static const UInputAction* GroundMovement = Action(EInputActionValueType::Axis2D);
-	inline static const UInputAction* CameraMove = Action(EInputActionValueType::Axis2D);
-	inline static const UInputAction* Jump = Action(EInputActionValueType::Boolean);
-	inline static const UInputAction* Sprint = Action(EInputActionValueType::Boolean);
-	inline static const UInputAction* TogglePreferredMovement = Action(EInputActionValueType::Boolean);
-	inline static const UInputAction* CastASpell = Action(EInputActionValueType::Boolean);
+	inline static const FInputActionFactory GroundMovement = Action(EInputActionValueType::Axis2D);
+	inline static const FInputActionFactory CameraMove = Action(EInputActionValueType::Axis2D);
+	inline static const FInputActionFactory Jump = Action(EInputActionValueType::Boolean);
+	inline static const FInputActionFactory Sprint = Action(EInputActionValueType::Boolean);
+	inline static const FInputActionFactory TogglePreferredMovement = Action(EInputActionValueType::Boolean);
+	inline static const FInputActionFactory CastASpell = Action(EInputActionValueType::Boolean);
 
-	inline static const UInputAction* FlightCamera = Action(EInputActionValueType::Axis2D);
+	inline static const FInputActionFactory FlightCamera = Action(EInputActionValueType::Axis2D);
 };

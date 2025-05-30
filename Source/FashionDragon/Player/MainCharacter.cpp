@@ -39,6 +39,9 @@ AMainCharacter::AMainCharacter()
     PhysicalAnimation = CreateDefaultSubobject<UPhysicalAnimationComponent>(TEXT("PhysicalAnimationComponent"));
     PhysicalAnimation->SetSkeletalMeshComponent(DragonMesh);
     DetachedMeshRoot->SetUsingAbsoluteRotation(true);
+
+    FlightController = CreateDefaultSubobject<UFlightController>(TEXT("FlightController"));
+    // FlightController->RegisterComponent();
 }
 
 void AMainCharacter::PostInitializeComponents()
@@ -51,13 +54,13 @@ void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
     PhysicalAnimation->ApplyPhysicalAnimationProfileBelow(TEXT("Tail_001"), TEXT("MyProfile"), true);
-    PhysicalAnimation->ApplyPhysicalAnimationProfileBelow(TEXT("Wing_001_R"), TEXT("MyProfile"), true);
-    PhysicalAnimation->ApplyPhysicalAnimationProfileBelow(TEXT("Wing_001_L"), TEXT("MyProfile"), true);
+    PhysicalAnimation->ApplyPhysicalAnimationProfileBelow(TEXT("Back_R"), TEXT("MyProfile"), true);
+    PhysicalAnimation->ApplyPhysicalAnimationProfileBelow(TEXT("Back_L"), TEXT("MyProfile"), true);
 
     DragonMesh->SetConstraintProfileForAll(TEXT("MyProfile"));
     DragonMesh->SetAllBodiesBelowSimulatePhysics(TEXT("Tail_001"), true, true);
-    DragonMesh->SetAllBodiesBelowSimulatePhysics(TEXT("Wing_001_R"), true, true);
-    DragonMesh->SetAllBodiesBelowSimulatePhysics(TEXT("Wing_001_L"), true, true);
+    DragonMesh->SetAllBodiesBelowSimulatePhysics(TEXT("Back_R"), true, true);
+    DragonMesh->SetAllBodiesBelowSimulatePhysics(TEXT("Back_L"), true, true);
 
     GetCharacterMovement()->bOrientRotationToMovement = false;
     GetCharacterMovement()->JumpZVelocity = 600.f;
@@ -67,8 +70,7 @@ void AMainCharacter::BeginPlay()
     GetCharacterMovement()->BrakingDecelerationWalking = 1000.f;
     // MeshRoot->SetUsingAbsoluteRotation(true);
 
-    FlightController = NewObject<UFlightController>(this, TEXT("FlightController"));
-    FlightController->RegisterComponent();
+    SwitchGroundMovementMode(EGroundMovementMode::Trotting);
 }
 
 // Called every frame
@@ -90,8 +92,11 @@ void AMainCharacter::Tick(const float DeltaTime)
     MeshRoot->SetWorldRotation(NewRot);
 
     // Return camera to default in flight
-    const FRotator TargetRotationTwo = FRotator(0, 0, 0);
-    SpringArmComponent->SetRelativeRotation(FMath::RInterpTo(SpringArmComponent->GetRelativeRotation(), TargetRotationTwo, GetWorld()->GetDeltaSeconds(), 5.0f));
+    if (FlightController->IsFlying())
+    {
+        const FRotator TargetRotationTwo = FRotator(0, 0, 0);
+        SpringArmComponent->SetRelativeRotation(FMath::RInterpTo(SpringArmComponent->GetRelativeRotation(), TargetRotationTwo, GetWorld()->GetDeltaSeconds(), 5.0f));
+    }
 }
 
 // Called to bind functionality to input
@@ -102,19 +107,19 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
     UEnhancedInputComponent* Input = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
     if (!Input) return;
     
-    Input->BindAction(UActions::GroundMovement, ETriggerEvent::Triggered, this, &AMainCharacter::GroundMovement);
-    Input->BindAction(UActions::CameraMove, ETriggerEvent::Triggered, this, &AMainCharacter::CameraMove);
-    Input->BindAction(UActions::FlightCamera, ETriggerEvent::Triggered, this, &AMainCharacter::FlightCameraMove);
+    Input->BindAction(UActions::GroundMovement(), ETriggerEvent::Triggered, this, &AMainCharacter::GroundMovement);
+    Input->BindAction(UActions::CameraMove(), ETriggerEvent::Triggered, this, &AMainCharacter::CameraMove);
+    Input->BindAction(UActions::FlightCamera(), ETriggerEvent::Triggered, this, &AMainCharacter::FlightCameraMove);
     
-    Input->BindAction(UActions::Jump, ETriggerEvent::Started, this, &AMainCharacter::StartJump);
-    Input->BindAction(UActions::Jump, ETriggerEvent::Completed & ETriggerEvent::Canceled, this, &AMainCharacter::ReleaseJump);
+    Input->BindAction(UActions::Jump(), ETriggerEvent::Started, this, &AMainCharacter::StartJump);
+    Input->BindAction(UActions::Jump(), ETriggerEvent::Completed & ETriggerEvent::Canceled, this, &AMainCharacter::ReleaseJump);
 
-    Input->BindAction(UActions::Sprint, ETriggerEvent::Started, this, &AMainCharacter::StartSprint);
-    Input->BindAction(UActions::Sprint, ETriggerEvent::Completed & ETriggerEvent::Canceled, this, &AMainCharacter::StopSprint);
+    Input->BindAction(UActions::Sprint(), ETriggerEvent::Started, this, &AMainCharacter::StartSprint);
+    Input->BindAction(UActions::Sprint(), ETriggerEvent::Completed & ETriggerEvent::Canceled, this, &AMainCharacter::StopSprint);
 
-    Input->BindAction(UActions::TogglePreferredMovement, ETriggerEvent::Started, this, &AMainCharacter::TogglePreferredGroundMovement);
+    Input->BindAction(UActions::TogglePreferredMovement(), ETriggerEvent::Started, this, &AMainCharacter::TogglePreferredGroundMovement);
     
-    Input->BindAction(UActions::CastASpell, ETriggerEvent::Triggered, this, &AMainCharacter::CastSomeSpell);
+    Input->BindAction(UActions::CastASpell(), ETriggerEvent::Triggered, this, &AMainCharacter::CastSomeSpell);
 }
 
 void AMainCharacter::GroundMovement(const FInputActionValue& Value)
@@ -173,12 +178,12 @@ void AMainCharacter::StartJump()
     }
     else
     {
-        FlightController->StartFlight();
-        const auto PlayerController = Cast<ADefaultPlayerController>(GetController());
-        PlayerController->SetControlMode(EControlMode::Flying);
+        // FlightController->StartFlight();
+        // const auto PlayerController = Cast<ADefaultPlayerController>(GetController());
+        // PlayerController->SetControlMode(EControlMode::Flying);
 
-        GetCharacterMovement()->AirControl = 1.0f;
-        GetCharacterMovement()->MaxWalkSpeed = 0.f;
+        // GetCharacterMovement()->AirControl = 1.0f;
+        // GetCharacterMovement()->MaxWalkSpeed = 0.f;
     }
 }
 
@@ -210,10 +215,10 @@ void AMainCharacter::SwitchGroundMovementMode(const EGroundMovementMode NewMode)
     switch (NewMode)
     {
     case EGroundMovementMode::Walking:
-        WalkSpeed = 800.0f;
+        WalkSpeed = 600.0f;
         break;
     case EGroundMovementMode::Trotting:
-        WalkSpeed = 1600.0f;
+        WalkSpeed = 1400.0f;
         break;
     case EGroundMovementMode::Sprinting:
         WalkSpeed = 2400.0f;

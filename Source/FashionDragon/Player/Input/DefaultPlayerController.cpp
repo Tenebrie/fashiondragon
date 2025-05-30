@@ -24,35 +24,35 @@ void ADefaultPlayerController::SetupInputMappings()
 	DragonGroundInputContext = MakeInputContext();
 	{
 		const auto Context = DragonGroundInputContext;
-		AddMapping(Context, UActions::GroundMovement, EKeys::W).Swizzle();
-		AddMapping(Context, UActions::GroundMovement, EKeys::A).Negate();
-		AddMapping(Context, UActions::GroundMovement, EKeys::S).Swizzle().Negate();
-		AddMapping(Context, UActions::GroundMovement, EKeys::D);
-		AddMapping(Context, UActions::GroundMovement, EKeys::Gamepad_Left2D).DeadZone(0.1f);
+		AddMapping(Context, UActions::GroundMovement(), EKeys::W).Swizzle();
+		AddMapping(Context, UActions::GroundMovement(), EKeys::A).Negate();
+		AddMapping(Context, UActions::GroundMovement(), EKeys::S).Swizzle().Negate();
+		AddMapping(Context, UActions::GroundMovement(), EKeys::D);
+		AddMapping(Context, UActions::GroundMovement(), EKeys::Gamepad_Left2D).DeadZone(0.1f);
 
-		AddMapping(Context, UActions::CameraMove, EKeys::MouseX);
-		AddMapping(Context, UActions::CameraMove, EKeys::MouseY).Swizzle();
-		AddMapping(Context, UActions::CameraMove, EKeys::Gamepad_RightX).DeadZone(0.1f);
-		AddMapping(Context, UActions::CameraMove, EKeys::Gamepad_RightY).Swizzle().Negate().DeadZone(0.1f);
+		AddMapping(Context, UActions::CameraMove(), EKeys::MouseX);
+		AddMapping(Context, UActions::CameraMove(), EKeys::MouseY).Swizzle();
+		AddMapping(Context, UActions::CameraMove(), EKeys::Gamepad_RightX).DeadZone(0.1f);
+		AddMapping(Context, UActions::CameraMove(), EKeys::Gamepad_RightY).Swizzle().Negate().DeadZone(0.1f);
 
-		AddMapping(Context, UActions::Jump, EKeys::SpaceBar);
-		AddMapping(Context, UActions::Jump, EKeys::Gamepad_FaceButton_Bottom);
+		AddMapping(Context, UActions::Jump(), EKeys::SpaceBar);
+		AddMapping(Context, UActions::Jump(), EKeys::Gamepad_FaceButton_Bottom);
 
-		AddMapping(Context, UActions::Sprint, EKeys::LeftShift);
-		AddMapping(Context, UActions::Sprint, EKeys::Gamepad_LeftThumbstick);
+		AddMapping(Context, UActions::Sprint(), EKeys::LeftShift);
+		AddMapping(Context, UActions::Sprint(), EKeys::Gamepad_LeftThumbstick);
 
-		AddMapping(Context, UActions::TogglePreferredMovement, EKeys::CapsLock);
+		AddMapping(Context, UActions::TogglePreferredMovement(), EKeys::CapsLock);
 
-		AddMapping(Context, UActions::CastASpell, EKeys::Q);
+		AddMapping(Context, UActions::CastASpell(), EKeys::Q);
 	}
 
 	DragonFlyingInputContext = MakeInputContext();
 	{
 		const auto Context = DragonFlyingInputContext;
-		AddMapping(Context, UActions::FlightCamera, EKeys::MouseX);
-		AddMapping(Context, UActions::FlightCamera, EKeys::MouseY).Swizzle();
-		AddMapping(Context, UActions::FlightCamera, EKeys::Gamepad_RightX).DeadZone(0.1f);
-		AddMapping(Context, UActions::FlightCamera, EKeys::Gamepad_RightY).Swizzle().Negate().DeadZone(0.1f);
+		AddMapping(Context, UActions::FlightCamera(), EKeys::MouseX);
+		AddMapping(Context, UActions::FlightCamera(), EKeys::MouseY).Swizzle();
+		AddMapping(Context, UActions::FlightCamera(), EKeys::Gamepad_RightX).DeadZone(0.1f);
+		AddMapping(Context, UActions::FlightCamera(), EKeys::Gamepad_RightY).Swizzle().Negate().DeadZone(0.1f);
 	}
 }
 

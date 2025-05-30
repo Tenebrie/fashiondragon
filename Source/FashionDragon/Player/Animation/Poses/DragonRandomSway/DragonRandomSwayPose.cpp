@@ -1,11 +1,11 @@
 ﻿#include "DragonRandomSwayPose.h"
 
-#include "Drivers/DragonRandomSwayDriverBody.h"
-#include "Drivers/DragonRandomSwayDriverHips.h"
+#include "DragonRandomSwayDriverBody.h"
+#include "DragonRandomSwayDriverHips.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 
 FDragonRandomSwayPose::FDragonRandomSwayPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
-	BodyDrivers = { new FDragonRandomSwayDriverBody(Anim, Anim->ControlledBody.GetBone(EDriverLayer::Sway)) };
-	HipsDrivers = { new FDragonRandomSwayDriverHips(Anim, Anim->ControlledHips.GetBone(EDriverLayer::Sway)) };
+	RootDrivers = { new FDragonRandomSwayDriverBody(Anim, Anim->ControlledRoot.GetBone(EDriverLayer::Sway)) };
+	TailDrivers = { new FDragonRandomSwayDriverHips(Anim, Anim->ControlledTail.GetBone(EDriverLayer::Sway)) };
 }

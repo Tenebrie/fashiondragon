@@ -4,9 +4,9 @@
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "PhysicsEngine/ConstraintInstance.h"
 
-TPair<FVector, FRotator>* FDragonWingPoseAdapter::GetNeutralPose(const int Idx, const float MirrorValue)
+TPair<FVector, FRotator> FDragonWingPoseAdapter::GetNeutralPose(const int Idx, const float MirrorValue) 
 {
-	TMap<int, TPair<FVector, FRotator>> NeutralPose = {
+	const TMap<int, TPair<FVector, FRotator>> NeutralPose = {
 		{ 0, { FVector(0.0f, 0.0f, 0.0f), FRotator(45.0f, 0.0f, 0.0f) } },
 		{ 1, { FVector(0.0f, 0.0f, 0.0f), FRotator(15.0f, 45.0f, 0.0f) } },
 		{ 2, { FVector(0.0f, 0.0f, 0.0f), FRotator(30.0f, -60.0f, 0.0f) } },
@@ -15,14 +15,14 @@ TPair<FVector, FRotator>* FDragonWingPoseAdapter::GetNeutralPose(const int Idx, 
 		{ 5, { FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, -25.0f, 0.0f) } },
 		{ 6, { FVector(0.0f, 0.0f, 0.0f), FRotator(-25.0f, 5.0f, 10.0f) } },
 	};
-	return  NeutralPose.Find(Idx);
+	return *NeutralPose.Find(Idx);
 }
 
-TPair<FVector, FRotator>* FDragonWingPoseAdapter::ApplyMirror(const TPair<FVector, FRotator>* Pair, const float MirrorValue)
+TPair<FVector, FRotator> FDragonWingPoseAdapter::ApplyMirror(const TPair<FVector, FRotator>& Pair, const float MirrorValue)
 {
-	const auto Position = FVector(Pair->Key.X, Pair->Key.Y * MirrorValue, Pair->Key.Z);
-	const auto Rotation = FRotator(Pair->Value.Pitch, Pair->Value.Yaw * MirrorValue, Pair->Value.Roll * MirrorValue);
-	return new TPair<FVector, FRotator>(Position, Rotation);
+	const auto Position = FVector(Pair.Key.X, Pair.Key.Y * MirrorValue, Pair.Key.Z);
+	const auto Rotation = FRotator(Pair.Value.Pitch, Pair.Value.Yaw * MirrorValue, Pair.Value.Roll * MirrorValue);
+	return TPair<FVector, FRotator>(Position, Rotation);
 }
 
 void FDragonWingPoseAdapter::SetBoneOffset(
@@ -68,29 +68,29 @@ void FDragonWingPoseAdapter::ApplyEffector(
 	
 	// Flap
 	const auto Flap = Effector.Flap;
-	RootPose->Value.Pitch += Flap * 45.0f;
-	RootPose->Value.Yaw += Flap * 30.0f;
-	// RootPose->Value.Roll += 50.0f;
-	ChildPose->Value.Pitch += Flap * 30.0f;
+	//RootPose.Value.Pitch += Flap * 45.0f;
+	//RootPose.Value.Yaw += Flap * 30.0f;
+	// RootPose.Value.Roll += 50.0f;
+	//ChildPose.Value.Pitch += Flap * 30.0f;
 
 	// Openness
 	const auto Closeness = 1.0f - Effector.Openness;
-	RootPose->Value.Pitch += Closeness * 30.0f;
-	RootPose->Value.Yaw += Closeness * 70.0f;
-	RootPose->Value.Roll += Closeness * 45.0f;
-	ChildPose->Value.Yaw -= Closeness * 160.0f;
-	ThirdPose->Value.Pitch -= Closeness * 150.0f;
-	ThirdPose->Value.Yaw += Closeness * 90.0f;
-	ThirdPose->Value.Roll += Closeness * 90.0f;
-	FirstFingerPose->Value.Yaw += Closeness * 80.0f;
-	FirstFingerPose->Value.Pitch -= Closeness * 120.0f;
-	SecondFingerPose->Value.Yaw += Closeness * 60.0f;
-	SecondFingerPose->Value.Pitch -= Closeness * 80.0f;
-	SecondFingerPose->Value.Roll += Closeness * 60.0f;
-	ThirdFingerPose->Value.Roll -= Closeness * 60.0f;
-	ThirdFingerPose->Value.Pitch -= Closeness * 50.0f;
-	ThirdFingerPose->Value.Yaw += Closeness * 70.0f;
-	FourthFingerPose->Value.Yaw -= Closeness * 25.0f;
+	//RootPose.Value.Pitch += Closeness * 30.0f;
+	//RootPose.Value.Yaw += Closeness * 70.0f;
+	//RootPose.Value.Roll += Closeness * 45.0f;
+	//ChildPose.Value.Yaw -= Closeness * 160.0f;
+	//ThirdPose.Value.Pitch -= Closeness * 150.0f;
+	//ThirdPose.Value.Yaw += Closeness * 90.0f;
+	//ThirdPose.Value.Roll += Closeness * 90.0f;
+	//FirstFingerPose.Value.Yaw += Closeness * 80.0f;
+	//FirstFingerPose.Value.Pitch -= Closeness * 120.0f;
+	//SecondFingerPose.Value.Yaw += Closeness * 60.0f;
+	//SecondFingerPose.Value.Pitch -= Closeness * 80.0f;
+	//SecondFingerPose.Value.Roll += Closeness * 60.0f;
+	//ThirdFingerPose.Value.Roll -= Closeness * 60.0f;
+	//ThirdFingerPose.Value.Pitch -= Closeness * 50.0f;
+	//ThirdFingerPose.Value.Yaw += Closeness * 70.0f;
+	//FourthFingerPose.Value.Yaw -= Closeness * 25.0f;
 
 	RootPose = ApplyMirror(RootPose, Wing->MirrorModifier);
 	ChildPose = ApplyMirror(ChildPose, Wing->MirrorModifier);
@@ -100,11 +100,11 @@ void FDragonWingPoseAdapter::ApplyEffector(
 	ThirdFingerPose = ApplyMirror(ThirdFingerPose, Wing->MirrorModifier);
 	FourthFingerPose = ApplyMirror(FourthFingerPose, Wing->MirrorModifier);
 
-	SetBoneOffset(FName("Spine"), RootBone, RootPose->Key, RootPose->Value);
-	SetBoneOffset(RootBone, SecondBone, ChildPose->Key, ChildPose->Value);
-	SetBoneOffset(SecondBone, ThirdBone, ThirdPose->Key, ThirdPose->Value);
-	SetBoneOffset(SecondBone, FirstFingerBone, FirstFingerPose->Key, FirstFingerPose->Value);
-	SetBoneOffset(SecondBone, SecondFingerBone, SecondFingerPose->Key, SecondFingerPose->Value);
-	SetBoneOffset(SecondBone, ThirdFingerBone, ThirdFingerPose->Key, ThirdFingerPose->Value);
-	SetBoneOffset(RootBone, FourthFingerBone, FourthFingerPose->Key, FourthFingerPose->Value);
+	//SetBoneOffset(FName("Spine"), RootBone, RootPose.Key, RootPose.Value);
+	//SetBoneOffset(RootBone, SecondBone, ChildPose.Key, ChildPose.Value);
+	//SetBoneOffset(SecondBone, ThirdBone, ThirdPose.Key, ThirdPose.Value);
+	//SetBoneOffset(SecondBone, FirstFingerBone, FirstFingerPose.Key, FirstFingerPose.Value);
+	//SetBoneOffset(SecondBone, SecondFingerBone, SecondFingerPose.Key, SecondFingerPose.Value);
+	//SetBoneOffset(SecondBone, ThirdFingerBone, ThirdFingerPose.Key, ThirdFingerPose.Value);
+	//SetBoneOffset(RootBone, FourthFingerBone, FourthFingerPose.Key, FourthFingerPose.Value);
 }

@@ -19,25 +19,31 @@ class FASHIONDRAGON_API UDragonAnimInstance : public UAnimInstance
 	virtual void NativeUpdateAnimation(float DeltaTime) override;
 	virtual void NativeBeginPlay() override; 
 
-	TMap<FName, FTransform> LastBoneOffsets;
-	void SetBoneOffset(FName ParentBone, FName ChildName, const FVector& Position, const FRotator& Rotation) const;
+	void SetPhysicalBoneOffset(FName ParentBone, FName ChildName, const FVector& Position, const FRotator& Rotation) const;
 
 public:
 	FDragonAnimStateMachine* StateMachine;
-	TFControlledBoneGroup<FControlledBone> ControlledBody;
-	TFControlledBoneGroup<FControlledBone> ControlledHips;
-	TArray<TFControlledBoneGroup<FControlledLeg>*> ControlledLegs;
-	TArray<TFControlledBoneGroup<FControlledWing>*> ControlledWings;
+
+	// Bone groups
+	TFControlledBoneGroup<FControlledBone> ControlledRoot;
+	TFControlledBoneGroup<FControlledBone> ControlledTail;
 	TFControlledBoneGroup<FControlledLeg> BackLeftLeg;
 	TFControlledBoneGroup<FControlledLeg> BackRightLeg;
 	TFControlledBoneGroup<FControlledWing> LeftWing;
 	TFControlledBoneGroup<FControlledWing> RightWing;
 
+	// Aggregates
+	TArray<TFControlledBoneGroup<FControlledLeg>*> ControlledLegs;
+	TArray<TFControlledBoneGroup<FControlledWing>*> ControlledWings;
+
+	// Adapters
 	FDragonWingPoseAdapter* WingPoseAdapter;
 
+	// IK Rig outputs
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
+	FTransform HipTransform;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
 	TArray<FVector> LegPositions;
-
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
 	TArray<FRotator> LegRotations;
 

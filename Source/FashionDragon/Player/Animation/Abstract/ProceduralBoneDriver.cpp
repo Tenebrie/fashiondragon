@@ -17,9 +17,6 @@ void FProceduralBoneDriver::ResetState()
 
 FPoseEffector FProceduralBoneDriver::ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context)
 {
-	const auto PositionDelta = DesiredPosition - BaseEffector.Position;
-	const auto RotationDelta = DesiredRotation - BaseEffector.Rotation;
-
 	if (FMath::IsNearlyZero(DesiredForce * Context.BlendAlpha))
 	{
 		return BaseEffector;

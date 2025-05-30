@@ -2,9 +2,10 @@
 
 #include <map>
 
-#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
+#include "FashionDragon/Player/Animation/Drivers/DragonGroundBodySway.h"
+#include "FashionDragon/Player/Animation/Drivers/DragonGroundHipSway.h"
 #include "FashionDragon/Player/Animation/Poses/DragonIdle/Drivers/DragonIdleWingDriver.h"
 #include "FashionDragon/Player/Animation/Poses/DragonWalk/DragonWalkPose.h"
 #include "FashionDragon/Player/Animation/Poses/DragonSprint/DragonSprintPose.h"
@@ -16,44 +17,7 @@ FDragonTrotLegDriver::FDragonTrotLegDriver(UDragonAnimInstance* AnimInstance, FC
 // Body Driver
 // ============================================================================
 
-void FDragonTrotBodyDriver::Tick(const float DeltaTime)
-{
-	BlendAlpha = FMath::FInterpTo(BlendAlpha, TargetBlendAlpha, DeltaTime, 5.0f);
 
-	if (LeadingLeg)
-	{
-		const auto LeadingLegOffset = std::min(1.0, LeadingLeg->GetLeg()->Position.Size() / 750.0f);
-		// const auto LeftLegOffset = std::min(1.0, LeftLeg->Position.Size() / 750.0f);
-		// const auto RightLegOffset = std::min(1.0, RightLeg->Position.Size() / 750.0f);
-
-		const auto SideOffsetSign = LeadingLeg->GetLeg()->GetIdx() == 0 ? 1.0f : -1.0f;
-	
-		const auto ForwardOffset = FMath::Max(400.0f - LeadingLeg->GetLeg()->Position.Y, 0.0f) / 15.0f;
-		const auto VerticalOffset = LeadingLegOffset * -175.0f;
-
-		const auto LastPos = DesiredPosition - FVector(0, 0, 100);
-		DesiredPosition = FMath::VInterpTo(LastPos, FVector(SideOffsetSign * 10, ForwardOffset, VerticalOffset), DeltaTime, 5.5f);
-		DesiredPosition += FVector(0.0f, 0.0f, 100.0f);
-	}
-
-	// Lerp current value to target value
-	auto TargetLean = -10.0f;
-
-	const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
-	const auto HorizontalMovementSpeed = OwningActor->GetVelocity().Size2D();
-	TargetLean += FMath::Clamp(HorizontalMovementSpeed * 0.003f, 0.0f, 10.0f);
-
-	const auto InputRotation = GetInputRotation();
-	auto Bank = FMath::Sin(InputRotation) * 10.0f;
-	if (AnimInstance->StateMachine->AnimationState == EAnimationState::Jumping)
-	{
-		Bank = 0.0f;
-	}
-
-	DesiredForce = 25.0f;
-	DesiredRotation = FRotator(-Bank, -Bank * 0.25, TargetLean);
-	// DesiredRotation = FRotator(0.0f, 0.0f, 0.0f);
-}
 
 // ============================================================================
 // Leg Driver
@@ -100,8 +64,8 @@ void FDragonTrotLegDriver::AdvanceState()
 }
 
 #define STEP_DURATION 0.9f
-#define PLANTED_DURATION 0.45f
-#define INERTIA_DURATION 0.45f
+#define PLANTED_DURATION STEP_DURATION * 0.6f
+#define INERTIA_DURATION STEP_DURATION - PLANTED_DURATION
 FDragonWalkStateData FDragonTrotLegDriver::GetRawWalkStateData() const
 {
 	const std::map<ELegWalkingState, FDragonWalkStateData> AnimData =
@@ -144,20 +108,20 @@ FDragonWalkStateData FDragonTrotLegDriver::GetRawWalkStateData() const
 		},
 		{ ELegWalkingState::Stepping,
 			{
-				.TargetPosition = FVector(0.0f, 400.0f, 0.0f),
-				.TargetRotation = FRotator(0.0f, 15.0f, 0.0f),
+				.TargetPosition = FVector(0.0f, 280.0f, 0.0f),
+				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
 				.LinearForce = 8000.0f,
 				.AngularForce = 1.0f,
 				.Duration = STEP_DURATION,
 				.StartArticulationPosition = FVector(0.0f, 0.0f, 150.0f),
 				.StartArticulationRotation = FVector(0.0f, 0.0f, 0.0f),
-				.EndArticulationPosition = FVector(0.0f, 0.0f, 0.0f),
+				.EndArticulationPosition = FVector(0.0f, 0.0f, 10.0f),
 				.EndArticulationRotation = FVector(0.0f, 0.0f, 10.0f),
 			}
 		},
 		{ ELegWalkingState::Inertia,
 			{
-				.TargetPosition = FVector(0.0f, -650.0f, 100.0f),
+				.TargetPosition = FVector(0.0f, -450.0f, 100.0f),
 				.TargetRotation = FRotator(0.0f, 0.0f, 70.0f),
 				.LinearForce = 3.0f,
 				.AngularForce = 0.2f,
@@ -171,10 +135,10 @@ FDragonWalkStateData FDragonTrotLegDriver::GetRawWalkStateData() const
 
 FDragonTrotPose::FDragonTrotPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
-	BodyDriver = new FDragonTrotBodyDriver(Anim, Anim->ControlledBody.GetBone(EDriverLayer::Primary), Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
-	HipsDriver = new FDragonWalkHipSwayDriver(Anim, Anim->ControlledHips.GetBone(EDriverLayer::Primary),  Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
-	BodyDrivers = { BodyDriver };
-	HipsDrivers = { HipsDriver };
+	BodyDriver = new FDragonGroundBodySway(Anim, Anim->ControlledRoot.GetBone(EDriverLayer::Primary), Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
+	HipsDriver = new FDragonGroundTailSway(Anim, Anim->ControlledTail.GetBone(EDriverLayer::Primary),  Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
+	RootDrivers = { BodyDriver };
+	TailDrivers = { HipsDriver };
 	
 	LeftLegDriver = new FDragonTrotLegDriver(Anim, Anim->BackLeftLeg.GetBone(EDriverLayer::Primary));
 	RightLegDriver = new FDragonTrotLegDriver(Anim, Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
@@ -182,6 +146,9 @@ FDragonTrotPose::FDragonTrotPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 		LeftLegDriver,
 		RightLegDriver,
 	};
+
+	BodyDriver->SetHorizontalAmplitude(5.0f);
+	BodyDriver->SetVerticalAmplitude(220.0f);
 
 	LeftLegDriver->OnWalkStateChanged.AddLambda([this](ELegWalkingState, const ELegWalkingState NewState)
 	{
@@ -246,7 +213,6 @@ void FDragonTrotPose::SyncStateFrom(const FDragonSprintPose* SourcePose) const
 void FDragonTrotPose::ResetState()
 {
 	BodyDriver->ResetState();
-	HipsDriver->ResetState();
 	LeftLegDriver->LockToWorldGround();
 	RightLegDriver->SetWalkingState(ELegWalkingState::Stepping);
 }

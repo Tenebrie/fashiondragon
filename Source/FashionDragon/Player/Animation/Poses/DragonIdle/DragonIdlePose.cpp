@@ -17,10 +17,10 @@ enum class ELegIdleState;
  */
 FDragonIdlePose::FDragonIdlePose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
-	BodyDriver = new FDragonIdleBodyDriver(Anim, Anim->ControlledBody.GetBone(EDriverLayer::Primary));
-	HipsDriver = new FDragonIdleHipsDriver(Anim, Anim->ControlledHips.GetBone(EDriverLayer::Primary));
-	BodyDrivers = { BodyDriver };
-	HipsDrivers = { HipsDriver };
+	BodyDriver = new FDragonIdleBodyDriver(Anim, Anim->ControlledRoot.GetBone(EDriverLayer::Primary));
+	HipsDriver = new FDragonIdleHipsDriver(Anim, Anim->ControlledTail.GetBone(EDriverLayer::Primary));
+	RootDrivers = { BodyDriver };
+	TailDrivers = { HipsDriver };
 
 	LeftLegDriver = new FDragonIdleLegDriver(Anim, Anim->BackLeftLeg.GetBone(EDriverLayer::Primary));
 	RightLegDriver = new FDragonIdleLegDriver(Anim, Anim->BackRightLeg.GetBone(EDriverLayer::Primary));

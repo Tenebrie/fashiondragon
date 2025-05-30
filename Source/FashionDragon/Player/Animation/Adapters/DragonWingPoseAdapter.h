@@ -12,8 +12,8 @@ public:
 	{
 	}
 
-	static TPair<FVector, FRotator>* GetNeutralPose(const int Idx, const float MirrorValue);
-	static TPair<FVector, FRotator>* ApplyMirror(const TPair<FVector, FRotator>*, const float MirrorValue);
+	static TPair<FVector, FRotator> GetNeutralPose(const int Idx, const float MirrorValue);
+	static TPair<FVector, FRotator> ApplyMirror(const TPair<FVector, FRotator>&, const float MirrorValue);
 
 	void SetBoneOffset(FName ParentBone, FName ChildName, const FVector& Position, const FRotator& Rotation) const;
 	
