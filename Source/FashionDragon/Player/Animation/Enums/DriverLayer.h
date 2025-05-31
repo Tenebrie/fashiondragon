@@ -10,4 +10,6 @@ enum class EDriverLayer: uint8
 	Sway = 2,
 	Momentum = 3,
 	LegPlacement = 4,
+	RotateToMovement = 5,
+	WalkBob = 6,
 };

@@ -73,9 +73,11 @@ void AMainCharacter::BeginPlay()
     GetCharacterMovement()->MaxWalkSpeed = 2000.f;
     GetCharacterMovement()->MaxAcceleration = 2048.f;
     GetCharacterMovement()->BrakingDecelerationWalking = 1000.f;
-    // MeshRoot->SetUsingAbsoluteRotation(true);
+    DetachedMeshRoot->SetUsingAbsoluteRotation(false);
 
     SwitchGroundMovementMode(EGroundMovementMode::Trotting);
+
+    RotationInputHandler->ResetRotation(GetActorRotation().Quaternion());
 }
 
 // Called every frame
@@ -86,16 +88,6 @@ void AMainCharacter::Tick(const float DeltaTime)
     const auto SpringArmComponent = FindComponentByClass<USpringArmComponent>();
     if (!Controller || !SpringArmComponent) { return; }
 
-    // TODO: Detach mesh movement from camera movement
-    const FRotator CameraRotation = SpringArmComponent->GetComponentRotation();
-    const FRotator TargetRotation = FRotator(0.f, CameraRotation.Yaw - 90, 0.f);
-    const float CurrentYaw = MeshRoot->GetComponentRotation().Yaw;
-    const float TargetYaw = TargetRotation.Yaw;
-    const float NewYaw = FMath::FixedTurn(CurrentYaw, TargetYaw, DeltaTime * 5000.0f);
-
-    const FRotator NewRot = FRotator(0.f, NewYaw, 0.f);
-    MeshRoot->SetWorldRotation(NewRot);
-
     // Return camera to default in flight
     if (FlightHandler->IsFlying())
     {
@@ -104,11 +96,11 @@ void AMainCharacter::Tick(const float DeltaTime)
     }
 
     const auto DesiredRotation = RotationInputHandler->GetRotation();
-    // Print debug line forward, using desired rotation (global space)
-    const FVector ForwardVector = DesiredRotation.RotateVector(FVector::ForwardVector);
-    const FVector StartLocation = MeshRoot->GetComponentLocation();
-    const FVector EndLocation = StartLocation + ForwardVector * 1000.0f;
-    DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor(255, 0, 255), 0.f, 5.f);
+
+    const auto TargetControlRotation = FRotator(0, DesiredRotation.Yaw, 0);
+    Controller->SetControlRotation(FMath::RInterpTo(Controller->GetControlRotation(), TargetControlRotation, DeltaTime, 50.0f));
+
+    SpringArmComponent->SetWorldRotation(FRotator(DesiredRotation.Pitch, DesiredRotation.Yaw, 0.0f));
 }
 
 // Called to bind functionality to input
@@ -120,7 +112,6 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
     if (!Input) return;
     
     Input->BindAction(UActions::GroundMovement(), ETriggerEvent::Triggered, this, &AMainCharacter::GroundMovement);
-    Input->BindAction(UActions::CameraMove(), ETriggerEvent::Triggered, this, &AMainCharacter::CameraMove);
     Input->BindAction(UActions::FlightCamera(), ETriggerEvent::Triggered, this, &AMainCharacter::FlightCameraMove);
     Input->BindAction(UActions::CameraMove(), ETriggerEvent::Triggered, RotationInputHandler, &URotationInputHandler::HandleInput);
     
@@ -146,27 +137,6 @@ void AMainCharacter::GroundMovement(const FInputActionValue& Value)
     const FVector RightDirection = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
     AddMovementInput(ForwardDirection, MovementVector.Y);
     AddMovementInput(RightDirection, MovementVector.X);
-}
-
-void AMainCharacter::CameraMove(const FInputActionValue& Value)
-{
-    const auto SpringArmComponent = FindComponentByClass<USpringArmComponent>();
-    if (!Controller || !SpringArmComponent) { return; }
-
-    const FVector2D RotationDelta = Value.Get<FVector2D>();
-
-    if (!FMath::IsNearlyZero(RotationDelta.X))
-    {
-        AddControllerYawInput(RotationDelta.X * 0.5f);
-    }
-
-    if (!FMath::IsNearlyZero(RotationDelta.Y))
-    {
-        FRotator NewRotation = SpringArmComponent->GetRelativeRotation();
-        NewRotation.Pitch += RotationDelta.Y;
-        NewRotation.Pitch = FMath::Clamp(NewRotation.Pitch, -80.f, 80.f);
-        SpringArmComponent->SetRelativeRotation(NewRotation);
-    }
 }
 
 void AMainCharacter::FlightCameraMove(const FInputActionValue& Value)

@@ -6,11 +6,9 @@ void URotationInputHandler::HandleInput(const FInputActionValue& Value)
 {
 	const FVector2D MouseMovement = Value.Get<FVector2D>();
 
-	const FQuat DeltaRotation = FRotator(
-		MouseMovement.Y * VerticalSensitivity,
-		MouseMovement.X * HorizontalSensitivity,
-		0.0f
-	).Quaternion();
+	const float DeltaPitch = MouseMovement.Y * VerticalSensitivity;
+	const float DeltaYaw = MouseMovement.X * HorizontalSensitivity;
 
-	CurrentRotation = DeltaRotation * CurrentRotation;
+	CurrentPitch += DeltaPitch;
+	CurrentYaw += DeltaYaw;
 }

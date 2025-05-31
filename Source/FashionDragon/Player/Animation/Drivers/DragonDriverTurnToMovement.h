@@ -3,7 +3,8 @@
 
 class FDragonDriverTurnToMovement final : public FProceduralBoneDriver
 {
-	FVector DragDirection = FVector::ZeroVector;
+	FRotator DragDirection = FRotator::ZeroRotator;
+	FRotator LastSeenRotation = FRotator::ZeroRotator;
 public:
 	FDragonDriverTurnToMovement(UDragonAnimInstance* AnimInstance, FControlledBone* Bone)
 		: FProceduralBoneDriver(AnimInstance, Bone)

@@ -74,7 +74,7 @@ void FDragonJumpLegDriver::Tick(const float DeltaTime)
 	{
 		SetJumpState(ELegJumpState::DelayedLanding);
 	}
-	if (JumpingState == ELegJumpState::Landing && Leg->GetPlantedWorldPosition(15).GroundHit)
+	if ((JumpingState == ELegJumpState::DelayedLanding || JumpingState == ELegJumpState::Landing) && Leg->GetPlantedWorldPosition(15).GroundHit)
 	{
 		SetJumpState(ELegJumpState::Impact);
 	}

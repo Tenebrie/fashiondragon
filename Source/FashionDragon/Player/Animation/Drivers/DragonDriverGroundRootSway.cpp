@@ -1,5 +1,6 @@
 ﻿#include "DragonDriverGroundRootSway.h"
 
+#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "FashionDragon/Player/Animation/Abstract/ProceduralLegDriver.h"
@@ -22,20 +23,13 @@ void FDragonDriverGroundRootSway::Tick(const float DeltaTime)
 	}
 
 	// Lerp current value to target value
-	auto TargetLean = -10.0f;
+	auto TargetLean = -20.0f;
 
 	const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
 	const auto HorizontalMovementSpeed = OwningActor->GetVelocity().Size2D();
-	TargetLean += FMath::Clamp(HorizontalMovementSpeed * 0.003f, 0.0f, 10.0f);
-
-	const auto InputRotation = GetInputRotation();
-	auto Bank = FMath::Sin(InputRotation) * 10.0f;
-	if (AnimInstance->StateMachine->AnimationState == EAnimationState::Jumping)
-	{
-		Bank = 0.0f;
-	}
+	TargetLean += FMath::Clamp(HorizontalMovementSpeed * 0.007f, 0.0f, 20.0f);
 
 	DesiredForce = 25.0f;
-	DesiredRotation = FRotator(-Bank, -Bank * 0.25, TargetLean);
+	DesiredRotation = FRotator(0, 0, TargetLean);
 	// DesiredRotation = FRotator(0.0f, 0.0f, 0.0f);
 }
