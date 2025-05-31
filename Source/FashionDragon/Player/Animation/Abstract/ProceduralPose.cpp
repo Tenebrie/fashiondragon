@@ -10,8 +10,8 @@ void FProceduralPose::NativeBeginPlay()
 {
 	for (const auto &RootDriver : RootDrivers)
 		RootDriver->NativeBeginPlay();
-	for (const auto &TailDriver : TailDrivers)
-		TailDriver->NativeBeginPlay();
+	for (const auto &HipsDriver : HipsDrivers)
+		HipsDriver->NativeBeginPlay();
 	for (const auto &LegDriver : LegDrivers)
 		LegDriver->NativeBeginPlay();
 	for (const auto &WingDriver : WingDrivers)
@@ -22,8 +22,8 @@ void FProceduralPose::Tick(const float DeltaTime)
 {
 	for (const auto &RootDriver : RootDrivers)
 		RootDriver->Tick(DeltaTime);
-	for (const auto &TailDriver : TailDrivers)
-		TailDriver->Tick(DeltaTime);
+	for (const auto &HipsDriver : HipsDrivers)
+		HipsDriver->Tick(DeltaTime);
 	for (const auto &LegDriver : LegDrivers)
 		LegDriver->Tick(DeltaTime);
 	for (const auto &WingDriver : WingDrivers)
@@ -43,14 +43,14 @@ FPoseEffector FProceduralPose::ToRootEffector(const FPoseEffector& BaseEffector,
 	return BaseEffector;
 }
 
-FPoseEffector FProceduralPose::ToTailEffector(const FPoseEffector& BaseEffector, const FControlledBone* Hips, const float DeltaTime) const
+FPoseEffector FProceduralPose::ToHipsEffector(const FPoseEffector& BaseEffector, const FControlledBone* Hips, const float DeltaTime) const
 {
-	for (const auto& TailDriver : TailDrivers)
+	for (const auto& HipsDriver : HipsDrivers)
 	{
-		if (TailDriver && TailDriver->GetBone() == Hips)
+		if (HipsDriver && HipsDriver->GetBone() == Hips)
 		{
-			const auto Context = FPoseEffectorContext(DeltaTime, TailDriver->GetBlendAlpha());
-			return TailDriver->ToEffector(BaseEffector, Context);
+			const auto Context = FPoseEffectorContext(DeltaTime, HipsDriver->GetBlendAlpha());
+			return HipsDriver->ToEffector(BaseEffector, Context);
 		}
 	}
 	return BaseEffector;
@@ -99,8 +99,8 @@ void FProceduralPose::AddBlendAlpha(const float Delta)
 {
 	for (FProceduralBoneDriver* RootDriver : RootDrivers)
 		RootDriver->SetBlendAlpha(FMath::Clamp(RootDriver->GetBlendAlpha() + Delta, 0, 1));
-	for (FProceduralBoneDriver* TailDriver : TailDrivers)
-		TailDriver->SetBlendAlpha(FMath::Clamp(TailDriver->GetBlendAlpha() + Delta, 0, 1));
+	for (FProceduralBoneDriver* HipsDriver : HipsDrivers)
+		HipsDriver->SetBlendAlpha(FMath::Clamp(HipsDriver->GetBlendAlpha() + Delta, 0, 1));
 	for (FProceduralLegDriver* LegDriver : LegDrivers)
 		LegDriver->SetBlendAlpha(FMath::Clamp(LegDriver->GetBlendAlpha() + Delta, 0, 1));
 	for (FProceduralWingDriver* WingDriver : WingDrivers)
@@ -111,8 +111,8 @@ void FProceduralPose::SetBlendAlpha(const float BlendAlpha)
 {
 	for (FProceduralBoneDriver* RootDriver : RootDrivers)
 		RootDriver->SetBlendAlpha(BlendAlpha);
-	for (FProceduralBoneDriver* TailDriver : TailDrivers)
-		TailDriver->SetBlendAlpha(BlendAlpha);
+	for (FProceduralBoneDriver* HipsDriver : HipsDrivers)
+		HipsDriver->SetBlendAlpha(BlendAlpha);
 	for (FProceduralLegDriver* LegDriver : LegDrivers)
 		LegDriver->SetBlendAlpha(BlendAlpha);
 	for (FProceduralWingDriver* WingDriver : WingDrivers)

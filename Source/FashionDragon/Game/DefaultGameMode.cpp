@@ -1,7 +1,7 @@
 ﻿#include "DefaultGameMode.h"
 
 #include "FashionDragon/Player/MainCharacter.h"
-#include "FashionDragon/Player/Input/DefaultPlayerController.h"
+#include "FashionDragon/Player/InputActions/DefaultPlayerController.h"
 
 ADefaultGameMode::ADefaultGameMode()
 {

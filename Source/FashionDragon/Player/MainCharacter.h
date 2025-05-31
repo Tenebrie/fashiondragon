@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
 #include "GameFramework/Character.h"
-#include "Input/FlightController.h"
 #include "PhysicsEngine/PhysicalAnimationComponent.h"
 #include "MainCharacter.generated.h"
 
+class UFlightHandler;
+class URotationInputHandler;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLegPlanted, FVector, SpawnLocation);
 
 enum class EGroundMovementMode
@@ -24,14 +25,13 @@ class FASHIONDRAGON_API AMainCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	AMainCharacter();
 
 	EGroundMovementMode MovementMode;
 	EGroundMovementMode PreferredMovementMode = EGroundMovementMode::Trotting;
-	
-	UPROPERTY()
-	UFlightController* FlightController;
+
+	UPROPERTY() UFlightHandler* FlightHandler;
+	UPROPERTY() URotationInputHandler* RotationInputHandler;
 	
 	UPROPERTY(BlueprintAssignable, Category="Events")
 	FOnLegPlanted OnLegPlanted;

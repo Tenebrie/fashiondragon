@@ -26,7 +26,9 @@ public:
 
 	// Bone groups
 	TFControlledBoneGroup<FControlledBone> ControlledRoot;
-	TFControlledBoneGroup<FControlledBone> ControlledTail;
+	TFControlledBoneGroup<FControlledBone> ControlledHead;
+	TFControlledBoneGroup<FControlledBone> ControlledBody;
+	TFControlledBoneGroup<FControlledBone> ControlledHips;
 	TFControlledBoneGroup<FControlledLeg> BackLeftLeg;
 	TFControlledBoneGroup<FControlledLeg> BackRightLeg;
 	TFControlledBoneGroup<FControlledWing> LeftWing;

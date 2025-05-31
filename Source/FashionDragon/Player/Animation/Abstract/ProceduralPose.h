@@ -12,7 +12,7 @@ protected:
 	UDragonAnimInstance* AnimInstance;
 
 	TArray<FProceduralBoneDriver*> RootDrivers;
-	TArray<FProceduralBoneDriver*> TailDrivers;
+	TArray<FProceduralBoneDriver*> HipsDrivers;
 	TArray<FProceduralLegDriver*> LegDrivers;
 	TArray<FProceduralWingDriver*> WingDrivers;
 	
@@ -23,7 +23,7 @@ public:
 	virtual void Tick(float DeltaTime);
 	virtual void ResetState() {};
 	FPoseEffector ToRootEffector(const FPoseEffector& BaseEffector, const FControlledBone* Body, const float DeltaTime) const;
-	FPoseEffector ToTailEffector(const FPoseEffector& BaseEffector, const FControlledBone* Hips, const float DeltaTime) const;
+	FPoseEffector ToHipsEffector(const FPoseEffector& BaseEffector, const FControlledBone* Hips, const float DeltaTime) const;
 	FPoseEffector ToLegEffector(const FPoseEffector& BaseEffector, const FControlledLeg* Leg, const float DeltaTime) const;
 	FPoseEffector ToPostProcessLegEffector(const FPoseEffector& BaseEffector, const FControlledLeg* Leg, const float DeltaTime) const;
 	FPoseWingEffector ToWingEffector(const FPoseWingEffector& BaseEffector, const FControlledWing* Wing, const float DeltaTime) const;

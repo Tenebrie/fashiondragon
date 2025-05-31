@@ -5,8 +5,8 @@
 class FDragonWalkPose;
 class FDragonTrotPose;
 class FDragonWalkBodyDriver;
-class FDragonGroundBodySway;
-class FDragonGroundTailSway;
+class FDragonDriverGroundRootSway;
+class FDragonDriverGroundHipSway;
 
 class FDragonSprintLegDriver final : public FProceduralLegDriver
 {
@@ -23,8 +23,8 @@ class FDragonSprintPose final : public FProceduralPose
 public:
 	explicit FDragonSprintPose(UDragonAnimInstance* Anim);
 
-	FDragonGroundBodySway* BodyDriver;
-	FDragonGroundTailSway* HipsDriver;
+	FDragonDriverGroundRootSway* BodyDriver;
+	FDragonDriverGroundHipSway* HipsDriver;
 	FDragonSprintLegDriver* LeftLegDriver;
 	FDragonSprintLegDriver* RightLegDriver;
 	void SyncStateFrom(const FDragonWalkPose* SourcePose) const;

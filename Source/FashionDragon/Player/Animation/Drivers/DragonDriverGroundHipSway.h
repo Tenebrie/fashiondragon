@@ -3,7 +3,7 @@
 
 class FControlledLeg;
 
-class FDragonGroundTailSway final : public FProceduralBoneDriver
+class FDragonDriverGroundHipSway final : public FProceduralBoneDriver
 {
 	FControlledBone* Hips;
 	FControlledLeg* LeftLeg;
@@ -12,7 +12,7 @@ class FDragonGroundTailSway final : public FProceduralBoneDriver
 	float SwayAmplitude = 8.0f;
 	
 public:
-	FDragonGroundTailSway(
+	FDragonDriverGroundHipSway(
 		UDragonAnimInstance* AnimInstance,
 		FControlledBone* Bone,
 		FControlledLeg* LeftLeg,

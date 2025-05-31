@@ -1,6 +1,7 @@
 ﻿#include "DragonAnimStateMachine.h"
 
 #include "FashionDragon/Player/MainCharacter.h"
+#include "FashionDragon/Player/InputHandlers/FlightHandler.h"
 #include "FashionDragon/Utils/Utils.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Poses/DragonFootPlacement/DragonFootPlacementPose.h"
@@ -134,7 +135,7 @@ void FDragonAnimStateMachine::Tick(const float DeltaTime, const AMainCharacter* 
 			SetState(EAnimationState::Jumping);
 			JumpPoseDriver->StartFalling();
 		}
-		if (AnimationState != EAnimationState::Flight && OwningActor->FlightController->IsFlying())
+		if (AnimationState != EAnimationState::Flight && OwningActor->FlightHandler->IsFlying())
 		{
 			SetState(EAnimationState::Flight);
 			FlightPoseDriver->ResetState();

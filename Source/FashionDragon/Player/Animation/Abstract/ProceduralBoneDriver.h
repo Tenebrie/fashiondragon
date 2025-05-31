@@ -32,8 +32,8 @@ public:
 	virtual void ResetState();
 
 	/**
-	 * @brief Converts the current state of the leg driver to an effector.
-	 * Effector is a struct defining the leg transformation that needs to be applied.
+	 * @brief Converts the current state of the driver to an effector.
+	 * Effector is a struct defining the transformation that needs to be applied.
 	 * The effectors are positional, and provided state includes all previous effectors applied.
 	 */
 	virtual FPoseEffector ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context);

@@ -13,9 +13,10 @@
 #include "PhysicsEngine/PhysicalAnimationComponent.h"
 #include "EnhancedInputComponent.h"
 #include "FashionDragon/DebugTools/QuickDebug.h"
-#include "Input/Actions.h"
-#include "Input/DefaultPlayerController.h"
-#include "Input/FlightController.h"
+#include "InputActions/Actions.h"
+#include "InputActions/DefaultPlayerController.h"
+#include "InputHandlers/FlightHandler.h"
+#include "InputHandlers/RotationInputHandler.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -39,14 +40,18 @@ AMainCharacter::AMainCharacter()
     PhysicalAnimation = CreateDefaultSubobject<UPhysicalAnimationComponent>(TEXT("PhysicalAnimationComponent"));
     PhysicalAnimation->SetSkeletalMeshComponent(DragonMesh);
     DetachedMeshRoot->SetUsingAbsoluteRotation(true);
-
-    FlightController = CreateDefaultSubobject<UFlightController>(TEXT("FlightController"));
-    // FlightController->RegisterComponent();
 }
 
 void AMainCharacter::PostInitializeComponents()
 {
     Super::PostInitializeComponents();
+
+    FlightHandler = NewObject<UFlightHandler>(this);
+    RotationInputHandler = NewObject<URotationInputHandler>(this);
+    FlightHandler->RegisterComponent();
+    RotationInputHandler->RegisterComponent();
+    AddInstanceComponent(FlightHandler);
+    AddInstanceComponent(RotationInputHandler);
 }
 
 // Called when the game starts or when spawned
@@ -92,11 +97,18 @@ void AMainCharacter::Tick(const float DeltaTime)
     MeshRoot->SetWorldRotation(NewRot);
 
     // Return camera to default in flight
-    if (FlightController->IsFlying())
+    if (FlightHandler->IsFlying())
     {
         const FRotator TargetRotationTwo = FRotator(0, 0, 0);
         SpringArmComponent->SetRelativeRotation(FMath::RInterpTo(SpringArmComponent->GetRelativeRotation(), TargetRotationTwo, GetWorld()->GetDeltaSeconds(), 5.0f));
     }
+
+    const auto DesiredRotation = RotationInputHandler->GetRotation();
+    // Print debug line forward, using desired rotation (global space)
+    const FVector ForwardVector = DesiredRotation.RotateVector(FVector::ForwardVector);
+    const FVector StartLocation = MeshRoot->GetComponentLocation();
+    const FVector EndLocation = StartLocation + ForwardVector * 1000.0f;
+    DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor(255, 0, 255), 0.f, 5.f);
 }
 
 // Called to bind functionality to input
@@ -110,6 +122,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
     Input->BindAction(UActions::GroundMovement(), ETriggerEvent::Triggered, this, &AMainCharacter::GroundMovement);
     Input->BindAction(UActions::CameraMove(), ETriggerEvent::Triggered, this, &AMainCharacter::CameraMove);
     Input->BindAction(UActions::FlightCamera(), ETriggerEvent::Triggered, this, &AMainCharacter::FlightCameraMove);
+    Input->BindAction(UActions::CameraMove(), ETriggerEvent::Triggered, RotationInputHandler, &URotationInputHandler::HandleInput);
     
     Input->BindAction(UActions::Jump(), ETriggerEvent::Started, this, &AMainCharacter::StartJump);
     Input->BindAction(UActions::Jump(), ETriggerEvent::Completed & ETriggerEvent::Canceled, this, &AMainCharacter::ReleaseJump);

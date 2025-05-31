@@ -1,15 +1,16 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "BaseInputHandler.h"
 #include "Components/ActorComponent.h"
-#include "FlightController.generated.h"
+#include "FlightHandler.generated.h"
 
 class UDragonAnimInstance;
 class FControlledWing;
 class AMainCharacter;
 
 UCLASS()
-class FASHIONDRAGON_API UFlightController : public UActorComponent
+class FASHIONDRAGON_API UFlightHandler : public UBaseInputHandler
 {
 	GENERATED_BODY()
 
@@ -23,14 +24,9 @@ class FASHIONDRAGON_API UFlightController : public UActorComponent
 	float LastFrameRightOpenness = 0.0f;
 
 public:
-	UFlightController();
-
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void StartFlight();
 	bool IsFlying() const { return IsInFlight; }
-
-	AMainCharacter* GetCharacter() const;
-	UDragonAnimInstance* GetAnimInstance() const;
 };

@@ -32,7 +32,9 @@ void UDragonAnimInstance::NativeInitializeAnimation()
 
 	// Simple groups
 	ControlledRoot = TFControlledBoneGroup(new FControlledBone());
-	ControlledTail = TFControlledBoneGroup(new FControlledBone());
+	ControlledHead = TFControlledBoneGroup(new FControlledBone());
+	ControlledBody = TFControlledBoneGroup(new FControlledBone());
+	ControlledHips = TFControlledBoneGroup(new FControlledBone());
 
 	// Legs
 	BackLeftLeg = TFControlledBoneGroup(new FControlledLeg(
@@ -91,8 +93,8 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 	GetSkelMeshComponent()->SetRelativeLocation(Effector.Position);
 	GetSkelMeshComponent()->SetRelativeRotation(Effector.Rotation);
 
-	// Apply tail driver
-	Effector = ControlledTail.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToTailEffector, DeltaTime);
+	// Apply hips driver
+	Effector = ControlledHips.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToHipsEffector, DeltaTime);
 	constexpr float HipTransformFraction = 0.35f;
 	constexpr float TailTransformFraction = 1.0f - HipTransformFraction;
 	// Axis deliberately flipped
@@ -130,7 +132,7 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 	}
 
 	ControlledRoot.Tick(DeltaTime);
-	ControlledTail.Tick(DeltaTime);
+	ControlledHips.Tick(DeltaTime);
 	for (TFControlledBoneGroup<FControlledLeg>* ControlledLeg : ControlledLegs)
 		ControlledLeg->Tick(DeltaTime);
 	for (TFControlledBoneGroup<FControlledWing>* ControlledWing : ControlledWings)

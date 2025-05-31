@@ -1,23 +1,18 @@
-﻿#include "FlightController.h"
+﻿#include "FlightHandler.h"
 
 #include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-UFlightController::UFlightController()
-{
-	PrimaryComponentTick.bCanEverTick = true;
-}
-
-void UFlightController::BeginPlay()
+void UFlightHandler::BeginPlay()
 {
 	Super::BeginPlay();
 	LeftWing = GetAnimInstance()->LeftWing.GetPostProcessBone();
 	RightWing = GetAnimInstance()->RightWing.GetPostProcessBone();
 }
 
-void UFlightController::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UFlightHandler::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -40,17 +35,8 @@ void UFlightController::TickComponent(const float DeltaTime, const ELevelTick Ti
 	// MovementComponent->Velocity = FVector::ZeroVector;
 }
 
-void UFlightController::StartFlight()
+void UFlightHandler::StartFlight()
 {
 	IsInFlight = true;
 }
 
-AMainCharacter* UFlightController::GetCharacter() const
-{
-	return Cast<AMainCharacter>(GetOwner());
-}
-
-UDragonAnimInstance* UFlightController::GetAnimInstance() const
-{
-	return Cast<UDragonAnimInstance>(GetCharacter()->DragonMesh->GetAnimInstance());
-}

@@ -1,10 +1,10 @@
-﻿#include "DragonGroundBodySway.h"
+﻿#include "DragonDriverGroundRootSway.h"
 
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "FashionDragon/Player/Animation/Abstract/ProceduralLegDriver.h"
 
-void FDragonGroundBodySway::Tick(const float DeltaTime)
+void FDragonDriverGroundRootSway::Tick(const float DeltaTime)
 {
 	BlendAlpha = FMath::FInterpTo(BlendAlpha, TargetBlendAlpha, DeltaTime, 5.0f);
 

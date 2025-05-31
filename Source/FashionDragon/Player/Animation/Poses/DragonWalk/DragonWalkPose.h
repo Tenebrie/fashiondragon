@@ -2,8 +2,8 @@
 #include "FashionDragon/Player/Animation/Abstract/ProceduralBoneDriver.h"
 #include "FashionDragon/Player/Animation/Abstract/ProceduralPose.h"
 
-class FDragonGroundBodySway;
-class FDragonGroundTailSway;
+class FDragonDriverGroundRootSway;
+class FDragonDriverGroundHipSway;
 
 class FDragonWalkLegDriver final : public FProceduralLegDriver
 {
@@ -21,8 +21,8 @@ class FDragonWalkPose final : public FProceduralPose
 public:
 	explicit FDragonWalkPose(UDragonAnimInstance* Anim);
 
-	FDragonGroundBodySway* BodyDriver;
-	FDragonGroundTailSway* HipsDriver;
+	FDragonDriverGroundRootSway* BodyDriver;
+	FDragonDriverGroundHipSway* HipsDriver;
 	FDragonWalkLegDriver* LeftLegDriver;
 	FDragonWalkLegDriver* RightLegDriver;
 	template<typename DriverT>
