@@ -25,6 +25,7 @@ void UAnimationDebugReporter::CollectInfo()
 		for (FProceduralBoneDriver* Driver : Pose->ListBoneDrivers())
 		{
 			FDriverDebugInfo Data = Driver->GetDebugReporter()->MakeDebugInfo();
+			Data.Name = FString(typeid(Driver).name());
 			Data.BlendAlpha = Driver->GetBlendAlpha();
 			PoseInfo.Drivers.Add(Data);
 		}
@@ -32,6 +33,7 @@ void UAnimationDebugReporter::CollectInfo()
 		for (FProceduralLegDriver* Driver : Pose->ListLegDrivers())
 		{
 			FDriverDebugInfo Data = Driver->GetDebugReporter()->MakeDebugInfo();
+			Data.Name = FString(typeid(Driver).name());
 			Data.BlendAlpha = Driver->GetBlendAlpha();
 			PoseInfo.Drivers.Add(Data);
 		}

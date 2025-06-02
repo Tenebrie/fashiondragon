@@ -8,9 +8,10 @@ enum class EDriverBlend
 	EaseOut,
 };
 
-class FBaseDriver
-{
-protected:
+#define CLASSNAME(T) const FName GetClassName() const { return FName(#T); }
+#define ExpandNamedClass(A, B, C) A B C CLASSNAME(B);
+	
+ExpandNamedClass(class, FBaseDriver, {)
 	UDragonAnimInstance* AnimInstance;
 	float CyclePosition = 0.0f;
 	float VisualCyclePosition = 0.0f;
