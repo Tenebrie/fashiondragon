@@ -1,5 +1,9 @@
 ﻿#include "BasePlayerController.h"
 
+#include "Actions.h"
+#include "EnhancedInputComponent.h"
+#include "FashionDragon/DebugTools/QuickDebug.h"
+
 FKeyMappingBuilder& FKeyMappingBuilder::AddTrigger(UInputTrigger* Trigger)
 {
 	Mapping->Triggers.Add(Trigger);
@@ -56,6 +60,16 @@ FKeyMappingBuilder& FKeyMappingBuilder::DeadZone(const float Value)
 	Modifier->LowerThreshold = Value;
 	Modifier->UpperThreshold = 1.0f;
 	return AddModifier(Modifier);
+}
+
+void ABasePlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+	
+	UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(InputComponent);
+	if (!Input) return;
+
+	Input->BindAction(UActions::ShowAnimDebug(), ETriggerEvent::Started, this, &ABasePlayerController::OnShowAnimDebug);
 }
 
 UInputMappingContext* ABasePlayerController::MakeInputContext()

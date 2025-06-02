@@ -3,6 +3,7 @@
 #include "FashionDragon/Player/Animation/Abstract/ProceduralPose.h"
 
 class FDragonDriverGroundRootSway;
+class FDragonDriverTurnToMovement;
 class FDragonDriverGroundHipSway;
 class FDragonSprintPose;
 class FDragonWalkPose;
@@ -17,7 +18,8 @@ class FDragonTrotPose final : public FProceduralPose
 public:
 	explicit FDragonTrotPose(UDragonAnimInstance* Anim);
 
-	FDragonDriverGroundRootSway* BodyDriver;
+	FDragonDriverGroundRootSway* RootDriver;
+	FDragonDriverTurnToMovement* BodyDriver;
 	FDragonDriverGroundHipSway* HipsDriver;
 	FDragonTrotLegDriver* LeftLegDriver;
 	FDragonTrotLegDriver* RightLegDriver;

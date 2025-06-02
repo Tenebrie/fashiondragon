@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "BaseDriver.h"
+#include "FashionDragon/Player/Animation/Debug/ProceduralDriverDebugReporter.h"
 
 #include "FashionDragon/Player/Animation/Structs/PoseEffectorContext.h"
 #include "FashionDragon/Player/Animation/Limbs/ControlledBone.h"
@@ -21,24 +22,20 @@ protected:
 
 	FVector ArticulationPosition = FVector::ZeroVector;
 	FVector ArticulationRotation = FVector::ZeroVector;
+
+	FProceduralDriverDebugReporter DebugReporter;
 	
 public:
 	FProceduralBoneDriver(UDragonAnimInstance* AnimInstance, FControlledBone* Bone):
-		FBaseDriver(AnimInstance), Bone(Bone)
-	{
-	}
+		FBaseDriver(AnimInstance), Bone(Bone) { }
 
-	virtual void Tick(float DeltaTime);
+	virtual void Tick(float DeltaTime) override;
 	virtual void ResetState();
-
-	/**
-	 * @brief Converts the current state of the driver to an effector.
-	 * Effector is a struct defining the transformation that needs to be applied.
-	 * The effectors are positional, and provided state includes all previous effectors applied.
-	 */
+	
 	virtual FPoseEffector ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context);
 
 	FControlledBone* GetBone() const { return Bone; }
 	FVector GetDesiredPosition() const { return DesiredPosition; }
 	FRotator GetDesiredRotation() const { return DesiredRotation; }
+	FProceduralDriverDebugReporter* GetDebugReporter() { return &DebugReporter; }
 };

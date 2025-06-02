@@ -39,6 +39,7 @@ FProceduralWingDriver::FProceduralWingDriver(UDragonAnimInstance* AnimInstance, 
 
 void FProceduralWingDriver::Tick(const float DeltaTime)
 {
+	FBaseDriver::Tick(DeltaTime);
 	const auto State = GetRawStateData();
 
 	const auto AdvanceValue = DeltaTime;

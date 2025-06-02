@@ -89,15 +89,29 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 	StateMachine->Tick(DeltaTime, OwningActor);
 
 	// Apply root driver
-	auto Effector = ControlledRoot.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToRootEffector, DeltaTime);
+	auto Effector = ControlledRoot.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToBoneEffector, DeltaTime);
 	GetSkelMeshComponent()->SetRelativeLocation(Effector.Position);
 	GetSkelMeshComponent()->SetRelativeRotation(Effector.Rotation);
 
+	// Apply body driver
+	Effector = ControlledBody.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToBoneEffector, DeltaTime);
+	constexpr float FrontTransformFraction = 0.5f;
+	constexpr float BackTransformFraction = 1.0f - FrontTransformFraction;
+	const FRotator FrontRotation = FRotator(
+		Effector.Rotation.Pitch * FrontTransformFraction,
+		Effector.Rotation.Yaw * FrontTransformFraction,
+		Effector.Rotation.Roll * FrontTransformFraction);
+	const FRotator BackRotation = FRotator(
+		Effector.Rotation.Pitch * BackTransformFraction,
+		Effector.Rotation.Yaw * BackTransformFraction,
+		Effector.Rotation.Roll * BackTransformFraction);
+	SpineFrontTransform = FTransform(FrontRotation, Effector.Position * FrontTransformFraction);
+	SpineBackTransform = FTransform(BackRotation, Effector.Position * BackTransformFraction);
+
 	// Apply hips driver
-	Effector = ControlledHips.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToHipsEffector, DeltaTime);
+	Effector = ControlledHips.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToBoneEffector, DeltaTime);
 	constexpr float HipTransformFraction = 0.35f;
 	constexpr float TailTransformFraction = 1.0f - HipTransformFraction;
-	// Axis deliberately flipped
 	const FRotator HipRotation = FRotator(
 		Effector.Rotation.Roll * HipTransformFraction,
 		Effector.Rotation.Yaw * HipTransformFraction,
@@ -132,6 +146,8 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 	}
 
 	ControlledRoot.Tick(DeltaTime);
+	ControlledHead.Tick(DeltaTime);
+	ControlledBody.Tick(DeltaTime);
 	ControlledHips.Tick(DeltaTime);
 	for (TFControlledBoneGroup<FControlledLeg>* ControlledLeg : ControlledLegs)
 		ControlledLeg->Tick(DeltaTime);

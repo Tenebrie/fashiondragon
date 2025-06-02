@@ -43,6 +43,10 @@ public:
 
 	// IK Rig outputs
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
+	FTransform SpineFrontTransform;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
+	FTransform SpineBackTransform;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
 	FTransform HipTransform;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
 	TArray<FVector> LegPositions;

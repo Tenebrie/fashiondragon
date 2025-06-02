@@ -25,4 +25,6 @@ public:
 	inline static const FInputActionFactory CastASpell = Action(EInputActionValueType::Boolean);
 
 	inline static const FInputActionFactory FlightCamera = Action(EInputActionValueType::Axis2D);
+
+	inline static const FInputActionFactory ShowAnimDebug = Action(EInputActionValueType::Boolean);
 };

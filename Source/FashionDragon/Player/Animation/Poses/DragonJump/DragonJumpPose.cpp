@@ -190,7 +190,7 @@ void FDragonJumpLegDriver::UpdateRandomness(const bool LagBehind)
 FDragonJumpPose::FDragonJumpPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
 	BodyDriver = new FDragonJumpBodyDriver(Anim, Anim->ControlledRoot.GetBone(EDriverLayer::Jump));
-	RootDrivers = { BodyDriver };
+	BoneDrivers = { BodyDriver };
 
 	LeftLegDriver = new FDragonJumpLegDriver(Anim, Anim->BackLeftLeg.GetBone(EDriverLayer::Primary));
 	RightLegDriver = new FDragonJumpLegDriver(Anim, Anim->BackRightLeg.GetBone(EDriverLayer::Primary));

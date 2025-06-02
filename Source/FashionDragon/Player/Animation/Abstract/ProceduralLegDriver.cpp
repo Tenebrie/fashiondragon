@@ -56,6 +56,7 @@ void FProceduralLegDriver::SnapToLockedPosition()
 
 void FProceduralLegDriver::Tick(const float DeltaTime)
 {
+	FBaseDriver::Tick(DeltaTime);
 	const auto StateData = AlignPoseToInputDirection(GetTargetPosition());
 	const auto AdvanceTime = DeltaTime * StateData.PlaybackSpeed;
 	

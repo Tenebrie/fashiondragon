@@ -17,7 +17,7 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
-	FDragonIdleBodyDriver* BodyDriver;
+	FDragonIdleBodyDriver* RootDriver;
 	FDragonIdleHipsDriver* HipsDriver;
 	FDragonIdleLegDriver* LeftLegDriver;
 	FDragonIdleLegDriver* RightLegDriver;
@@ -27,4 +27,9 @@ public:
 	template<typename DriverT>
 	void SyncStateFrom(const DriverT* TargetPose) const;
 	virtual void ResetState() override;
+};
+
+class FDragonIdleNullDriver final : public FProceduralBoneDriver
+{
+	FDragonIdleNullDriver(UDragonAnimInstance* AnimInstance, FControlledBone* Bone): FProceduralBoneDriver(AnimInstance, Bone) {}
 };

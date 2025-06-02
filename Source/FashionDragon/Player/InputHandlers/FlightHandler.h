@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "BaseInputHandler.h"
 #include "Components/ActorComponent.h"
+#include "FashionDragon/Player/Generics/PlayerComponent.h"
 #include "FlightHandler.generated.h"
 
 class UDragonAnimInstance;
@@ -10,7 +10,7 @@ class FControlledWing;
 class AMainCharacter;
 
 UCLASS()
-class FASHIONDRAGON_API UFlightHandler : public UBaseInputHandler
+class FASHIONDRAGON_API UFlightHandler : public UPlayerComponent
 {
 	GENERATED_BODY()
 

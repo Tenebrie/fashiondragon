@@ -1,11 +1,11 @@
 ﻿#pragma once
-#include "BaseInputHandler.h"
+#include "FashionDragon/Player/Generics/PlayerComponent.h"
 #include "RotationInputHandler.generated.h"
 
 struct FInputActionValue;
 
 UCLASS()
-class URotationInputHandler final : public UBaseInputHandler
+class URotationInputHandler final : public UPlayerComponent
 {
 	GENERATED_BODY()
 

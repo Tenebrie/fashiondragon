@@ -5,6 +5,7 @@
 
 void FProceduralBoneDriver::Tick(const float DeltaTime)
 {
+	FBaseDriver::Tick(DeltaTime);
 	CyclePosition += DeltaTime;
 	VisualCyclePosition += DeltaTime;
 }

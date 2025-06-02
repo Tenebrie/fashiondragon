@@ -11,8 +11,7 @@ class FProceduralPose
 protected:
 	UDragonAnimInstance* AnimInstance;
 
-	TArray<FProceduralBoneDriver*> RootDrivers;
-	TArray<FProceduralBoneDriver*> HipsDrivers;
+	TArray<FProceduralBoneDriver*> BoneDrivers;
 	TArray<FProceduralLegDriver*> LegDrivers;
 	TArray<FProceduralWingDriver*> WingDrivers;
 	
@@ -22,14 +21,16 @@ public:
 	virtual void NativeBeginPlay();
 	virtual void Tick(float DeltaTime);
 	virtual void ResetState() {};
-	FPoseEffector ToRootEffector(const FPoseEffector& BaseEffector, const FControlledBone* Body, const float DeltaTime) const;
-	FPoseEffector ToHipsEffector(const FPoseEffector& BaseEffector, const FControlledBone* Hips, const float DeltaTime) const;
+	FPoseEffector ToBoneEffector(const FPoseEffector& BaseEffector, const FControlledBone* Bone, const float DeltaTime) const;
 	FPoseEffector ToLegEffector(const FPoseEffector& BaseEffector, const FControlledLeg* Leg, const float DeltaTime) const;
-	FPoseEffector ToPostProcessLegEffector(const FPoseEffector& BaseEffector, const FControlledLeg* Leg, const float DeltaTime) const;
 	FPoseWingEffector ToWingEffector(const FPoseWingEffector& BaseEffector, const FControlledWing* Wing, const float DeltaTime) const;
 
 	void AddBlendAlpha(const float Delta);
 	void SetBlendAlpha(const float BlendAlpha);
+
+	TArray<FProceduralBoneDriver*> ListBoneDrivers() const { return BoneDrivers; }
+	TArray<FProceduralLegDriver*> ListLegDrivers() const { return LegDrivers; }
+	TArray<FProceduralWingDriver*> ListWingDrivers() const { return WingDrivers; }
 
 	virtual ~FProceduralPose() = default;
 };

@@ -6,6 +6,7 @@
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "FashionDragon/Player/Animation/Drivers/DragonDriverGroundRootSway.h"
 #include "FashionDragon/Player/Animation/Drivers/DragonDriverGroundHipSway.h"
+#include "FashionDragon/Player/Animation/Drivers/DragonDriverTurnToMovement.h"
 #include "FashionDragon/Player/Animation/Poses/DragonIdle/Drivers/DragonIdleWingDriver.h"
 #include "FashionDragon/Player/Animation/Poses/DragonWalk/DragonWalkPose.h"
 #include "FashionDragon/Player/Animation/Poses/DragonTrot/DragonTrotPose.h"
@@ -131,13 +132,16 @@ FDragonWalkStateData FDragonSprintLegDriver::GetRawWalkStateData() const
 
 FDragonSprintPose::FDragonSprintPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
-	BodyDriver = new FDragonDriverGroundRootSway(Anim, Anim->ControlledRoot.GetBone(EDriverLayer::Primary), Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
+	RootDriver = new FDragonDriverGroundRootSway(Anim, Anim->ControlledRoot.GetBone(EDriverLayer::Primary), Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
+	RootDriver->SetVerticalOffset(200);
+	RootDriver->SetVerticalAmplitude(350);
+	
+	const auto LeanDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledRoot.GetBone(EDriverLayer::RotateToMovement));
+	LeanDriver->SetAxisMask(0.75f, 0.0f, 0.0f);
+	
 	HipsDriver = new FDragonDriverGroundHipSway(Anim, Anim->ControlledHips.GetBone(EDriverLayer::Primary),  Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
-	RootDrivers = { BodyDriver };
-	HipsDrivers = { HipsDriver };
-
-	BodyDriver->SetVerticalOffset(200);
-	BodyDriver->SetVerticalAmplitude(350);
+	
+	BoneDrivers = { RootDriver, LeanDriver, HipsDriver };
 	
 	LeftLegDriver = new FDragonSprintLegDriver(Anim, Anim->BackLeftLeg.GetBone(EDriverLayer::Primary));
 	RightLegDriver = new FDragonSprintLegDriver(Anim, Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
@@ -149,12 +153,12 @@ FDragonSprintPose::FDragonSprintPose(UDragonAnimInstance* Anim): FProceduralPose
 	LeftLegDriver->OnWalkStateChanged.AddLambda([this](ELegWalkingState, const ELegWalkingState NewState)
 	{
 		if (NewState == ELegWalkingState::Stepping)
-			BodyDriver->SetLeadingLeg(LeftLegDriver);
+			RootDriver->SetLeadingLeg(LeftLegDriver);
 	});
 	RightLegDriver->OnWalkStateChanged.AddLambda([this](ELegWalkingState, const ELegWalkingState NewState)
 	{
 		if (NewState == ELegWalkingState::Stepping)
-			BodyDriver->SetLeadingLeg(RightLegDriver);
+			RootDriver->SetLeadingLeg(RightLegDriver);
 	});
 
 	// Shares a driver with idle animation
@@ -204,7 +208,7 @@ void FDragonSprintPose::SyncStateFrom(const FDragonTrotPose* SourcePose) const
 
 void FDragonSprintPose::ResetState()
 {
-	BodyDriver->ResetState();
+	RootDriver->ResetState();
 	HipsDriver->ResetState();
 	LeftLegDriver->LockToWorldGround();
 	RightLegDriver->SetWalkingState(ELegWalkingState::Stepping);

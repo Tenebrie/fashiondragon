@@ -2,13 +2,23 @@
 
 class UDragonAnimInstance;
 
+enum class EDriverBlend
+{
+	Instant,
+	EaseOut,
+};
+
 class FBaseDriver
 {
 protected:
 	UDragonAnimInstance* AnimInstance;
 	float CyclePosition = 0.0f;
 	float VisualCyclePosition = 0.0f;
+	
 	float BlendAlpha = 1.0f;
+	float TargetBlendAlpha = 1.0f;
+	float BlendSpeed = 1.0f;
+	EDriverBlend BlendMode = EDriverBlend::Instant;
 	
 	float GetRawInputRotation() const;
 	float GetInputRotation() const;
@@ -18,13 +28,14 @@ public:
 	explicit FBaseDriver(UDragonAnimInstance* AnimInstance): AnimInstance(AnimInstance) {}
 
 	virtual void NativeBeginPlay() {}
+	virtual void Tick(const float DeltaTime);
 	
 	float GetCyclePosition() const { return CyclePosition; }
 	float GetVisualCyclePosition() const { return VisualCyclePosition; }
 	void SetCyclePosition(const float NewCyclePosition) { CyclePosition = NewCyclePosition; }
 
 	float GetBlendAlpha() const { return BlendAlpha; }
-	virtual void SetBlendAlpha(const float NewBlendAlpha) { BlendAlpha = NewBlendAlpha; }
-	
+	virtual void SetBlendAlpha(const float NewBlendAlpha);
+
 	virtual ~FBaseDriver() = default;
 };

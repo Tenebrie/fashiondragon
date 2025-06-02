@@ -12,6 +12,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "PhysicsEngine/PhysicalAnimationComponent.h"
 #include "EnhancedInputComponent.h"
+#include "Animation/Debug/AnimationDebugReporter.h"
 #include "FashionDragon/DebugTools/QuickDebug.h"
 #include "InputActions/Actions.h"
 #include "InputActions/DefaultPlayerController.h"
@@ -48,10 +49,13 @@ void AMainCharacter::PostInitializeComponents()
 
     FlightHandler = NewObject<UFlightHandler>(this);
     RotationInputHandler = NewObject<URotationInputHandler>(this);
+    AnimationDebugReporter = NewObject<UAnimationDebugReporter>(this);
     FlightHandler->RegisterComponent();
     RotationInputHandler->RegisterComponent();
+    AnimationDebugReporter->RegisterComponent();
     AddInstanceComponent(FlightHandler);
     AddInstanceComponent(RotationInputHandler);
+    AddInstanceComponent(AnimationDebugReporter);
 }
 
 // Called when the game starts or when spawned
@@ -108,7 +112,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
     
-    UEnhancedInputComponent* Input = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
+    UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PlayerInputComponent);
     if (!Input) return;
     
     Input->BindAction(UActions::GroundMovement(), ETriggerEvent::Triggered, this, &AMainCharacter::GroundMovement);

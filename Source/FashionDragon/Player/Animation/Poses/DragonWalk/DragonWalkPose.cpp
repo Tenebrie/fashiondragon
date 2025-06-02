@@ -9,6 +9,7 @@
 #include "FashionDragon/Player/Animation/Poses/DragonSprint/DragonSprintPose.h"
 #include "FashionDragon/Player/Animation/Drivers/DragonDriverGroundRootSway.h"
 // ReSharper disable once CppUnusedIncludeDirective False positive
+#include "FashionDragon/Player/Animation/Drivers/DragonDriverTurnToMovement.h"
 #include "FashionDragon/Player/Animation/Poses/DragonTrot/DragonTrotPose.h"
 #include "FashionDragon/Utils/Utils.h"
 
@@ -137,12 +138,13 @@ void FDragonWalkLegDriver::Tick(const float DeltaTime)
 FDragonWalkPose::FDragonWalkPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
 	BodyDriver = new FDragonDriverGroundRootSway(Anim, Anim->ControlledRoot.GetBone(EDriverLayer::Primary), Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
-	HipsDriver = new FDragonDriverGroundHipSway(Anim, Anim->ControlledHips.GetBone(EDriverLayer::Primary), Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
-	RootDrivers = { BodyDriver };
-	HipsDrivers = { HipsDriver };
-
 	BodyDriver->SetHorizontalAmplitude(2.0f);
 	BodyDriver->SetVerticalAmplitude(200.0f);
+	const auto LeanDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledRoot.GetBone(EDriverLayer::RotateToMovement));
+	LeanDriver->SetAxisMask(0.75f, 0.0f, 0.0f);
+
+	HipsDriver = new FDragonDriverGroundHipSway(Anim, Anim->ControlledHips.GetBone(EDriverLayer::Primary), Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
+	BoneDrivers = { BodyDriver, LeanDriver, HipsDriver };
 
 	LeftLegDriver = new FDragonWalkLegDriver(Anim, Anim->BackLeftLeg.GetBone(EDriverLayer::Primary));
 	RightLegDriver = new FDragonWalkLegDriver(Anim, Anim->BackRightLeg.GetBone(EDriverLayer::Primary));

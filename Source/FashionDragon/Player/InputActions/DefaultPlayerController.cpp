@@ -1,6 +1,7 @@
 ﻿#include "DefaultPlayerController.h"
 
 #include "Actions.h"
+#include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 
 void ADefaultPlayerController::SetupInputComponent()
@@ -17,6 +18,7 @@ void ADefaultPlayerController::SetupInputComponent()
 
 	SetupInputMappings();
 	SetControlMode(EControlMode::Ground);
+	InputSubsystem->AddMappingContext(DebugInputContext, 0);
 }
 
 void ADefaultPlayerController::SetupInputMappings()
@@ -54,6 +56,12 @@ void ADefaultPlayerController::SetupInputMappings()
 		AddMapping(Context, UActions::FlightCamera(), EKeys::Gamepad_RightX).DeadZone(0.1f);
 		AddMapping(Context, UActions::FlightCamera(), EKeys::Gamepad_RightY).Swizzle().Negate().DeadZone(0.1f);
 	}
+
+	DebugInputContext = MakeInputContext();
+	{
+		const auto Context = DebugInputContext;
+		AddMapping(Context, UActions::ShowAnimDebug(), EKeys::NumPadOne);
+	}
 }
 
 void ADefaultPlayerController::SetControlMode(const EControlMode Mode) const
@@ -63,12 +71,12 @@ void ADefaultPlayerController::SetControlMode(const EControlMode Mode) const
 	if (Mode == EControlMode::Ground)
 	{
 		InputSubsystem->RemoveMappingContext(DragonFlyingInputContext);
-		InputSubsystem->AddMappingContext(DragonGroundInputContext, 0);
+		InputSubsystem->AddMappingContext(DragonGroundInputContext, 1);
 	}
 	else if (Mode == EControlMode::Flying)
 	{
 		InputSubsystem->RemoveMappingContext(DragonGroundInputContext);
-		InputSubsystem->AddMappingContext(DragonFlyingInputContext, 0);
+		InputSubsystem->AddMappingContext(DragonFlyingInputContext, 1);
 	}
 	else
 	{

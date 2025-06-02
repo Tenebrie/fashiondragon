@@ -17,10 +17,9 @@ enum class ELegIdleState;
  */
 FDragonIdlePose::FDragonIdlePose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
-	BodyDriver = new FDragonIdleBodyDriver(Anim, Anim->ControlledRoot.GetBone(EDriverLayer::Primary));
+	RootDriver = new FDragonIdleBodyDriver(Anim, Anim->ControlledRoot.GetBone(EDriverLayer::Primary));
 	HipsDriver = new FDragonIdleHipsDriver(Anim, Anim->ControlledHips.GetBone(EDriverLayer::Primary));
-	RootDrivers = { BodyDriver };
-	HipsDrivers = { HipsDriver };
+	BoneDrivers = { RootDriver, HipsDriver };
 
 	LeftLegDriver = new FDragonIdleLegDriver(Anim, Anim->BackLeftLeg.GetBone(EDriverLayer::Primary));
 	RightLegDriver = new FDragonIdleLegDriver(Anim, Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
@@ -78,7 +77,7 @@ void FDragonIdlePose::Tick(const float DeltaTime)
 template<typename DriverT>
 void FDragonIdlePose::SyncStateFrom(const DriverT* TargetPose) const
 {
-	BodyDriver->ResetState();
+	RootDriver->ResetState();
 	HipsDriver->ResetState();
 	LeftLegDriver->SyncIdleStateFrom(TargetPose->LeftLegDriver);
 	RightLegDriver->SyncIdleStateFrom(TargetPose->RightLegDriver);
@@ -90,7 +89,7 @@ template void FDragonIdlePose::SyncStateFrom(const FDragonSprintPose*) const;
 
 void FDragonIdlePose::ResetState()
 {
-	BodyDriver->ResetState();
+	RootDriver->ResetState();
 	HipsDriver->ResetState();
 
 	LeftLegDriver->LockToWorldGround();

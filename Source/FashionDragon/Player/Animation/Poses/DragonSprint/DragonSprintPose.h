@@ -23,7 +23,7 @@ class FDragonSprintPose final : public FProceduralPose
 public:
 	explicit FDragonSprintPose(UDragonAnimInstance* Anim);
 
-	FDragonDriverGroundRootSway* BodyDriver;
+	FDragonDriverGroundRootSway* RootDriver;
 	FDragonDriverGroundHipSway* HipsDriver;
 	FDragonSprintLegDriver* LeftLegDriver;
 	FDragonSprintLegDriver* RightLegDriver;

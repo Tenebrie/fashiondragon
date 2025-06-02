@@ -8,6 +8,7 @@
 #include "PhysicsEngine/PhysicalAnimationComponent.h"
 #include "MainCharacter.generated.h"
 
+class UAnimationDebugReporter;
 class UFlightHandler;
 class URotationInputHandler;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLegPlanted, FVector, SpawnLocation);
@@ -32,6 +33,8 @@ public:
 
 	UPROPERTY() UFlightHandler* FlightHandler;
 	UPROPERTY() URotationInputHandler* RotationInputHandler;
+	UPROPERTY(BlueprintReadOnly)
+	UAnimationDebugReporter* AnimationDebugReporter;
 	
 	UPROPERTY(BlueprintAssignable, Category="Events")
 	FOnLegPlanted OnLegPlanted;
@@ -58,7 +61,6 @@ protected:
 
 	// Input callbacks
 	void GroundMovement(const FInputActionValue& Value);
-	void CameraMove(const FInputActionValue& Value);
 	void FlightCameraMove(const FInputActionValue& Value);
 	void StartJump();
 	void ReleaseJump();
@@ -70,10 +72,6 @@ protected:
 
 public:
 	virtual void PostInitializeComponents() override;
-	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 };

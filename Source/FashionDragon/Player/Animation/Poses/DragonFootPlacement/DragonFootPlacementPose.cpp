@@ -1,6 +1,5 @@
 ﻿#include "DragonFootPlacementPose.h"
 
-#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 
 /**

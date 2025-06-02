@@ -28,8 +28,13 @@ UCLASS()
 class FASHIONDRAGON_API ABasePlayerController  : public APlayerController
 {
 	GENERATED_BODY()
-	
+
 protected:
+	virtual void SetupInputComponent() override;
+	
 	UInputMappingContext* MakeInputContext();
 	static FKeyMappingBuilder AddMapping(UInputMappingContext* Context, const UInputAction* Value, const FKey& Key);
+
+	UFUNCTION(BlueprintImplementableEvent, Category="InputActions")
+	void OnShowAnimDebug();
 };

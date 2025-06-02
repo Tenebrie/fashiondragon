@@ -6,6 +6,8 @@
 
 FDragonRandomSwayPose::FDragonRandomSwayPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
-	RootDrivers = { new FDragonRandomSwayDriverBody(Anim, Anim->ControlledRoot.GetBone(EDriverLayer::Sway)) };
-	HipsDrivers = { new FDragonRandomSwayDriverHips(Anim, Anim->ControlledHips.GetBone(EDriverLayer::Sway)) };
+	BoneDrivers = {
+		new FDragonRandomSwayDriverBody(Anim, Anim->ControlledRoot.GetBone(EDriverLayer::Sway)),
+		new FDragonRandomSwayDriverHips(Anim, Anim->ControlledHips.GetBone(EDriverLayer::Sway))
+	};
 }

@@ -7,8 +7,8 @@
 
 void FDragonDriverGroundRootSway::Tick(const float DeltaTime)
 {
-	BlendAlpha = FMath::FInterpTo(BlendAlpha, TargetBlendAlpha, DeltaTime, 5.0f);
-
+	FProceduralBoneDriver::Tick(DeltaTime);
+	
 	if (LeadingLeg)
 	{
 		const auto LeadingLegOffset = std::min(1.0, LeadingLeg->GetLeg()->Position.Size() / 750.0f);
