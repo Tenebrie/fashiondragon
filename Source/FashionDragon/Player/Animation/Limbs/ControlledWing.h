@@ -1,8 +1,9 @@
 ﻿#pragma once
+#include "FashionDragon/Player/Animation/Enums/DriverLayer.h"
 
 class UDragonAnimInstance;
 
-class FControlledWing
+class FControlledWing final
 {
 	UDragonAnimInstance* AnimInstance;
 	int Idx;
@@ -18,6 +19,9 @@ public:
 	}
 
 	bool CanProduceEvents = false;
+	FName GroupName = NAME_None;
+	EDriverLayer Layer = EDriverLayer::Unknown;
+	
 	float MirrorModifier = 1.0f;
 	// Flap state [-1.0f, 1.0f]
 	float Flap = 0.0f;

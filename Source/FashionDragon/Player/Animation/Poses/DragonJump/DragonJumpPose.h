@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "FashionDragon/Player/Animation/Abstract/ProceduralLegSteppingDriver.h"
 #include "FashionDragon/Player/Animation/Abstract/ProceduralPose.h"
 
 class FDragonJumpWingDriver;
@@ -40,7 +41,7 @@ public:
 	virtual void SetBlendAlpha(const float NewBlendAlpha) override { TargetBlendAlpha = NewBlendAlpha; }
 };
 
-class FDragonJumpLegDriver final : public FProceduralLegDriver
+class FDragonJumpLegDriver final : public FProceduralLegSteppingDriver
 {
 	float JumpLagBehind = 0.0f;
 	FVector JumpPositionOffset = FVector::ZeroVector;

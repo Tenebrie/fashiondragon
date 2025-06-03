@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 // All layers are fully virtualized, and their output is summed
+UENUM(BlueprintType)
 enum class EDriverLayer: uint8
 {
 	// Main movement drivers (idle, walk, jump for legs)
@@ -9,7 +10,10 @@ enum class EDriverLayer: uint8
 	Jump = 1,
 	Sway = 2,
 	Momentum = 3,
-	LegPlacement = 4,
-	RotateToMovement = 5,
-	WalkBob = 6,
+	RotateToMovement = 4,
+
+	// Special - do not use
+	TotalCount = RotateToMovement + 1,
+	Unknown,
+	Output,
 };

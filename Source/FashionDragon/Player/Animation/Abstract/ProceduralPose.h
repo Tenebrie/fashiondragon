@@ -4,9 +4,11 @@
 #include "ProceduralWingDriver.h"
 #include "FashionDragon/Player/Animation/Structs/PoseWingEffector.h"
 
+#include "FashionDragon/Common/Object.h"
+
 class FProceduralBoneDriver;
 
-class FProceduralPose
+class FProceduralPose : public FObject
 {
 protected:
 	UDragonAnimInstance* AnimInstance;
@@ -16,7 +18,7 @@ protected:
 	TArray<FProceduralWingDriver*> WingDrivers;
 	
 public:
-	explicit FProceduralPose(UDragonAnimInstance* AnimInstance);
+	explicit FProceduralPose(UDragonAnimInstance* AnimInstance): AnimInstance(AnimInstance) {}
 
 	virtual void NativeBeginPlay();
 	virtual void Tick(float DeltaTime);
@@ -31,6 +33,4 @@ public:
 	TArray<FProceduralBoneDriver*> ListBoneDrivers() const { return BoneDrivers; }
 	TArray<FProceduralLegDriver*> ListLegDrivers() const { return LegDrivers; }
 	TArray<FProceduralWingDriver*> ListWingDrivers() const { return WingDrivers; }
-
-	virtual ~FProceduralPose() = default;
 };

@@ -12,6 +12,8 @@ public class FashionDragon : ModuleRules
 		]);
 
 		PrivateDependencyModuleNames.AddRange(["CADKernel"]);
+		
+		bUseRTTI = true;
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

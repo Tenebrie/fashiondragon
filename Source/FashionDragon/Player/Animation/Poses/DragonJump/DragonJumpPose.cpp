@@ -60,13 +60,13 @@ FPoseEffector FDragonJumpBodyDriver::ToEffector(const FPoseEffector& BaseEffecto
 }
 
 FDragonJumpLegDriver::FDragonJumpLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg)
-	: FProceduralLegDriver(AnimInstance, ControlledLeg)
+	: FProceduralLegSteppingDriver(AnimInstance, ControlledLeg)
 {
 }
 
 void FDragonJumpLegDriver::Tick(const float DeltaTime)
 {
-	FProceduralLegDriver::Tick(DeltaTime);
+	FProceduralLegSteppingDriver::Tick(DeltaTime);
 
 	const auto FallingSpeed = AnimInstance->GetOwningActor()->GetVelocity().Z;
 	const auto CheckForGroundDist = -FallingSpeed * (0.05f + 0.075f + 0.5f) + 150.0f;

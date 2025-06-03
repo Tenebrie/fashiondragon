@@ -3,6 +3,7 @@
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "FashionDragon/Player/Animation/Abstract/ProceduralPose.h"
+#include "FashionDragon/Utils/Utils.h"
 
 void UAnimationDebugReporter::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -22,10 +23,13 @@ void UAnimationDebugReporter::CollectInfo()
 	for (const auto Pose : AnimInstance->StateMachine->PoseDrivers)
 	{
 		FPoseDebugInfo PoseInfo;
+		PoseInfo.Name = Pose->GetClassName();
 		for (FProceduralBoneDriver* Driver : Pose->ListBoneDrivers())
 		{
 			FDriverDebugInfo Data = Driver->GetDebugReporter()->MakeDebugInfo();
-			Data.Name = FString(typeid(Driver).name());
+			Data.Name = Driver->GetClassName();
+			Data.GroupName = Driver->GetBone()->GroupName;
+			Data.LayerName = FUtils::EnumToString(Driver->GetBone()->Layer);
 			Data.BlendAlpha = Driver->GetBlendAlpha();
 			PoseInfo.Drivers.Add(Data);
 		}
@@ -33,7 +37,9 @@ void UAnimationDebugReporter::CollectInfo()
 		for (FProceduralLegDriver* Driver : Pose->ListLegDrivers())
 		{
 			FDriverDebugInfo Data = Driver->GetDebugReporter()->MakeDebugInfo();
-			Data.Name = FString(typeid(Driver).name());
+			Data.Name = Driver->GetClassName();
+			Data.GroupName = Driver->GetLeg()->GroupName;
+			Data.LayerName = FUtils::EnumToString(Driver->GetLeg()->Layer);
 			Data.BlendAlpha = Driver->GetBlendAlpha();
 			PoseInfo.Drivers.Add(Data);
 		}

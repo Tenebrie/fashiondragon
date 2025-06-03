@@ -41,6 +41,4 @@ public:
 	virtual void NativeBeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual FPoseEffector ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context) override;
-	virtual void AdvanceState() override {}
-	virtual FDragonWalkStateData GetRawWalkStateData() const override { return {}; }
 };

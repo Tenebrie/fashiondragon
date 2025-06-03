@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "FashionDragon/Player/Animation/Abstract/ProceduralLegDriver.h"
+#include "FashionDragon/Player/Animation/Abstract/ProceduralLegSteppingDriver.h"
 #include "FashionDragon/Player/Animation/Abstract/ProceduralPose.h"
 
 class FDragonWalkPose;
@@ -8,7 +8,7 @@ class FDragonWalkBodyDriver;
 class FDragonDriverGroundRootSway;
 class FDragonDriverGroundHipSway;
 
-class FDragonSprintLegDriver final : public FProceduralLegDriver
+class FDragonSprintLegDriver final : public FProceduralLegSteppingDriver
 {
 public:
 	FDragonSprintLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg);

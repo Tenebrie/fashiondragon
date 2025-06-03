@@ -1,18 +1,22 @@
 ﻿#pragma once
 
+#include "FashionDragon/Common/Object.h"
+
 class UDragonAnimInstance;
 
 enum class EDriverBlend
 {
 	Instant,
 	EaseOut,
+	AlwaysActive,
 };
 
-#define CLASSNAME(T) const FName GetClassName() const { return FName(#T); }
-#define ExpandNamedClass(A, B, C) A B C CLASSNAME(B);
-	
-ExpandNamedClass(class, FBaseDriver, {)
+class FBaseDriver : public FObject
+{
+protected:
 	UDragonAnimInstance* AnimInstance;
+	FString Name;
+	
 	float CyclePosition = 0.0f;
 	float VisualCyclePosition = 0.0f;
 	
@@ -37,6 +41,4 @@ public:
 
 	float GetBlendAlpha() const { return BlendAlpha; }
 	virtual void SetBlendAlpha(const float NewBlendAlpha);
-
-	virtual ~FBaseDriver() = default;
 };

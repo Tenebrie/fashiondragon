@@ -22,14 +22,15 @@
 FDragonTrotPose::FDragonTrotPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
 	RootDriver = new FDragonDriverGroundRootSway(Anim, Anim->ControlledRoot.GetBone(EDriverLayer::Primary), Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
-	const auto LeanDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledRoot.GetBone(EDriverLayer::RotateToMovement));
-	LeanDriver->SetAxisMask(0.75f, 0.0f, 0.0f);
+	
+	const auto RootTurnDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledRoot.GetBone(EDriverLayer::RotateToMovement));
+	RootTurnDriver->SetAxisMask(0.75f, 0.0f, 0.0f);
 
-	BodyDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledBody.GetBone(EDriverLayer::RotateToMovement));
-	BodyDriver->SetAxisMask(FVector(0, 2, 0));
+	const auto BodyTurnDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledBody.GetBone(EDriverLayer::RotateToMovement));
+	BodyTurnDriver->SetAxisMask(FVector(0, 2, 0));
 
 	HipsDriver = new FDragonDriverGroundHipSway(Anim, Anim->ControlledHips.GetBone(EDriverLayer::Primary),  Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
-	BoneDrivers = { RootDriver, LeanDriver, BodyDriver, HipsDriver };
+	BoneDrivers = { RootDriver, RootTurnDriver, BodyTurnDriver, HipsDriver };
 	
 	LeftLegDriver = new FDragonTrotLegDriver(Anim, Anim->BackLeftLeg.GetBone(EDriverLayer::Primary));
 	RightLegDriver = new FDragonTrotLegDriver(Anim, Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
@@ -109,17 +110,14 @@ void FDragonTrotPose::ResetState()
 	RightLegDriver->SetWalkingState(ELegWalkingState::Stepping);
 }
 
-void FDragonTrotPose::Tick(const float DeltaTime)
-{
-	FProceduralPose::Tick(DeltaTime);
-}
-
 // ============================================================================
 // Leg Driver
 // ============================================================================
 
-FDragonTrotLegDriver::FDragonTrotLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg): FProceduralLegDriver(AnimInstance, ControlledLeg)
-{}
+FDragonTrotLegDriver::FDragonTrotLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg): FProceduralLegSteppingDriver(AnimInstance, ControlledLeg)
+{
+	BlendMode = EDriverBlend::EaseOut;
+}
 
 void FDragonTrotLegDriver::Tick(const float DeltaTime)
 {
@@ -129,7 +127,7 @@ void FDragonTrotLegDriver::Tick(const float DeltaTime)
 
 	const float AdvanceValue = DeltaTime + MovementSpeed * 0.001f * DeltaTime;
 
-	FProceduralLegDriver::Tick(AdvanceValue);
+	FProceduralLegSteppingDriver::Tick(AdvanceValue);
 
 	// If the leg is stretched too far, disconnect
 	if (WalkingState == ELegWalkingState::Planted && Leg->Position.Size() > 350.0f && Leg->Position.Y < 0.0f)

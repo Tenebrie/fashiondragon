@@ -1,11 +1,12 @@
 ﻿#pragma once
 #include "FashionDragon/Player/Animation/Abstract/ProceduralBoneDriver.h"
+#include "FashionDragon/Player/Animation/Abstract/ProceduralLegSteppingDriver.h"
 #include "FashionDragon/Player/Animation/Abstract/ProceduralPose.h"
 
 class FDragonDriverGroundRootSway;
 class FDragonDriverGroundHipSway;
 
-class FDragonWalkLegDriver final : public FProceduralLegDriver
+class FDragonWalkLegDriver final : public FProceduralLegSteppingDriver
 {
 public:
 	FDragonWalkLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg);

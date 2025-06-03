@@ -28,8 +28,3 @@ public:
 	void SyncStateFrom(const DriverT* TargetPose) const;
 	virtual void ResetState() override;
 };
-
-class FDragonIdleNullDriver final : public FProceduralBoneDriver
-{
-	FDragonIdleNullDriver(UDragonAnimInstance* AnimInstance, FControlledBone* Bone): FProceduralBoneDriver(AnimInstance, Bone) {}
-};

@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <typeinfo>
+
 #include "FashionDragon/Player/Animation/Abstract/ProceduralPose.h"
 
 enum class EDragonFlightState

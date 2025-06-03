@@ -7,12 +7,13 @@ using TMemFn = EffectorT (FProceduralPose::*)(const EffectorT&, const T*, const 
 template<typename T>
 class TFControlledBoneGroup
 {
+	FName GroupName;
 	T* ReferenceBone;
 	TArray<T*> ControlledBones;
-	T* PostProcessBone;
+	T* OutputBone;
 public:
-	TFControlledBoneGroup(): ReferenceBone(nullptr), PostProcessBone(nullptr) {};
-	explicit TFControlledBoneGroup(T* ReferenceBone);
+	TFControlledBoneGroup(): ReferenceBone(nullptr), OutputBone(nullptr) {};
+	TFControlledBoneGroup(FName GroupName, T* ReferenceBone);
 
 	void Tick(const float DeltaTime);
 
@@ -36,11 +37,13 @@ public:
 };
 
 template <typename T>
-TFControlledBoneGroup<T>::TFControlledBoneGroup(T* ReferenceBone): ReferenceBone(ReferenceBone)
+TFControlledBoneGroup<T>::TFControlledBoneGroup(const FName GroupName, T* ReferenceBone): GroupName(GroupName), ReferenceBone(ReferenceBone)
 {
 	ControlledBones = TArray<T*>();
-	PostProcessBone = new T(*ReferenceBone);
-	PostProcessBone->CanProduceEvents = true;
+	OutputBone = new T(*ReferenceBone);
+	OutputBone->Layer = EDriverLayer::Output;
+	OutputBone->GroupName = GroupName;
+	OutputBone->CanProduceEvents = true;
 }
 
 template <typename T>
@@ -48,7 +51,7 @@ void TFControlledBoneGroup<T>::Tick(const float DeltaTime)
 {
 	for (auto ControlledBone : ControlledBones)
 		ControlledBone->Tick(DeltaTime);
-	PostProcessBone->Tick(DeltaTime);
+	OutputBone->Tick(DeltaTime);
 }
 
 template <typename T>
@@ -56,14 +59,19 @@ T* TFControlledBoneGroup<T>::GetBone(const EDriverLayer Layer)
 {
 	const int LayerIndex = static_cast<int>(Layer);
     while (ControlledBones.Num() <= LayerIndex)
-        ControlledBones.Add(new T(*ReferenceBone));
+    {
+    	const auto NewBone = new T(*ReferenceBone);
+    	NewBone->Layer = static_cast<EDriverLayer>(ControlledBones.Num());
+    	NewBone->GroupName = GroupName;
+    	ControlledBones.Add(NewBone);
+    }
     return ControlledBones[LayerIndex];
 }
 
 template <typename T>
 T* TFControlledBoneGroup<T>::GetPostProcessBone()
 {
-	return PostProcessBone;
+	return OutputBone;
 }
 
 template <typename T>

@@ -84,4 +84,9 @@ void FBaseDriver::SetBlendAlpha(const float NewBlendAlpha)
 	{
 		BlendAlpha = NewBlendAlpha;
 	}
+	else if (BlendMode == EDriverBlend::AlwaysActive)
+	{
+		BlendAlpha = 1.0f;
+		TargetBlendAlpha = 1.0f;
+	}
 }

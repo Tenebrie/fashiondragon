@@ -1,12 +1,13 @@
 ﻿#pragma once
 #include "FashionDragon/Player/Animation/Abstract/ProceduralLegDriver.h"
+#include "FashionDragon/Player/Animation/Abstract/ProceduralLegSteppingDriver.h"
 #include "FashionDragon/Player/Animation/Poses/DragonIdle/Utils/DragonIdleLegStateChangedDelegate.h"
 
-class FDragonIdleLegDriver final : public FProceduralLegDriver
+class FDragonIdleLegDriver final : public FProceduralLegSteppingDriver
 {
 public:
 	FDragonIdleLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg):
-		FProceduralLegDriver(AnimInstance, ControlledLeg) {}
+		FProceduralLegSteppingDriver(AnimInstance, ControlledLeg) {}
 
 	virtual void AdvanceState() override {}
 	virtual void Tick(float DeltaTime) override;

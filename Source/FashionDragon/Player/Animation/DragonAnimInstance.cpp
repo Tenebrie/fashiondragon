@@ -14,6 +14,7 @@
 #include "Poses/DragonJump/DragonJumpPose.h"
 #include "Poses/DragonMomentum/DragonMomentumPose.h"
 #include "Poses/DragonRandomSway/DragonRandomSwayPose.h"
+#include "Poses/DragonNull/DragonNullPose.h"
 #include "Poses/DragonSprint/DragonSprintPose.h"
 
 /**
@@ -31,18 +32,18 @@ void UDragonAnimInstance::NativeInitializeAnimation()
 	WingPoseAdapter = new FDragonWingPoseAdapter(this);
 
 	// Simple groups
-	ControlledRoot = TFControlledBoneGroup(new FControlledBone());
-	ControlledHead = TFControlledBoneGroup(new FControlledBone());
-	ControlledBody = TFControlledBoneGroup(new FControlledBone());
-	ControlledHips = TFControlledBoneGroup(new FControlledBone());
+	ControlledRoot = TFControlledBoneGroup("Root", new FControlledBone());
+	ControlledHead = TFControlledBoneGroup("Head", new FControlledBone());
+	ControlledBody = TFControlledBoneGroup("Body", new FControlledBone());
+	ControlledHips = TFControlledBoneGroup("Hips", new FControlledBone());
 
 	// Legs
-	BackLeftLeg = TFControlledBoneGroup(new FControlledLeg(
+	BackLeftLeg = TFControlledBoneGroup("LeftLeg", new FControlledLeg(
 		this,
 		"Foot_Back_L",
 		FVector(108.491488, -125.883428, -323.843154),
 				0));
-	BackRightLeg = TFControlledBoneGroup(new FControlledLeg(
+	BackRightLeg = TFControlledBoneGroup("RightLeg", new FControlledLeg(
 		this,
 		"Foot_Back_R",
 		FVector(-108.491488, -125.883428, -323.843154),
@@ -53,8 +54,8 @@ void UDragonAnimInstance::NativeInitializeAnimation()
 	ControlledLegs.Add(&BackRightLeg);
 
 	// Wings
-	LeftWing = TFControlledBoneGroup(new FControlledWing(this, 0));
-	RightWing = TFControlledBoneGroup(new FControlledWing(this, 1));
+	LeftWing = TFControlledBoneGroup("LeftWing", new FControlledWing(this, 0));
+	RightWing = TFControlledBoneGroup("RightWing", new FControlledWing(this, 1));
 	
 	ControlledWings = TArray<TFControlledBoneGroup<FControlledWing>*>();
 	ControlledWings.Add(&LeftWing);
@@ -62,6 +63,7 @@ void UDragonAnimInstance::NativeInitializeAnimation()
 
 	// State machine
 	StateMachine = new FDragonAnimStateMachine(
+		new FDragonNullPose(this),
 		new FDragonIdlePose(this),
 		new FDragonWalkPose(this),
 		new FDragonTrotPose(this),

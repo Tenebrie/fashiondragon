@@ -11,12 +11,15 @@
 #include "FashionDragon/Player/Animation/Poses/DragonWalk/DragonWalkPose.h"
 #include "FashionDragon/Player/Animation/Poses/DragonTrot/DragonTrotPose.h"
 
-FDragonSprintLegDriver::FDragonSprintLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg): FProceduralLegDriver(AnimInstance, ControlledLeg)
-{}
+FDragonSprintLegDriver::FDragonSprintLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg): FProceduralLegSteppingDriver(AnimInstance, ControlledLeg)
+{
+	BlendMode = EDriverBlend::EaseOut;
+}
 
 // ============================================================================
 // Leg Driver
 // ============================================================================
+
 void FDragonSprintLegDriver::Tick(const float DeltaTime)
 {
 	// Advance time forward. Adjusted by character's movement speed.
@@ -25,7 +28,7 @@ void FDragonSprintLegDriver::Tick(const float DeltaTime)
 
 	const float AdvanceValue = DeltaTime + MovementSpeed * 0.001f * DeltaTime;
 
-	FProceduralLegDriver::Tick(AdvanceValue);
+	FProceduralLegSteppingDriver::Tick(AdvanceValue);
 
 	// If the leg is stretched too far, disconnect
 	if (WalkingState == ELegWalkingState::Planted && Leg->Position.Size() > 350.0f && Leg->Position.Y < 0.0f)
@@ -136,12 +139,15 @@ FDragonSprintPose::FDragonSprintPose(UDragonAnimInstance* Anim): FProceduralPose
 	RootDriver->SetVerticalOffset(200);
 	RootDriver->SetVerticalAmplitude(350);
 	
-	const auto LeanDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledRoot.GetBone(EDriverLayer::RotateToMovement));
-	LeanDriver->SetAxisMask(0.75f, 0.0f, 0.0f);
+	const auto RootTurnDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledRoot.GetBone(EDriverLayer::RotateToMovement));
+	RootTurnDriver->SetAxisMask(0.75f, 0.0f, 0.0f);
+
+	const auto BodyTurnDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledBody.GetBone(EDriverLayer::RotateToMovement));
+	BodyTurnDriver->SetAxisMask(FVector(0, 1.25, 0));
 	
 	HipsDriver = new FDragonDriverGroundHipSway(Anim, Anim->ControlledHips.GetBone(EDriverLayer::Primary),  Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
 	
-	BoneDrivers = { RootDriver, LeanDriver, HipsDriver };
+	BoneDrivers = { RootDriver, RootTurnDriver, BodyTurnDriver, HipsDriver };
 	
 	LeftLegDriver = new FDragonSprintLegDriver(Anim, Anim->BackLeftLeg.GetBone(EDriverLayer::Primary));
 	RightLegDriver = new FDragonSprintLegDriver(Anim, Anim->BackRightLeg.GetBone(EDriverLayer::Primary));

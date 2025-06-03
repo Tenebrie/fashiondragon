@@ -2,6 +2,7 @@
 #include <map>
 
 class FProceduralPose;
+class FDragonNullPose;
 class FDragonIdlePose;
 class FDragonWalkPose;
 class FDragonTrotPose;
@@ -26,6 +27,7 @@ enum class EAnimationState
 class FDragonAnimStateMachine
 {
 public:
+	FDragonNullPose* NullPoseDriver;
 	FDragonIdlePose* IdlePoseDriver;
 	FDragonWalkPose* WalkPoseDriver;
 	FDragonTrotPose* TrotPoseDriver;
@@ -40,6 +42,7 @@ public:
 	std::map<EAnimationState, std::map<EAnimationState, std::function<void()>>> Transitions;
 
 	FDragonAnimStateMachine(
+		FDragonNullPose* NullPoseDriver,
 		FDragonIdlePose* IdlePoseDriver,
 		FDragonWalkPose* WalkPoseDriver,
 		FDragonTrotPose* TrotPoseDriver,

@@ -9,12 +9,14 @@
 #include "Poses/DragonIdle/DragonIdlePose.h"
 #include "Poses/DragonJump/DragonJumpPose.h"
 #include "Poses/DragonRandomSway/DragonRandomSwayPose.h"
+#include "Poses/DragonNull/DragonNullPose.h"
 #include "Poses/DragonTrot/DragonTrotPose.h"
 #include "Poses/DragonWalk/DragonWalkPose.h"
 #include "Poses/DragonSprint/DragonSprintPose.h"
 #include "Poses/DragonMomentum/DragonMomentumPose.h"
 
 FDragonAnimStateMachine::FDragonAnimStateMachine(
+	FDragonNullPose* NullPoseDriver,
 	FDragonIdlePose* IdlePoseDriver,
 	FDragonWalkPose* WalkPoseDriver,
 	FDragonTrotPose* TrotPoseDriver,
@@ -25,6 +27,7 @@ FDragonAnimStateMachine::FDragonAnimStateMachine(
 	FDragonMomentumPose* MomentumDriver,
 	FDragonFootPlacementPose* FootPlacementDriver
 ):
+	NullPoseDriver(NullPoseDriver),
 	IdlePoseDriver(IdlePoseDriver),
 	WalkPoseDriver(WalkPoseDriver),
 	TrotPoseDriver(TrotPoseDriver),
@@ -36,6 +39,7 @@ FDragonAnimStateMachine::FDragonAnimStateMachine(
 	FootPlacementDriver(FootPlacementDriver)
 {
 	PoseDrivers = {
+		NullPoseDriver,
 		IdlePoseDriver,
 		WalkPoseDriver,
 		TrotPoseDriver,
@@ -191,10 +195,12 @@ void FDragonAnimStateMachine::BlendDrivers(const float DeltaTime) const
 			PoseDriver->AddBlendAlpha(-DeltaTime * 1000.0f);
 		}
 	}
-
+	
 	MomentumDriver->SetBlendAlpha(1.0f);
 	RandomSwayDriver->SetBlendAlpha(1.0f);
 	FootPlacementDriver->SetBlendAlpha(1.0f);
+
+	NullPoseDriver->EvaluateBlending();
 }
 
 /**

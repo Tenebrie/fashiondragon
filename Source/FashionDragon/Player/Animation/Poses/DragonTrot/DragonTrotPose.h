@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "FashionDragon/Player/Animation/Abstract/ProceduralLegDriver.h"
+#include "FashionDragon/Player/Animation/Abstract/ProceduralLegSteppingDriver.h"
 #include "FashionDragon/Player/Animation/Abstract/ProceduralPose.h"
 
 class FDragonDriverGroundRootSway;
@@ -19,17 +19,15 @@ public:
 	explicit FDragonTrotPose(UDragonAnimInstance* Anim);
 
 	FDragonDriverGroundRootSway* RootDriver;
-	FDragonDriverTurnToMovement* BodyDriver;
 	FDragonDriverGroundHipSway* HipsDriver;
 	FDragonTrotLegDriver* LeftLegDriver;
 	FDragonTrotLegDriver* RightLegDriver;
 	void SyncStateFrom(const FDragonWalkPose* SourcePose) const;
 	void SyncStateFrom(const FDragonSprintPose* SourcePose) const;
 	virtual void ResetState() override;
-	virtual void Tick(float DeltaTime) override;
 };
 
-class FDragonTrotLegDriver final : public FProceduralLegDriver
+class FDragonTrotLegDriver final : public FProceduralLegSteppingDriver
 {
 public:
 	FDragonTrotLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg);

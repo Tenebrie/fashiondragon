@@ -18,13 +18,13 @@ void FProceduralBoneDriver::ResetState()
 
 FPoseEffector FProceduralBoneDriver::ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context)
 {
-	if (FMath::IsNearlyZero(DesiredForce * Context.BlendAlpha))
+	if (FMath::IsNearlyZero(DesiredForce))
 	{
 		return BaseEffector;
 	}
 
-	const auto NewPos = FMath::VInterpTo(BaseEffector.Position, DesiredPosition, Context.DeltaTime, DesiredForce * Context.BlendAlpha);
-	const auto NewRot = FMath::RInterpTo(BaseEffector.Rotation, DesiredRotation, Context.DeltaTime, DesiredForce * Context.BlendAlpha);
+	const auto NewPos = FMath::VInterpTo(BaseEffector.Position, DesiredPosition, Context.DeltaTime, DesiredForce);
+	const auto NewRot = FMath::RInterpTo(BaseEffector.Rotation, DesiredRotation, Context.DeltaTime, DesiredForce);
 
 	return BaseEffector
 		.SetPosition(NewPos)

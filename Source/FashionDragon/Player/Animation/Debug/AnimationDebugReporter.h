@@ -11,6 +11,8 @@ struct FDriverDebugInfo
 	
 	UPROPERTY(BlueprintReadOnly) float BlendAlpha = 0.0f;
 	UPROPERTY(BlueprintReadOnly) FString Name = TEXT("Unknown Driver");
+	UPROPERTY(BlueprintReadOnly) FName GroupName = TEXT("Unknown Group");
+	UPROPERTY(BlueprintReadOnly) FString LayerName = TEXT("Unknown Layer");
 	UPROPERTY(BlueprintReadOnly) FVector Position = FVector::ZeroVector;
 	UPROPERTY(BlueprintReadOnly) FRotator Rotation = FRotator::ZeroRotator;
 	UPROPERTY(BlueprintReadOnly) FVector PositionDelta = FVector::ZeroVector;
@@ -21,11 +23,10 @@ USTRUCT(BlueprintType)
 struct FPoseDebugInfo
 {
 	GENERATED_BODY()
-	
-	UPROPERTY(BlueprintReadOnly)
-	TArray<FDriverDebugInfo> Drivers;
-};
 
+	UPROPERTY(BlueprintReadOnly) FString Name = TEXT("Unknown Pose");
+	UPROPERTY(BlueprintReadOnly) TArray<FDriverDebugInfo> Drivers;
+};
 
 UCLASS()
 class FASHIONDRAGON_API UAnimationDebugReporter : public UPlayerComponent
@@ -33,7 +34,7 @@ class FASHIONDRAGON_API UAnimationDebugReporter : public UPlayerComponent
 	GENERATED_BODY()
 	
 public:
-	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	void CollectInfo();
 	
 	UPROPERTY(BlueprintReadOnly)
