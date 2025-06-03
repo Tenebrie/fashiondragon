@@ -20,7 +20,7 @@ void FProceduralWingDriver::RecalculatePose()
 			StartedFlapFrom + StateData.Flap.StartArticulation,
 			StateData.Flap.Value + StateData.Flap.EndArticulation,
 			StateData.Flap.Value,
-			VisualCyclePosition / Duration
+			CyclePosition / Duration
 		);
 
 	DesiredOpenness = UE::Curves::BezierInterp(
@@ -28,7 +28,7 @@ void FProceduralWingDriver::RecalculatePose()
 			StartedOpennessFrom + StateData.Openness.StartArticulation,
 			StateData.Openness.Value + StateData.Openness.EndArticulation,
 			StateData.Openness.Value,
-			VisualCyclePosition / Duration
+			CyclePosition / Duration
 		);
 }
 
@@ -44,9 +44,7 @@ void FProceduralWingDriver::Tick(const float DeltaTime)
 
 	const auto AdvanceValue = DeltaTime;
 
-	CycleDuration = State.Duration;
-	CyclePosition = std::min(CycleDuration, CyclePosition + AdvanceValue);
-	VisualCyclePosition = std::min(State.Duration, VisualCyclePosition + AdvanceValue);
+	CyclePosition = std::min(State.Duration, CyclePosition + AdvanceValue);
 
 	RecalculatePose();
 }
@@ -54,7 +52,6 @@ void FProceduralWingDriver::Tick(const float DeltaTime)
 void FProceduralWingDriver::ResetState()
 {
 	CyclePosition = 0.0f;
-	VisualCyclePosition = 0.0f;
 }
 
 FPoseWingEffector FProceduralWingDriver::ToEffector(const FPoseWingEffector& BaseEffector, const FPoseEffectorContext& Context)

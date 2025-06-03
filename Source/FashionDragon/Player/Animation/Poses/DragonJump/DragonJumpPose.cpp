@@ -68,6 +68,11 @@ void FDragonJumpLegDriver::Tick(const float DeltaTime)
 {
 	FProceduralLegSteppingDriver::Tick(DeltaTime);
 
+	if (CyclePosition >= GetTargetPosition().Duration)
+	{
+		AdvanceState();
+	}
+
 	const auto FallingSpeed = AnimInstance->GetOwningActor()->GetVelocity().Z;
 	const auto CheckForGroundDist = -FallingSpeed * (0.05f + 0.075f + 0.5f) + 150.0f;
 	if (JumpingState == ELegJumpState::Retracting && AnimInstance->GetOwningActor()->GetVelocity().Z < 0.0f && CheckForGroundDist > 0 && Leg->GetPlantedWorldPosition(CheckForGroundDist).GroundHit)
@@ -172,8 +177,6 @@ void FDragonJumpLegDriver::SetJumpState(const ELegJumpState NewJumpState)
 	OnJumpStateChanged.Broadcast(JumpingState, NewJumpState);
 	JumpingState = NewJumpState;
 	CyclePosition = 0.0f;
-	VisualCyclePosition = 0.0f;
-	CycleDuration = GetTargetPosition().Duration;
 	PositionFrom = Leg->Position;
 	RotationFrom = Leg->Rotation;
 }

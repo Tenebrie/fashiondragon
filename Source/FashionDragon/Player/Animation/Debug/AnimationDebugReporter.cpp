@@ -2,6 +2,8 @@
 
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
+#include "FashionDragon/Player/Animation/Abstract/ProceduralBoneDriver.h"
+#include "FashionDragon/Player/Animation/Abstract/ProceduralLegDriver.h"
 #include "FashionDragon/Player/Animation/Abstract/ProceduralPose.h"
 #include "FashionDragon/Utils/Utils.h"
 

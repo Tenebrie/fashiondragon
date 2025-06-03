@@ -36,11 +36,10 @@ public:
 
 	void SyncStateFrom(const FProceduralLegSteppingDriver* TargetDriver);
 	virtual FPoseEffector ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context) override;
-
-	float CycleDuration = 1.0f;
+	
 	ELegWalkingState WalkingState = ELegWalkingState::Relaxed;
-	void SetWalkingState(ELegWalkingState NewState, const bool KeepCycle = false);
-	bool LockToWorldGround(const bool KeepCycle = false);
+	void SetWalkingState(ELegWalkingState NewState);
+	bool LockToWorldGround();
 	FDragonLegDriverWalkStateChangedDelegate OnWalkStateChanged;
 };
 

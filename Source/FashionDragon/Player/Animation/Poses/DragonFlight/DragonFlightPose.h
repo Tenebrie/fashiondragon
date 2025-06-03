@@ -2,6 +2,7 @@
 #include <typeinfo>
 
 #include "FashionDragon/Player/Animation/Abstract/ProceduralPose.h"
+#include "FashionDragon/Player/Animation/Abstract/ProceduralWingDriver.h"
 
 enum class EDragonFlightState
 {

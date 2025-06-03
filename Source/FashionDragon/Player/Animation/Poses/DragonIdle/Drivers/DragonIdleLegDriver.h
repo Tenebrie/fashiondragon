@@ -9,7 +9,6 @@ public:
 	FDragonIdleLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg):
 		FProceduralLegSteppingDriver(AnimInstance, ControlledLeg) {}
 
-	virtual void AdvanceState() override {}
 	virtual void Tick(float DeltaTime) override;
 	virtual FDragonWalkStateData GetRawWalkStateData() const override;
 

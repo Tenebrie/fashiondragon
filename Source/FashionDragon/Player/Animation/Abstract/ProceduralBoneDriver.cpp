@@ -1,19 +1,16 @@
 ﻿#include "ProceduralBoneDriver.h"
 
-#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/Animation/Structs/PoseEffectorContext.h"
 
 void FProceduralBoneDriver::Tick(const float DeltaTime)
 {
 	FBaseDriver::Tick(DeltaTime);
 	CyclePosition += DeltaTime;
-	VisualCyclePosition += DeltaTime;
 }
 
 void FProceduralBoneDriver::ResetState()
 {
 	CyclePosition = 0;
-	VisualCyclePosition = 0;
 }
 
 FPoseEffector FProceduralBoneDriver::ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context)

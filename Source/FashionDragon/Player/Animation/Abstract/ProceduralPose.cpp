@@ -1,24 +1,32 @@
 ﻿#include "ProceduralPose.h"
 
+#include "ProceduralBoneDriver.h"
+#include "ProceduralLegDriver.h"
+#include "ProceduralPoseComponent.h"
+#include "ProceduralWingDriver.h"
 #include "FashionDragon/Player/Animation/Structs/PoseWingEffector.h"
 
 void FProceduralPose::NativeBeginPlay()
 {
-	for (const auto &BoneDriver : BoneDrivers)
+	for (const auto Component : Components)
+		Component->NativeBeginPlay();
+	for (const auto BoneDriver : BoneDrivers)
 		BoneDriver->NativeBeginPlay();
-	for (const auto &LegDriver : LegDrivers)
+	for (const auto LegDriver : LegDrivers)
 		LegDriver->NativeBeginPlay();
-	for (const auto &WingDriver : WingDrivers)
+	for (const auto WingDriver : WingDrivers)
 		WingDriver->NativeBeginPlay();
 }
 
 void FProceduralPose::Tick(const float DeltaTime)
 {
-	for (const auto &BoneDriver : BoneDrivers)
+	for (const auto Component : Components)
+		Component->Tick(DeltaTime);
+	for (const auto BoneDriver : BoneDrivers)
 		BoneDriver->Tick(DeltaTime);
-	for (const auto &LegDriver : LegDrivers)
+	for (const auto LegDriver : LegDrivers)
 		LegDriver->Tick(DeltaTime);
-	for (const auto &WingDriver : WingDrivers)
+	for (const auto WingDriver : WingDrivers)
 		WingDriver->Tick(DeltaTime);
 }
 

@@ -3,6 +3,7 @@
 #include "FashionDragon/Player/Animation/Abstract/ProceduralLegSteppingDriver.h"
 #include "FashionDragon/Player/Animation/Abstract/ProceduralPose.h"
 
+class FWalkCyclePoseComponent;
 class FDragonDriverGroundRootSway;
 class FDragonDriverGroundHipSway;
 
@@ -26,6 +27,7 @@ public:
 	FDragonDriverGroundHipSway* HipsDriver;
 	FDragonWalkLegDriver* LeftLegDriver;
 	FDragonWalkLegDriver* RightLegDriver;
+	FWalkCyclePoseComponent* WalkCycleComponent;
 	template<typename DriverT>
 	void SyncStateFrom(const DriverT* SourcePose) const;
 	virtual void ResetState() override;

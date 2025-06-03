@@ -1,23 +1,28 @@
 ﻿#pragma once
-#include "ProceduralBoneDriver.h"
-#include "ProceduralLegDriver.h"
-#include "ProceduralWingDriver.h"
 #include "FashionDragon/Player/Animation/Structs/PoseWingEffector.h"
 
 #include "FashionDragon/Common/Object.h"
+#include "FashionDragon/Player/Animation/Structs/PoseEffector.h"
 
+class FControlledWing;
+class FControlledLeg;
+class FControlledBone;
+class FProceduralWingDriver;
+class FProceduralLegDriver;
 class FProceduralBoneDriver;
+class UDragonAnimInstance;
+class FProceduralPoseComponent;
 
 class FProceduralPose : public FObject
 {
 protected:
-	UDragonAnimInstance* AnimInstance;
-
+	TArray<FProceduralPoseComponent*> Components;
 	TArray<FProceduralBoneDriver*> BoneDrivers;
 	TArray<FProceduralLegDriver*> LegDrivers;
 	TArray<FProceduralWingDriver*> WingDrivers;
 	
 public:
+	UDragonAnimInstance* AnimInstance;
 	explicit FProceduralPose(UDragonAnimInstance* AnimInstance): AnimInstance(AnimInstance) {}
 
 	virtual void NativeBeginPlay();

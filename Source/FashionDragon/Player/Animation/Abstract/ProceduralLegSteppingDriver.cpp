@@ -4,16 +4,11 @@
 #include "Curves/BezierUtilities.h"
 #include "FashionDragon/DebugTools/QuickDebug.h"
 
-void FProceduralLegSteppingDriver::SetWalkingState(const ELegWalkingState NewState, const bool KeepCycle)
+void FProceduralLegSteppingDriver::SetWalkingState(const ELegWalkingState NewState)
 {
 	OnWalkStateChanged.Broadcast(WalkingState, NewState);
 	WalkingState = NewState;
-	VisualCyclePosition = 0.0f;
-	if (!KeepCycle)
-	{
-		CyclePosition = 0.0f;
-		CycleDuration = GetTargetPosition().Duration;
-	}
+	CyclePosition = 0.0f;
 	PositionFrom = Leg->Position;
 	RotationFrom = Leg->Rotation;
 }
@@ -22,10 +17,10 @@ void FProceduralLegSteppingDriver::SetWalkingState(const ELegWalkingState NewSta
  * Attempts to find the ground directly under the leg and mark it as the locked position.
  * @return Whether ground is detected
  */
-bool FProceduralLegSteppingDriver::LockToWorldGround(const bool KeepCycle)
+bool FProceduralLegSteppingDriver::LockToWorldGround()
 {
-	SetWalkingState(ELegWalkingState::Planted, KeepCycle);
-	SetWalkingState(ELegWalkingState::SeekingGround, true);
+	SetWalkingState(ELegWalkingState::Planted);
+	SetWalkingState(ELegWalkingState::SeekingGround);
 	
 	const auto Transform = AnimInstance->GetSkelMeshComponent()->GetAttachParent()->GetComponentTransform();
 	const auto PlantedPosition = Leg->GetPlantedWorldPosition(300.0f);
@@ -33,7 +28,7 @@ bool FProceduralLegSteppingDriver::LockToWorldGround(const bool KeepCycle)
 	const FRotator LockedRotation = FRotator(Leg->Rotation.Pitch, Leg->Rotation.Yaw, 0);
 	if (!PlantedPosition.GroundHit)
 	{
-		SetWalkingState(ELegWalkingState::Raised, true);
+		SetWalkingState(ELegWalkingState::Raised);
 		LockedWorldPosition = Transform.TransformPosition(Leg->Position);
 		LockedWorldRotation = Transform.TransformRotation(LockedRotation.Quaternion()).Rotator();
 		return false;
@@ -62,21 +57,13 @@ void FProceduralLegSteppingDriver::Tick(const float DeltaTime)
 	const auto AdvanceTime = DeltaTime * StateData.PlaybackSpeed;
 	FProceduralLegDriver::Tick(AdvanceTime);
 	
-	CyclePosition = std::min(CycleDuration, CyclePosition);
-	VisualCyclePosition = std::min(StateData.Duration, VisualCyclePosition);
-
-	// Check if state machine needs to be advanced
-	if (CyclePosition >= CycleDuration)
-	{
-		CyclePosition = CycleDuration;
-		AdvanceState();
-	}
+	CyclePosition = std::min(StateData.Duration, CyclePosition);
 
 	const auto GroundData = Leg->GetPlantedWorldPosition(1.0f);
 	if (WalkingState == ELegWalkingState::SeekingGround && GroundData.GroundHit)
 	{
-		LockToWorldGround(true);
-		SetWalkingState(ELegWalkingState::Planted, true);
+		LockToWorldGround();
+		SetWalkingState(ELegWalkingState::Planted);
 	}
 	
 	if (WalkingState == ELegWalkingState::Planted)
@@ -111,7 +98,7 @@ void FProceduralLegSteppingDriver::RecalculatePose([[maybe_unused]] const float 
 			PositionFrom + Direction.StartArticulationPosition,
 			TargetPosition + Direction.EndArticulationPosition,
 			TargetPosition,
-			VisualCyclePosition / Duration
+			CyclePosition / Duration
 		);
 	
 	const auto RotationCurve = UE::CubicBezier::Eval(
@@ -119,7 +106,7 @@ void FProceduralLegSteppingDriver::RecalculatePose([[maybe_unused]] const float 
 		FVector(RotationFrom.Pitch, RotationFrom.Yaw, RotationFrom.Roll) + Direction.StartArticulationRotation,
 		FVector(TargetRotation.Pitch, TargetRotation.Yaw, TargetRotation.Roll) + Direction.EndArticulationRotation,
 		FVector(TargetRotation.Pitch, TargetRotation.Yaw, TargetRotation.Roll),
-		VisualCyclePosition / Duration
+		CyclePosition / Duration
 	);
 
 	DesiredPosition = PositionCurve;
@@ -166,12 +153,9 @@ void FProceduralLegSteppingDriver::SyncStateFrom(const FProceduralLegSteppingDri
 	DesiredPosition = TargetDriver->GetDesiredPosition();
 	DesiredRotation = TargetDriver->GetDesiredRotation();
 	
-	const auto StateData = GetTargetPosition();
 	const auto TargetStateData = TargetDriver->GetTargetPosition();
-	CycleDuration = StateData.Duration;
 
-	CyclePosition = TargetDriver->CyclePosition * CycleDuration / FMath::Max(0.01f, TargetDriver->CycleDuration);
-	VisualCyclePosition = TargetDriver->VisualCyclePosition * CycleDuration / FMath::Max(0.01f, TargetStateData.Duration);
+	CyclePosition = TargetDriver->CyclePosition * TargetStateData.Duration / FMath::Max(0.01f, TargetStateData.Duration);
 }
 
 FPoseEffector FProceduralLegSteppingDriver::ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context)

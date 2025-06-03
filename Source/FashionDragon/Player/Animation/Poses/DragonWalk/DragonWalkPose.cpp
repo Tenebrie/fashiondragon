@@ -9,6 +9,7 @@
 #include "FashionDragon/Player/Animation/Poses/DragonSprint/DragonSprintPose.h"
 #include "FashionDragon/Player/Animation/Drivers/DragonDriverGroundRootSway.h"
 // ReSharper disable once CppUnusedIncludeDirective False positive
+#include "FashionDragon/Player/Animation/Components/WalkCyclePoseComponent.h"
 #include "FashionDragon/Player/Animation/Drivers/DragonDriverTurnToMovement.h"
 #include "FashionDragon/Player/Animation/Poses/DragonTrot/DragonTrotPose.h"
 #include "FashionDragon/Utils/Utils.h"
@@ -46,8 +47,6 @@ void FDragonWalkLegDriver::AdvanceState()
 }
 
 #define STEP_DURATION 0.9f
-#define PLANTED_DURATION 0.45f
-#define INERTIA_DURATION 0.45f
 FDragonWalkStateData FDragonWalkLegDriver::GetRawWalkStateData() const
 {
 	const std::map<ELegWalkingState, FDragonWalkStateData> AnimData =
@@ -85,7 +84,7 @@ FDragonWalkStateData FDragonWalkLegDriver::GetRawWalkStateData() const
 				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
 				.LinearForce = 10.f,
 				.AngularForce = 1.0f,
-				.Duration = 0.9f
+				.Duration = STEP_DURATION
 			}
 		},
 		{ ELegWalkingState::Stepping,
@@ -94,7 +93,7 @@ FDragonWalkStateData FDragonWalkLegDriver::GetRawWalkStateData() const
 				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
 				.LinearForce = 2.0f,
 				.AngularForce = 1.0f,
-				.Duration = 0.9f,
+				.Duration = STEP_DURATION,
 				.StartArticulationPosition = FVector(15.0f, 0.0f, 150.0f),
 				.StartArticulationRotation = FVector(0.0f, 0.0f, 60.0f),
 				.EndArticulationPosition = FVector(15.0f, 0.0f, 30.0f),
@@ -131,7 +130,7 @@ void FDragonWalkLegDriver::Tick(const float DeltaTime)
 		|| FUtils::GetRotatorDistance(Leg->Rotation) > 50.0f;
 	if (WalkingState == ELegWalkingState::Planted && ShouldDisconnect)
 	{
-		SetWalkingState(ELegWalkingState::Raised, true);
+		SetWalkingState(ELegWalkingState::Raised);
 	}
 }
 
@@ -174,6 +173,15 @@ FDragonWalkPose::FDragonWalkPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 		new FDragonIdleWingDriver(Anim, Anim->LeftWing.GetBone(EDriverLayer::Primary)),
 		new FDragonIdleWingDriver(Anim, Anim->RightWing.GetBone(EDriverLayer::Primary)),
 	};
+
+	WalkCycleComponent = new FWalkCyclePoseComponent(this, LeftLegDriver, RightLegDriver);
+	WalkCycleComponent->SetCycleBreakpoints({
+		FBreakpoint(STEP_DURATION, ELegWalkingState::Stepping),
+		FBreakpoint(STEP_DURATION, ELegWalkingState::Planted),
+	});
+	Components = {
+		WalkCycleComponent,
+	};
 }
 
 template<typename DriverT>
@@ -194,6 +202,7 @@ void FDragonWalkPose::SyncStateFrom(const DriverT* SourcePose) const
 	// 	OtherLeg->SetWalkingState(ELegWalkingState::Relaxed);
 	// 	OtherLeg->SetCyclePosition(LeadingLeg->GetCyclePosition() - PlantedDuration);
 	// }
+	WalkCycleComponent->SyncStateFrom(SourcePose->WalkCycleComponent);
 }
 
 template void FDragonWalkPose::SyncStateFrom(const FDragonTrotPose*) const;
@@ -209,4 +218,6 @@ void FDragonWalkPose::ResetState()
 	SteppingLeg->SetWalkingState(ELegWalkingState::Stepping);
 
 	SwitchStartingLeg = !SwitchStartingLeg;
+
+	WalkCycleComponent->ResetState();
 }

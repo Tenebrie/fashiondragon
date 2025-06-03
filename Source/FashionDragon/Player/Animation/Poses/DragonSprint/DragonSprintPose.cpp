@@ -4,6 +4,7 @@
 
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
+#include "FashionDragon/Player/Animation/Components/WalkCyclePoseComponent.h"
 #include "FashionDragon/Player/Animation/Drivers/DragonDriverGroundRootSway.h"
 #include "FashionDragon/Player/Animation/Drivers/DragonDriverGroundHipSway.h"
 #include "FashionDragon/Player/Animation/Drivers/DragonDriverTurnToMovement.h"
@@ -172,6 +173,16 @@ FDragonSprintPose::FDragonSprintPose(UDragonAnimInstance* Anim): FProceduralPose
 		new FDragonIdleWingDriver(Anim, Anim->LeftWing.GetBone(EDriverLayer::Primary)),
 		new FDragonIdleWingDriver(Anim, Anim->RightWing.GetBone(EDriverLayer::Primary)),
 	};
+
+	WalkCycleComponent = new FWalkCyclePoseComponent(this, LeftLegDriver, RightLegDriver);
+	WalkCycleComponent->SetCycleBreakpoints({
+		FBreakpoint(STEP_DURATION, ELegWalkingState::Stepping),
+		FBreakpoint(PLANTED_DURATION, ELegWalkingState::Planted),
+		FBreakpoint(INERTIA_DURATION, ELegWalkingState::Inertia),
+	});
+	Components = {
+		WalkCycleComponent,
+	};
 }
 
 void FDragonSprintPose::SyncStateFrom(const FDragonWalkPose* SourcePose) const
@@ -191,6 +202,8 @@ void FDragonSprintPose::SyncStateFrom(const FDragonWalkPose* SourcePose) const
 		OtherLeg->SetWalkingState(ELegWalkingState::Inertia);
 		OtherLeg->SetCyclePosition(LeadingLeg->GetCyclePosition() - PLANTED_DURATION);
 	}
+
+	WalkCycleComponent->SyncStateFrom(SourcePose->WalkCycleComponent);
 }
 
 void FDragonSprintPose::SyncStateFrom(const FDragonTrotPose* SourcePose) const
@@ -210,6 +223,8 @@ void FDragonSprintPose::SyncStateFrom(const FDragonTrotPose* SourcePose) const
 		OtherLeg->SetWalkingState(ELegWalkingState::Inertia);
 		OtherLeg->SetCyclePosition(LeadingLeg->GetCyclePosition() - PLANTED_DURATION);
 	}
+
+	WalkCycleComponent->SyncStateFrom(SourcePose->WalkCycleComponent);
 }
 
 void FDragonSprintPose::ResetState()
@@ -218,4 +233,6 @@ void FDragonSprintPose::ResetState()
 	HipsDriver->ResetState();
 	LeftLegDriver->LockToWorldGround();
 	RightLegDriver->SetWalkingState(ELegWalkingState::Stepping);
+
+	WalkCycleComponent->ResetState();
 }

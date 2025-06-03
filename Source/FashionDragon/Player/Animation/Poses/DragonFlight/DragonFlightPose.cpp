@@ -32,12 +32,10 @@ void FDragonFlightWingDriver::Tick(const float DeltaTime)
 {
 	FProceduralWingDriver::Tick(DeltaTime);
 
-	if (CyclePosition >= CycleDuration)
+	if (CyclePosition >= GetRawStateData().Duration)
 	{
 		CyclePosition = 0.0f;
-		VisualCyclePosition = 0.0f;
 		AdvanceState();
-		CycleDuration = GetRawStateData().Duration;
 	}
 }
 

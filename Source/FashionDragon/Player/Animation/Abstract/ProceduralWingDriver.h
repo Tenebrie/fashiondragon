@@ -39,8 +39,6 @@ protected:
 	float StartedFlapFrom = 0.0f;
 	float StartedOpennessFrom = 0.0f;
 	
-	float CycleDuration = 1.0f;
-
 	virtual FDragonWingStateData GetRawStateData() const;
 	void RecalculatePose();
 	
