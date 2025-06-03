@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "FashionDragon/Player/Animation/Abstract/ProceduralPose.h"
+#include "FashionDragon/Player/Animation/Abstract/ProceduralBoneDriver.h"
 #include "FashionDragon/Utils/PerlinNoiseGenerator.h"
 
 class FDragonRandomSwayDriverHips final : public FProceduralBoneDriver

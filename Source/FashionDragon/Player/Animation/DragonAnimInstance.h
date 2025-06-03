@@ -43,6 +43,12 @@ public:
 
 	// IK Rig outputs
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
+	FTransform HeadTransform;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
+	FTransform UpperNeckTransform;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
+	FTransform LowerNeckTransform;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
 	FTransform SpineFrontTransform;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
 	FTransform SpineBackTransform;

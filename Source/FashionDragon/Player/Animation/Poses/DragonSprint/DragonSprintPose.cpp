@@ -141,14 +141,17 @@ FDragonSprintPose::FDragonSprintPose(UDragonAnimInstance* Anim): FProceduralPose
 	RootDriver->SetVerticalAmplitude(350);
 	
 	const auto RootTurnDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledRoot.GetBone(EDriverLayer::RotateToMovement));
-	RootTurnDriver->SetAxisMask(0.75f, 0.0f, 0.0f);
+	RootTurnDriver->SetAxisMask(0.5f, 0.0f, 0.0f);
+
+	const auto NeckTurnDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledHead.GetBone(EDriverLayer::RotateToMovement));
+	NeckTurnDriver->SetAxisMask(FVector(-1, 1, 0));
 
 	const auto BodyTurnDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledBody.GetBone(EDriverLayer::RotateToMovement));
 	BodyTurnDriver->SetAxisMask(FVector(0, 1.25, 0));
 	
 	HipsDriver = new FDragonDriverGroundHipSway(Anim, Anim->ControlledHips.GetBone(EDriverLayer::Primary),  Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
 	
-	BoneDrivers = { RootDriver, RootTurnDriver, BodyTurnDriver, HipsDriver };
+	BoneDrivers = { RootDriver, RootTurnDriver, NeckTurnDriver, BodyTurnDriver, HipsDriver };
 	
 	LeftLegDriver = new FDragonSprintLegDriver(Anim, Anim->BackLeftLeg.GetBone(EDriverLayer::Primary));
 	RightLegDriver = new FDragonSprintLegDriver(Anim, Anim->BackRightLeg.GetBone(EDriverLayer::Primary));

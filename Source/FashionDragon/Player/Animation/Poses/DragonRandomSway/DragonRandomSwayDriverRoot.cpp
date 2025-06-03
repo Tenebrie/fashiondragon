@@ -1,8 +1,18 @@
-﻿#include "DragonRandomSwayDriverBody.h"
+﻿#include "DragonRandomSwayDriverRoot.h"
 
 #include "FashionDragon/DebugTools/QuickDebug.h"
 
-void FDragonRandomSwayDriverBody::Tick(const float DeltaTime)
+void FDragonRandomSwayDriverRoot::SetPositionAmplitude(const float Amplitude, const float Scale)
+{
+	PositionSwayNoise = FPerlinNoiseGenerator(Amplitude, Scale);
+}
+
+void FDragonRandomSwayDriverRoot::SetRotationAmplitude(const float Amplitude, const float Scale)
+{
+	RotationSwayNoise = FPerlinNoiseGenerator(Amplitude, Scale);
+}
+
+void FDragonRandomSwayDriverRoot::Tick(const float DeltaTime)
 {
 	FProceduralBoneDriver::Tick(DeltaTime);
 	PositionSwayNoise.Move(DeltaTime);
@@ -10,7 +20,7 @@ void FDragonRandomSwayDriverBody::Tick(const float DeltaTime)
 	BreathCycle += DeltaTime;
 }
 
-FPoseEffector FDragonRandomSwayDriverBody::ToEffector(const FPoseEffector& BaseEffector,
+FPoseEffector FDragonRandomSwayDriverRoot::ToEffector(const FPoseEffector& BaseEffector,
 	const FPoseEffectorContext& Context)
 {
 	const auto BreathCyclePosition = FMath::Sin(BreathCycle * 0.5f * PI) * 0.5f + 0.5f;

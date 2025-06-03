@@ -2,7 +2,7 @@
 
 #include "FashionDragon/Player/Animation/Abstract/ProceduralPose.h"
 
-class FDragonRandomSwayDriverBody;
+class FDragonRandomSwayDriverRoot;
 
 class FDragonRandomSwayPose final : public FProceduralPose
 {

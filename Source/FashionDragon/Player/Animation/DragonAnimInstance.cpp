@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include "Adapters/DragonNeckPoseAdapter.h"
 #include "Adapters/DragonWingPoseAdapter.h"
 #include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/MainCharacter.h"
@@ -94,6 +95,13 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 	auto Effector = ControlledRoot.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToBoneEffector, DeltaTime);
 	GetSkelMeshComponent()->SetRelativeLocation(Effector.Position);
 	GetSkelMeshComponent()->SetRelativeRotation(Effector.Rotation);
+
+	// Apply head driver
+	Effector = ControlledHead.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToBoneEffector, DeltaTime);
+	const TArray NeckTransforms = FDragonNeckPoseAdapter::EffectorToTransforms(Effector);
+	HeadTransform = NeckTransforms[0];
+	UpperNeckTransform = NeckTransforms[1];
+	LowerNeckTransform = NeckTransforms[2];
 
 	// Apply body driver
 	Effector = ControlledBody.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToBoneEffector, DeltaTime);

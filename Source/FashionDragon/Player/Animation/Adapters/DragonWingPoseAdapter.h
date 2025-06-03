@@ -1,14 +1,14 @@
 ﻿#pragma once
 
+#include "FashionDragon/Common/Object.h"
 #include "FashionDragon/Player/Animation/Limbs/ControlledWing.h"
 #include "FashionDragon/Player/Animation/Structs/PoseWingEffector.h"
 
-class FDragonWingPoseAdapter
+class FDragonWingPoseAdapter final : public FObject
 {
 	UDragonAnimInstance* Anim;
 public:
-	explicit FDragonWingPoseAdapter(UDragonAnimInstance* Anim)
-		: Anim(Anim)
+	explicit FDragonWingPoseAdapter(UDragonAnimInstance* Anim): Anim(Anim)
 	{
 	}
 
