@@ -38,7 +38,7 @@ public:
 	void SetJumpState(ELegJumpState NewJumpState);
 
 	virtual FPoseEffector ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context) override;
-	virtual void SetBlendAlpha(const float NewBlendAlpha) override { TargetBlendAlpha = NewBlendAlpha; }
+	virtual void SetDesiredBlendAlpha(const float NewBlendAlpha) override { TargetBlendAlpha = NewBlendAlpha; }
 };
 
 class FDragonJumpLegDriver final : public FProceduralLegSteppingDriver
@@ -78,4 +78,6 @@ public:
 
 	void StartFalling();
 	virtual void ResetState() override;
+	template<typename SourcePoseT>
+	void SyncStateFrom(const SourcePoseT* SourcePose);
 };

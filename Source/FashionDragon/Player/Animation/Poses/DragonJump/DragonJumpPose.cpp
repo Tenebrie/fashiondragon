@@ -3,8 +3,17 @@
 #include <map>
 
 #include "Drivers/DragonJumpWingDriver.h"
-#include "FashionDragon/DebugTools/QuickDebug.h"
+#include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
+#include "FashionDragon/Player/Animation/Poses/DragonIdle/DragonIdlePose.h"
+#include "FashionDragon/Player/Animation/Poses/DragonIdle/Drivers/DragonIdleLegDriver.h"
+#include "FashionDragon/Player/Animation/Poses/DragonWalk/DragonWalkPose.h"
+// ReSharper disable once CppUnusedIncludeDirective Required for template instantation
+#include "FashionDragon/Player/Animation/Poses/DragonTrot/DragonTrotPose.h"
+// ReSharper disable once CppUnusedIncludeDirective Required for template instantation
+#include "FashionDragon/DebugTools/QuickDebug.h"
+#include "FashionDragon/Player/Animation/Poses/DragonSprint/DragonSprintPose.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 void FDragonJumpBodyDriver::Tick(const float DeltaTime)
 {
@@ -79,9 +88,10 @@ void FDragonJumpLegDriver::Tick(const float DeltaTime)
 	{
 		SetJumpState(ELegJumpState::DelayedLanding);
 	}
-	if ((JumpingState == ELegJumpState::DelayedLanding || JumpingState == ELegJumpState::Landing) && Leg->GetPlantedWorldPosition(15).GroundHit)
+	if ((JumpingState == ELegJumpState::DelayedLanding || JumpingState == ELegJumpState::Landing) && Leg->GetPlantedWorldPosition(1).GroundHit)
 	{
 		SetJumpState(ELegJumpState::Impact);
+		AnimInstance->GetCharacter()->GetCharacterMovement()->Velocity *= 0.8f;
 	}
 }
 
@@ -127,6 +137,7 @@ FDragonWalkStateData FDragonJumpLegDriver::GetRawWalkStateData() const
 			{
 				.TargetPosition = FVector(0.0f, 0.0f, -1000.0f),
 				.TargetRotation = FRotator(0.0f, 0.0f, 30.0f),
+				.LinearForce = 1.0f,
 				.Duration = 0.10f + JumpLagBehind,
 			}
 		},
@@ -245,3 +256,35 @@ void FDragonJumpPose::ResetState()
 
 	SwitchJumpingLeg = !SwitchJumpingLeg;
 }
+
+template<typename SourcePoseT>
+void FDragonJumpPose::SyncStateFrom(const SourcePoseT* SourcePose)
+{
+	// TODO: Set dominant driver by height (lower one)
+	const auto LeftLegPosition = LeftLegDriver->GetLeg()->Position.Z;
+	const auto RightLegPosition = RightLegDriver->GetLeg()->Position.Z;
+	if (FMath::Abs(LeftLegPosition - RightLegPosition) < 25)
+	{
+		LeftLegDriver->UpdateRandomness(SwitchJumpingLeg);
+		RightLegDriver->UpdateRandomness(!SwitchJumpingLeg);
+		LeftLegDriver->SetJumpState(ELegJumpState::Pushing);
+		RightLegDriver->SetJumpState(ELegJumpState::Pushing);
+		return;
+	}
+
+	const auto DominantDriver = LeftLegPosition < RightLegPosition ? LeftLegDriver : RightLegDriver;
+	const auto OtherDriver = DominantDriver == LeftLegDriver ? RightLegDriver : LeftLegDriver;
+
+	DominantDriver->UpdateRandomness(true);
+	OtherDriver->UpdateRandomness(false);
+	DominantDriver->SetJumpState(ELegJumpState::Pushing);
+	OtherDriver->SetJumpState(ELegJumpState::Retracting);
+	
+	SwitchJumpingLeg = OtherDriver == RightLegDriver;
+}
+
+template void FDragonJumpPose::SyncStateFrom(const FDragonIdlePose* SourcePose);
+template void FDragonJumpPose::SyncStateFrom(const FDragonWalkPose* SourcePose);
+template void FDragonJumpPose::SyncStateFrom(const FDragonTrotPose* SourcePose);
+template void FDragonJumpPose::SyncStateFrom(const FDragonSprintPose* SourcePose);
+

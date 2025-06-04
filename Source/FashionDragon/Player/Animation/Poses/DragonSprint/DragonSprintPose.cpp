@@ -14,6 +14,7 @@
 
 FDragonSprintLegDriver::FDragonSprintLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg): FProceduralLegSteppingDriver(AnimInstance, ControlledLeg)
 {
+	BlendSpeed = 0.5f;
 	BlendMode = EDriverBlend::EaseOut;
 }
 

@@ -11,7 +11,7 @@ class UActions : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 	inline static int ActionCount = 0;
-	static TArray<UInputAction*> InputActions;
+	static TArray<TStrongObjectPtr<UInputAction>> InputActions;
 	static FInputActionFactory Action(EInputActionValueType Type);
 
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
@@ -27,4 +27,6 @@ public:
 	inline static const FInputActionFactory FlightCamera = Action(EInputActionValueType::Axis2D);
 
 	inline static const FInputActionFactory ShowAnimDebug = Action(EInputActionValueType::Boolean);
+	inline static const FInputActionFactory DebugButtonNum2 = Action(EInputActionValueType::Boolean);
+	inline static const FInputActionFactory DebugButtonNum3 = Action(EInputActionValueType::Boolean);
 };

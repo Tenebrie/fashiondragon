@@ -136,6 +136,7 @@ void FDragonTrotPose::ResetState()
 
 FDragonTrotLegDriver::FDragonTrotLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg): FProceduralLegSteppingDriver(AnimInstance, ControlledLeg)
 {
+	BlendSpeed = 0.5f;
 	BlendMode = EDriverBlend::EaseOut;
 }
 

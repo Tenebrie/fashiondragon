@@ -37,5 +37,10 @@ public:
 	FControlledBone* GetBone() const { return Bone; }
 	FVector GetDesiredPosition() const { return DesiredPosition; }
 	FRotator GetDesiredRotation() const { return DesiredRotation; }
+	FVector GetPositionFrom() const { return PositionFrom; }
+	FRotator GetRotationFrom() const { return RotationFrom; }
 	FProceduralDriverDebugReporter* GetDebugReporter() { return &DebugReporter; }
+
+	void SetPositionFrom(const FVector& NewPositionFrom) { PositionFrom = NewPositionFrom; }
+	void SetRotationFrom(const FRotator& NewRotationFrom) { RotationFrom = NewRotationFrom; }
 };

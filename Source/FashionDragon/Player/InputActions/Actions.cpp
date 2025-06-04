@@ -1,6 +1,6 @@
 ﻿#include "Actions.h"
 
-TArray<UInputAction*> UActions::InputActions;
+TArray<TStrongObjectPtr<UInputAction>> UActions::InputActions;
 
 FInputActionFactory UActions::Action(const EInputActionValueType Type)
 {
@@ -8,9 +8,12 @@ FInputActionFactory UActions::Action(const EInputActionValueType Type)
 	return [Type, ActionIndex]
 	{
 		while (InputActions.Num() <= ActionIndex)
-			InputActions.Add(NewObject<UInputAction>());
-		
-		UInputAction* Action = InputActions[ActionIndex];
+		{
+			const auto NewAction = NewObject<UInputAction>();
+			InputActions.Add(TStrongObjectPtr(NewAction));
+		}
+
+		UInputAction* Action = InputActions[ActionIndex].Get();
 		Action->ValueType = Type;
 		return Action;
 	};
@@ -19,5 +22,6 @@ FInputActionFactory UActions::Action(const EInputActionValueType Type)
 void UActions::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
-	InputActions = TArray<UInputAction*>();
+	ActionCount = 0;
+	InputActions = TArray<TStrongObjectPtr<UInputAction>>();
 }

@@ -8,9 +8,10 @@ public:
 	FDragonIdleBodyDriver(
 		UDragonAnimInstance* AnimInstance,
 		FControlledBone* Bone
-	): FProceduralBoneDriver(AnimInstance, Bone) {}
+	): FProceduralBoneDriver(AnimInstance, Bone)
+	{}
 
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void SetBlendAlpha(const float NewBlendAlpha) override;
+	virtual void SetDesiredBlendAlpha(const float NewBlendAlpha) override;
 };

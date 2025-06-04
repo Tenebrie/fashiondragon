@@ -23,7 +23,7 @@ void FProceduralPose::Tick(const float DeltaTime)
 	for (const auto Component : Components)
 		Component->Tick(DeltaTime);
 	for (const auto BoneDriver : BoneDrivers)
-		BoneDriver->Tick(DeltaTime);
+		BoneDriver->Tick(DeltaTime);			
 	for (const auto LegDriver : LegDrivers)
 		LegDriver->Tick(DeltaTime);
 	for (const auto WingDriver : WingDrivers)
@@ -84,19 +84,19 @@ FPoseWingEffector FProceduralPose::ToWingEffector(const FPoseWingEffector& BaseE
 void FProceduralPose::AddBlendAlpha(const float Delta)
 {
 	for (FProceduralBoneDriver* Driver : BoneDrivers)
-		Driver->SetBlendAlpha(FMath::Clamp(Driver->GetBlendAlpha() + Delta, 0, 1));
+		Driver->SetDesiredBlendAlpha(FMath::Clamp(Driver->GetBlendAlpha() + Delta, 0, 1));
 	for (FProceduralLegDriver* LegDriver : LegDrivers)
-		LegDriver->SetBlendAlpha(FMath::Clamp(LegDriver->GetBlendAlpha() + Delta, 0, 1));
+		LegDriver->SetDesiredBlendAlpha(FMath::Clamp(LegDriver->GetBlendAlpha() + Delta, 0, 1));
 	for (FProceduralWingDriver* WingDriver : WingDrivers)
-		WingDriver->SetBlendAlpha(FMath::Clamp(WingDriver->GetBlendAlpha() + Delta, 0, 1));
+		WingDriver->SetDesiredBlendAlpha(FMath::Clamp(WingDriver->GetBlendAlpha() + Delta, 0, 1));
 }
 
 void FProceduralPose::SetBlendAlpha(const float BlendAlpha)
 {
 	for (FProceduralBoneDriver* Driver : BoneDrivers)
-		Driver->SetBlendAlpha(BlendAlpha);
+		Driver->SetDesiredBlendAlpha(BlendAlpha);
 	for (FProceduralLegDriver* LegDriver : LegDrivers)
-		LegDriver->SetBlendAlpha(BlendAlpha);
+		LegDriver->SetDesiredBlendAlpha(BlendAlpha);
 	for (FProceduralWingDriver* WingDriver : WingDrivers)
-		WingDriver->SetBlendAlpha(BlendAlpha);
+		WingDriver->SetDesiredBlendAlpha(BlendAlpha);
 }

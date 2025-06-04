@@ -19,7 +19,10 @@
 // ============================================================================
 
 FDragonWalkLegDriver::FDragonWalkLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg): FProceduralLegSteppingDriver(AnimInstance, ControlledLeg)
-{}
+{
+	BlendSpeed = 0.5f;
+	BlendMode = EDriverBlend::EaseOut;
+}
 
 void FDragonWalkLegDriver::AdvanceState()
 {
@@ -187,8 +190,8 @@ FDragonWalkPose::FDragonWalkPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 	};
 }
 
-template<typename DriverT>
-void FDragonWalkPose::SyncStateFrom(const DriverT* SourcePose) const
+template<typename SourcePoseT>
+void FDragonWalkPose::SyncStateFrom(const SourcePoseT* SourcePose) const
 {
 	LeftLegDriver->SyncStateFrom(SourcePose->LeftLegDriver);
 	RightLegDriver->SyncStateFrom(SourcePose->RightLegDriver);

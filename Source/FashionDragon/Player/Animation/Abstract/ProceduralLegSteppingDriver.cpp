@@ -3,6 +3,7 @@
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "Curves/BezierUtilities.h"
 #include "FashionDragon/DebugTools/QuickDebug.h"
+#include "FashionDragon/Utils/Utils.h"
 
 void FProceduralLegSteppingDriver::SetWalkingState(const ELegWalkingState NewState)
 {
@@ -37,6 +38,11 @@ bool FProceduralLegSteppingDriver::LockToWorldGround()
 	LockedWorldPosition = Transform.TransformPosition(Leg->Position + PlantedPosition.DeltaPosition);
 	LockedWorldRotation = Transform.TransformRotation(LockedRotation.Quaternion()).Rotator();
 	return true;
+}
+
+FString FProceduralLegSteppingDriver::GetDebugState() const
+{
+	return FUtils::EnumToString(WalkingState);
 }
 
 void FProceduralLegSteppingDriver::SnapToLockedPosition()

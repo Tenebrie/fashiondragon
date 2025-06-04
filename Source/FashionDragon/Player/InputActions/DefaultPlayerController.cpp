@@ -61,6 +61,8 @@ void ADefaultPlayerController::SetupInputMappings()
 	{
 		const auto Context = DebugInputContext;
 		AddMapping(Context, UActions::ShowAnimDebug(), EKeys::NumPadOne);
+		AddMapping(Context, UActions::DebugButtonNum2(), EKeys::NumPadTwo);
+		AddMapping(Context, UActions::DebugButtonNum3(), EKeys::NumPadThree);
 	}
 }
 

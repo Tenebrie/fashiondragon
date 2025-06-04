@@ -38,5 +38,8 @@ public:
 	void SetCyclePosition(const float NewCyclePosition) { CyclePosition = NewCyclePosition; }
 
 	float GetBlendAlpha() const { return BlendAlpha; }
-	virtual void SetBlendAlpha(const float NewBlendAlpha);
+	virtual void SetDesiredBlendAlpha(const float NewBlendAlpha);
+	void ForceSetBlendAlpha(const float NewBlendAlpha) { BlendAlpha = NewBlendAlpha; TargetBlendAlpha = NewBlendAlpha; }
+
+	virtual FString GetDebugState() const { return ""; }
 };

@@ -4,6 +4,7 @@
 
 class UDragonAnimInstance;
 
+UENUM()
 enum class ELegWalkingState
 {
 	Relaxed,

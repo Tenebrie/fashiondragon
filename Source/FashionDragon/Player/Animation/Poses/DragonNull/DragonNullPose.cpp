@@ -35,10 +35,10 @@ void FDragonNullPose::EvaluateBlending()
 
 		if (TotalBoneAlpha < 1.0f)
 		{
-			NullDriver->SetBlendAlpha(1.0f - TotalBoneAlpha);
+			NullDriver->ForceSetBlendAlpha(1.0f - TotalBoneAlpha);
 		}
 		else
-			NullDriver->SetBlendAlpha(0.0f);
+			NullDriver->ForceSetBlendAlpha(0.0f);
 	}
 
 	for (FProceduralLegDriver* NullDriver : LegDrivers)
@@ -59,11 +59,11 @@ void FDragonNullPose::EvaluateBlending()
 
 		if (TotalBoneAlpha < 1.0f)
 		{
-			NullDriver->SetBlendAlpha(1.0f - TotalBoneAlpha);
+			NullDriver->ForceSetBlendAlpha(1.0f - TotalBoneAlpha);
 		}
 		else
 		{
-			NullDriver->SetBlendAlpha(0.0f);
+			NullDriver->ForceSetBlendAlpha(0.0f);
 		}
 	}
 }

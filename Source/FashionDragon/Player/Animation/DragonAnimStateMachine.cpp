@@ -64,10 +64,28 @@ void FDragonAnimStateMachine::InitTransitions()
 {
 	Transitions = {
 		{ EAnimationState::Idle, {
-			{ EAnimationState::Walking, [this] { WalkPoseDriver->ResetState(); }},
-			{ EAnimationState::Trotting, [this] { TrotPoseDriver->ResetState(); }},
-			{ EAnimationState::Sprinting, [this] { SprintPoseDriver->ResetState(); }},
-			{ EAnimationState::Jumping, [this] { JumpPoseDriver->ResetState(); }},
+			{ EAnimationState::Walking, [this]
+			{
+				WalkPoseDriver->ResetState();
+				WalkPoseDriver->LeftLegDriver->ForceSetBlendAlpha(1.0f);
+				WalkPoseDriver->RightLegDriver->ForceSetBlendAlpha(1.0f);
+			}},
+			{ EAnimationState::Trotting, [this]
+			{
+				TrotPoseDriver->ResetState();
+				TrotPoseDriver->LeftLegDriver->ForceSetBlendAlpha(1.0f);
+				TrotPoseDriver->RightLegDriver->ForceSetBlendAlpha(1.0f);
+			}},
+			{ EAnimationState::Sprinting, [this]
+			{
+				SprintPoseDriver->ResetState();
+				SprintPoseDriver->LeftLegDriver->ForceSetBlendAlpha(1.0f);
+				SprintPoseDriver->RightLegDriver->ForceSetBlendAlpha(1.0f);
+			}},
+			{ EAnimationState::Jumping, [this]
+			{
+				JumpPoseDriver->SyncStateFrom(IdlePoseDriver);
+			}},
 		}},
 		{ EAnimationState::Jumping, {
 			{ EAnimationState::Idle, [this] { IdlePoseDriver->ResetState(); }},
@@ -77,22 +95,52 @@ void FDragonAnimStateMachine::InitTransitions()
 			{ EAnimationState::Jumping, [this] { JumpPoseDriver->ResetState(); }},
 		}},
 		{ EAnimationState::Walking, {
-			{ EAnimationState::Idle, [this] { IdlePoseDriver->SyncStateFrom(WalkPoseDriver); }},
+			{ EAnimationState::Idle, [this]
+			{
+				IdlePoseDriver->SyncStateFrom(WalkPoseDriver);
+				WalkPoseDriver->LeftLegDriver->ForceSetBlendAlpha(0.0f);
+				WalkPoseDriver->RightLegDriver->ForceSetBlendAlpha(0.0f);
+			}},
 			{ EAnimationState::Trotting, [this] { TrotPoseDriver->SyncStateFrom(WalkPoseDriver); }},
 			{ EAnimationState::Sprinting, [this] { SprintPoseDriver->SyncStateFrom(WalkPoseDriver); }},
-			{ EAnimationState::Jumping, [this] { JumpPoseDriver->ResetState(); }},
+			{ EAnimationState::Jumping, [this]
+			{
+				JumpPoseDriver->SyncStateFrom(WalkPoseDriver);
+				WalkPoseDriver->LeftLegDriver->ForceSetBlendAlpha(0.0f);
+				WalkPoseDriver->RightLegDriver->ForceSetBlendAlpha(0.0f);
+			}},
 		}},
 		{ EAnimationState::Trotting, {
-			{ EAnimationState::Idle, [this] { IdlePoseDriver->SyncStateFrom(TrotPoseDriver); }},
+			{ EAnimationState::Idle, [this]
+			{
+				IdlePoseDriver->SyncStateFrom(TrotPoseDriver);
+				TrotPoseDriver->LeftLegDriver->ForceSetBlendAlpha(0.0f);
+				TrotPoseDriver->RightLegDriver->ForceSetBlendAlpha(0.0f);
+			}},
 			{ EAnimationState::Walking, [this] { WalkPoseDriver->SyncStateFrom(TrotPoseDriver); } },
 			{ EAnimationState::Sprinting, [this] { SprintPoseDriver->SyncStateFrom(TrotPoseDriver); } },
-			{ EAnimationState::Jumping, [this] { JumpPoseDriver->ResetState(); }},
+			{ EAnimationState::Jumping, [this]
+			{
+				JumpPoseDriver->SyncStateFrom(TrotPoseDriver);
+				TrotPoseDriver->LeftLegDriver->ForceSetBlendAlpha(0.0f);
+				TrotPoseDriver->RightLegDriver->ForceSetBlendAlpha(0.0f);
+			}},
 		}},
 		{ EAnimationState::Sprinting, {
-			{ EAnimationState::Idle, [this] { IdlePoseDriver->SyncStateFrom(SprintPoseDriver); }},
+			{ EAnimationState::Idle, [this]
+			{
+				IdlePoseDriver->SyncStateFrom(SprintPoseDriver);
+				SprintPoseDriver->LeftLegDriver->ForceSetBlendAlpha(0.0f);
+				SprintPoseDriver->RightLegDriver->ForceSetBlendAlpha(0.0f);
+			}},
 			{ EAnimationState::Walking, [this] { WalkPoseDriver->SyncStateFrom(SprintPoseDriver); } },
 			{ EAnimationState::Trotting, [this] { TrotPoseDriver->SyncStateFrom(SprintPoseDriver); } },
-			{ EAnimationState::Jumping, [this] { JumpPoseDriver->ResetState(); }},
+			{ EAnimationState::Jumping, [this]
+			{
+				JumpPoseDriver->SyncStateFrom(SprintPoseDriver);
+				SprintPoseDriver->LeftLegDriver->ForceSetBlendAlpha(0.0f);
+				SprintPoseDriver->RightLegDriver->ForceSetBlendAlpha(0.0f);
+			}},
 		}}
 	};
 }

@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-#include "GameFramework/GameModeBase.h"
+#include "GameFramework/GameMode.h"
 #include "DefaultGameMode.generated.h"
 
 UCLASS()
-class FASHIONDRAGON_API ADefaultGameMode : public AGameModeBase
+class FASHIONDRAGON_API ADefaultGameMode : public AGameMode
 {
 	GENERATED_BODY()
 

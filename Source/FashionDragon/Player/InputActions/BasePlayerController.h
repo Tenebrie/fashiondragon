@@ -37,4 +37,10 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, Category="InputActions")
 	void OnShowAnimDebug();
+
+	UFUNCTION(BlueprintImplementableEvent, Category="InputActions")
+	void OnDebugButton2();
+
+	UFUNCTION(BlueprintImplementableEvent, Category="InputActions")
+	void OnDebugButton3();
 };

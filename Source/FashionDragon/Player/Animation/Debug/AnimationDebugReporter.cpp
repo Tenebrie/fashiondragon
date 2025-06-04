@@ -32,6 +32,7 @@ void UAnimationDebugReporter::CollectInfo()
 			Data.Name = Driver->GetClassName();
 			Data.GroupName = Driver->GetBone()->GroupName;
 			Data.LayerName = FUtils::EnumToString(Driver->GetBone()->Layer);
+			Data.StateInfo = Driver->GetDebugState();
 			Data.BlendAlpha = Driver->GetBlendAlpha();
 			PoseInfo.Drivers.Add(Data);
 		}
@@ -42,6 +43,7 @@ void UAnimationDebugReporter::CollectInfo()
 			Data.Name = Driver->GetClassName();
 			Data.GroupName = Driver->GetLeg()->GroupName;
 			Data.LayerName = FUtils::EnumToString(Driver->GetLeg()->Layer);
+			Data.StateInfo = Driver->GetDebugState();
 			Data.BlendAlpha = Driver->GetBlendAlpha();
 			PoseInfo.Drivers.Add(Data);
 		}

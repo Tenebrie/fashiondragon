@@ -28,7 +28,7 @@ public:
 	FDragonWalkLegDriver* LeftLegDriver;
 	FDragonWalkLegDriver* RightLegDriver;
 	FWalkCyclePoseComponent* WalkCycleComponent;
-	template<typename DriverT>
-	void SyncStateFrom(const DriverT* SourcePose) const;
+	template<typename SourcePoseT>
+	void SyncStateFrom(const SourcePoseT* SourcePose) const;
 	virtual void ResetState() override;
 };

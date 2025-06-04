@@ -10,7 +10,7 @@ void FDragonIdleBodyDriver::Tick(const float DeltaTime)
 	DesiredRotation = FRotator(0.0f, 0.0f, -20.0f);
 }
 
-void FDragonIdleBodyDriver::SetBlendAlpha(const float NewBlendAlpha)
+void FDragonIdleBodyDriver::SetDesiredBlendAlpha(const float NewBlendAlpha)
 {
 	TargetBlendAlpha = NewBlendAlpha;
 }

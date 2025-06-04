@@ -77,7 +77,7 @@ void FBaseDriver::Tick(const float DeltaTime)
 	BlendAlpha = FMath::FInterpTo(BlendAlpha, TargetBlendAlpha, DeltaTime, 5.0f * BlendSpeed);
 }
 
-void FBaseDriver::SetBlendAlpha(const float NewBlendAlpha)
+void FBaseDriver::SetDesiredBlendAlpha(const float NewBlendAlpha)
 {
 	TargetBlendAlpha = NewBlendAlpha;
 	if (BlendMode == EDriverBlend::Instant)

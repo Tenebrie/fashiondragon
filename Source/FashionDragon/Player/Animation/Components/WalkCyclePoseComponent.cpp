@@ -73,11 +73,30 @@ int FWalkCyclePoseComponent::CheckForBreakpoint(const float Position, const int 
 
 void FWalkCyclePoseComponent::SyncStateFrom(const FWalkCyclePoseComponent* Other)
 {
-	LeftCyclePosition = Other->LeftCyclePosition;
-	RightCyclePosition = LeftCyclePosition + CycleDuration / 2.0f;
+	if (Other->LeftLegDriver->WalkingState == ELegWalkingState::Planted)
+	{
+		LeftCyclePosition = (Other->LeftCyclePosition / Other->CycleDuration) * CycleDuration;
+		RightCyclePosition = LeftCyclePosition + CycleDuration / 2.0f;
+	}
+	else
+	{
+		RightCyclePosition = (Other->RightCyclePosition / Other->CycleDuration) * CycleDuration;
+		LeftCyclePosition = RightCyclePosition + CycleDuration / 2.0f;
+	}
+
+	if (LeftCyclePosition >= CycleDuration)
+		LeftCyclePosition -= CycleDuration;
+	if (RightCyclePosition >= CycleDuration)
+		RightCyclePosition -= CycleDuration;
 
 	LeftState = CheckForBreakpoint(LeftCyclePosition, -1, LeftLegDriver);
 	RightState = CheckForBreakpoint(RightCyclePosition, -1, RightLegDriver);
+	// LeftLegDriver->SetPositionFrom(Other->LeftLegDriver->GetPositionFrom());
+	// LeftLegDriver->SetRotationFrom(Other->LeftLegDriver->GetRotationFrom());
+	// RightLegDriver->SetPositionFrom(Other->RightLegDriver->GetPositionFrom());
+	// RightLegDriver->SetRotationFrom(Other->RightLegDriver->GetRotationFrom());
+	LeftLegDriver->SetCyclePosition(LeftCyclePosition);
+	RightLegDriver->SetCyclePosition(RightCyclePosition);
 }
 
 void FWalkCyclePoseComponent::ResetState()
@@ -92,6 +111,9 @@ void FWalkCyclePoseComponent::ResetState()
 void FWalkCyclePoseComponent::Tick(const float DeltaTime)
 {
 	FProceduralPoseComponent::Tick(DeltaTime);
+
+	if (LeftLegDriver->GetBlendAlpha() <= 0.0f && RightLegDriver->GetBlendAlpha() <= 0.0f)
+		return;
 
 	const auto OwningActor = Cast<AMainCharacter>(Pose->AnimInstance->GetOwningActor());
 	const auto MovementSpeed = OwningActor->GetVelocity().Size();

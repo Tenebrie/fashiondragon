@@ -13,6 +13,7 @@ struct FDriverDebugInfo
 	UPROPERTY(BlueprintReadOnly) FString Name = TEXT("Unknown Driver");
 	UPROPERTY(BlueprintReadOnly) FName GroupName = TEXT("Unknown Group");
 	UPROPERTY(BlueprintReadOnly) FString LayerName = TEXT("Unknown Layer");
+	UPROPERTY(BlueprintReadOnly) FString StateInfo = TEXT("Unknown Layer");
 	UPROPERTY(BlueprintReadOnly) FVector Position = FVector::ZeroVector;
 	UPROPERTY(BlueprintReadOnly) FRotator Rotation = FRotator::ZeroRotator;
 	UPROPERTY(BlueprintReadOnly) FVector PositionDelta = FVector::ZeroVector;

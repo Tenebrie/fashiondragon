@@ -13,5 +13,5 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void SetBlendAlpha(const float NewBlendAlpha) override { TargetBlendAlpha = NewBlendAlpha; }
+	virtual void SetDesiredBlendAlpha(const float NewBlendAlpha) override { TargetBlendAlpha = NewBlendAlpha; }
 };

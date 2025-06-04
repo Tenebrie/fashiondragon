@@ -70,6 +70,8 @@ void ABasePlayerController::SetupInputComponent()
 	if (!Input) return;
 
 	Input->BindAction(UActions::ShowAnimDebug(), ETriggerEvent::Started, this, &ABasePlayerController::OnShowAnimDebug);
+	Input->BindAction(UActions::DebugButtonNum2(), ETriggerEvent::Started, this, &ABasePlayerController::OnDebugButton2);
+	Input->BindAction(UActions::DebugButtonNum3(), ETriggerEvent::Started, this, &ABasePlayerController::OnDebugButton3);
 }
 
 UInputMappingContext* ABasePlayerController::MakeInputContext()

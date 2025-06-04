@@ -41,6 +41,8 @@ public:
 	void SetWalkingState(ELegWalkingState NewState);
 	bool LockToWorldGround();
 	FDragonLegDriverWalkStateChangedDelegate OnWalkStateChanged;
+
+	virtual FString GetDebugState() const override;
 };
 
 struct FDragonWalkStateData {

@@ -63,8 +63,8 @@ void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
     PhysicalAnimation->ApplyPhysicalAnimationProfileBelow(TEXT("Tail_001"), TEXT("MyProfile"), true);
-    PhysicalAnimation->ApplyPhysicalAnimationProfileBelow(TEXT("Back_R"), TEXT("MyProfile"), true);
     PhysicalAnimation->ApplyPhysicalAnimationProfileBelow(TEXT("Back_L"), TEXT("MyProfile"), true);
+    PhysicalAnimation->ApplyPhysicalAnimationProfileBelow(TEXT("Back_R"), TEXT("MyProfile"), true);
 
     DragonMesh->SetConstraintProfileForAll(TEXT("MyProfile"));
     DragonMesh->SetAllBodiesBelowSimulatePhysics(TEXT("Tail_001"), true, true);
@@ -72,8 +72,8 @@ void AMainCharacter::BeginPlay()
     DragonMesh->SetAllBodiesBelowSimulatePhysics(TEXT("Back_L"), true, true);
 
     GetCharacterMovement()->bOrientRotationToMovement = false;
-    GetCharacterMovement()->JumpZVelocity = 600.f;
-    GetCharacterMovement()->AirControl = 0.2f;
+    GetCharacterMovement()->JumpZVelocity = 700.f;
+    GetCharacterMovement()->AirControl = 0.75f;
     GetCharacterMovement()->MaxWalkSpeed = 2000.f;
     GetCharacterMovement()->MaxAcceleration = 2048.f;
     GetCharacterMovement()->BrakingDecelerationWalking = 1000.f;
@@ -158,7 +158,9 @@ void AMainCharacter::StartJump()
     if (GetCharacterMovement()->IsMovingOnGround())
     {
         const float JumpZVelocity = GetCharacterMovement()->JumpZVelocity;
-        LaunchCharacter(FVector(0, 0, JumpZVelocity), false, true);
+        const FVector LaunchDirection = FVector(0, 0, JumpZVelocity);
+        const FVector ForwardStrength = GetCharacterMovement()->GetForwardVector() * FVector(250.0f, 250.0f, 0) * FMath::Clamp(GetVelocity().Size() / 600.0f, 0.0f, 1.0f);
+        LaunchCharacter(LaunchDirection + ForwardStrength, false, true);
         const auto AnimInstance = Cast<UDragonAnimInstance>(DragonMesh->GetAnimInstance());
         AnimInstance->StateMachine->SetState(EAnimationState::Jumping);
         AnimInstance->StateMachine->AnimationLockout = 0.2f;
