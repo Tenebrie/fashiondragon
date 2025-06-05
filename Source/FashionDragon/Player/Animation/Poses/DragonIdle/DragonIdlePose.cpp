@@ -61,17 +61,34 @@ void FDragonIdlePose::Tick(const float DeltaTime)
 	const auto LeftLeg = LeftLegDriver->GetLeg();
 	const auto RightLeg = RightLegDriver->GetLeg();
 
-	const auto ShouldLeftDisconnect = LeftLeg->Position.Size() > 25.0f || FUtils::GetRotatorDistance(LeftLeg->Rotation) > 15.0f;
-	if (RightLegDriver->IdleState != ELegIdleState::ArticulatedReturn && LeftLegDriver->IdleState == ELegIdleState::Planted && ShouldLeftDisconnect)
+	const auto IsLeftFar = LeftLeg->Position.Size() > 30.0f || FUtils::GetRotatorDistance(LeftLeg->Rotation) > 20.0f;
+	const auto IsRightFar = RightLeg->Position.Size() > 30 || FUtils::GetRotatorDistance(RightLeg->Rotation) > 20.0f;
+	const auto IsLeftKindaFar = LeftLeg->Position.Size() > 25.0f || FUtils::GetRotatorDistance(LeftLeg->Rotation) > 15.0f;
+	const auto IsRightKindaFar = RightLeg->Position.Size() > 25.0f || FUtils::GetRotatorDistance(RightLeg->Rotation) > 15.0f;
+	const auto CanLeftDisconnect = RightLegDriver->IdleState != ELegIdleState::ArticulatedReturn && LeftLegDriver->IdleState == ELegIdleState::Planted;
+	const auto CanRightDisconnect = LeftLegDriver->IdleState != ELegIdleState::ArticulatedReturn && RightLegDriver->IdleState == ELegIdleState::Planted;
+	if (CanLeftDisconnect && CanRightDisconnect && ((IsLeftFar && IsRightKindaFar) || (IsRightFar && IsLeftKindaFar)))
+	{
+		if (LeftLeg->Rotation.Yaw > 0.0f)
+			LeftLegDriver->SetIdleState(ELegIdleState::ArticulatedReturn);
+		else
+			RightLegDriver->SetIdleState(ELegIdleState::ArticulatedReturn);
+	}
+	else if (IsLeftFar && CanLeftDisconnect)
 	{
 		LeftLegDriver->SetIdleState(ELegIdleState::ArticulatedReturn);
 	}
-
-	const auto ShouldRightDisconnect = RightLeg->Position.Size() > 25.0f || FUtils::GetRotatorDistance(RightLeg->Rotation) > 15.0f;
-	if (LeftLegDriver->IdleState != ELegIdleState::ArticulatedReturn && RightLegDriver->IdleState == ELegIdleState::Planted && ShouldRightDisconnect)
+	else if (IsRightFar && CanRightDisconnect)
 	{
 		RightLegDriver->SetIdleState(ELegIdleState::ArticulatedReturn);
 	}
+
+	auto LeftLegRotation = LeftLegDriver->GetDesiredRotation();
+	auto RightLegRotation = RightLegDriver->GetDesiredRotation();
+	LeftLegRotation.Yaw = FMath::Clamp(LeftLegRotation.Yaw, -50.0f, 50.0f);
+	RightLegRotation.Yaw = FMath::Clamp(RightLegRotation.Yaw, -50.0f, 50.0f);
+	LeftLegDriver->SetDesiredRotation(LeftLegRotation);
+	RightLegDriver->SetDesiredRotation(RightLegRotation);
 }
 
 template<typename DriverT>

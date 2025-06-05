@@ -8,12 +8,13 @@ class FDragonDriverGroundRootSway final : public FProceduralBoneDriver
 {
 	FControlledLeg* LeftLeg;
 	FControlledLeg* RightLeg;
-	float TargetBlendAlpha = 1.0f;
 	FProceduralLegDriver* LeadingLeg = nullptr;
 
 	float HorizontalAmplitude = 10.0f;
 	float VerticalOffset = 100.0f;
 	float VerticalAmplitude = 175.0f;
+
+	float CurrentGradient = 0.0f;
 	
 public:
 	FDragonDriverGroundRootSway(

@@ -118,7 +118,7 @@ FDragonWalkStateData FDragonSprintLegDriver::GetRawWalkStateData() const
 		},
 		{ ELegWalkingState::Stepping,
 			{
-				.TargetPosition = FVector(0.0f, 400.0f, 0.0f),
+				.TargetPosition = FVector(0.0f, 350.0f, 0.0f),
 				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
 				.LinearForce = 80.0f,
 				.AngularForce = 1.0f,
@@ -131,7 +131,7 @@ FDragonWalkStateData FDragonSprintLegDriver::GetRawWalkStateData() const
 		},
 		{ ELegWalkingState::Inertia,
 			{
-				.TargetPosition = FVector(0.0f, -500.0f, 180.0f),
+				.TargetPosition = FVector(0.0f, -500.0f, 150.0f),
 				.TargetRotation = FRotator(0.0f, 0.0f, 90.0f),
 				.LinearForce = 15.0f,
 				.AngularForce = 5.0f,
@@ -146,7 +146,7 @@ FDragonWalkStateData FDragonSprintLegDriver::GetRawWalkStateData() const
 FDragonSprintPose::FDragonSprintPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
 	RootDriver = new FDragonDriverGroundRootSway(Anim, Anim->ControlledRoot.GetBone(EDriverLayer::Primary), Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
-	RootDriver->SetVerticalOffset(200);
+	RootDriver->SetVerticalOffset(180);
 	RootDriver->SetVerticalAmplitude(350);
 	
 	const auto RootTurnDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledRoot.GetBone(EDriverLayer::RotateToMovement));

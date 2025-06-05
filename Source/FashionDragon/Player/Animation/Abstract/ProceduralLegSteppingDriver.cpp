@@ -10,8 +10,10 @@ void FProceduralLegSteppingDriver::SetWalkingState(const ELegWalkingState NewSta
 	OnWalkStateChanged.Broadcast(WalkingState, NewState);
 	WalkingState = NewState;
 	CyclePosition = 0.0f;
-	PositionFrom = Leg->Position;
-	RotationFrom = Leg->Rotation;
+
+	const auto PlantedPos = Leg->GetPlantedWorldPosition();
+	PositionFrom = Leg->Position + PlantedPos.DeltaPosition;
+	RotationFrom = Leg->Rotation + PlantedPos.DeltaRotation.Rotator();
 }
 
 /**
@@ -141,11 +143,18 @@ FDragonWalkStateData FProceduralLegSteppingDriver::AlignPoseToInputDirection(FDr
 	Data.TargetPosition.Z = OriginalZ;
 	Data.PlaybackSpeed = PoseData.PlaybackSpeed / StepScale;
 
-	if (WalkingState == ELegWalkingState::Stepping || WalkingState == ELegWalkingState::Relaxed)
+	if (WalkingState == ELegWalkingState::Stepping || WalkingState == ELegWalkingState::Relaxed || WalkingState == ELegWalkingState::Inertia)
 	{
+		const auto DesiredHeight = Data.TargetPosition.Z;
+		Data.TargetPosition.Z = 0.0f;
 		const auto Planted = Leg->GetPlantedWorldPosition(Data.TargetPosition, Data.TargetRotation, 150.0f);
+		FVector DeltaPosition = FVector(0, 0, -150);
 		if (Planted.GroundHit)
-			Data.TargetPosition += Planted.DeltaPosition;
+			DeltaPosition = Planted.DeltaPosition;
+		Data.TargetPosition += DeltaPosition;
+		Data.TargetPosition.Z += DesiredHeight;
+		// Data.StartArticulationPosition.Z *= 1.0f + FMath::Abs(DeltaPosition.Z + DesiredHeight) / 150.0f;
+		// Data.EndArticulationPosition.Z *= 1.0f + FMath::Abs(DeltaPosition.Z + DesiredHeight) / 150.0f;
 	}
 	
 	return Data;
@@ -170,14 +179,9 @@ FPoseEffector FProceduralLegSteppingDriver::ToEffector(const FPoseEffector& Base
 
 	const auto TargetPosition = DesiredPosition;
 	const auto TargetRotation = DesiredRotation;
-	auto LinearSpeed = State.LinearForce * Context.BlendAlpha * Context.DeltaTime * State.PlaybackSpeed;
-	auto RotationSpeed = State.AngularForce * Context.BlendAlpha * State.PlaybackSpeed;
+	const auto LinearSpeed = State.LinearForce * Context.BlendAlpha * Context.DeltaTime * State.PlaybackSpeed;
+	const auto RotationSpeed = State.AngularForce * Context.BlendAlpha * State.PlaybackSpeed;
 
-	// if (WalkingState == ELegWalkingState::Planted)
-	// {
-	// 	RotationSpeed *= 0.1f;
-	// }
-	
 	const auto Direction = (TargetPosition - BaseEffector.Position).GetSafeNormal();
 	const auto DistanceToMove = std::min(LinearSpeed * 1000.0f, static_cast<float>((TargetPosition - BaseEffector.Position).Size()));
 	

@@ -41,6 +41,8 @@ public:
 	FRotator GetRotationFrom() const { return RotationFrom; }
 	FProceduralDriverDebugReporter* GetDebugReporter() { return &DebugReporter; }
 
+	void SetDesiredPosition(const FVector& NewDesiredPosition) { DesiredPosition = NewDesiredPosition; }
+	void SetDesiredRotation(const FRotator& NewDesiredRotation) { DesiredRotation = NewDesiredRotation; }
 	void SetPositionFrom(const FVector& NewPositionFrom) { PositionFrom = NewPositionFrom; }
 	void SetRotationFrom(const FRotator& NewRotationFrom) { RotationFrom = NewRotationFrom; }
 };
