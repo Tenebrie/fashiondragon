@@ -101,8 +101,24 @@ void FWalkCyclePoseComponent::SyncStateFrom(const FWalkCyclePoseComponent* Other
 
 void FWalkCyclePoseComponent::ResetState()
 {
-	LeftCyclePosition = 0.0f;
-	RightCyclePosition = CycleDuration / 2.0f;
+	if (TimeSinceLastSync <= 0.5f)
+	{
+		TimeSinceLastSync = 0.0f;
+		return;
+	}
+	
+	if (SwitchStartingLeg)
+	{
+		LeftCyclePosition = 0.0f;
+		RightCyclePosition = CycleDuration / 2.0f;
+	}
+	else
+	{
+		LeftCyclePosition = CycleDuration / 2.0f;
+		RightCyclePosition = 0.0f;
+	}
+	SwitchStartingLeg = !SwitchStartingLeg;
+	TimeSinceLastSync = 0.0f;
 
 	LeftState = CheckForBreakpoint(LeftCyclePosition, -1, LeftLegDriver);
 	RightState = CheckForBreakpoint(RightCyclePosition, -1, RightLegDriver);
@@ -112,6 +128,7 @@ void FWalkCyclePoseComponent::Tick(const float DeltaTime)
 {
 	FProceduralPoseComponent::Tick(DeltaTime);
 
+	TimeSinceLastSync += DeltaTime;
 	if (LeftLegDriver->GetBlendAlpha() <= 0.0f && RightLegDriver->GetBlendAlpha() <= 0.0f)
 		return;
 

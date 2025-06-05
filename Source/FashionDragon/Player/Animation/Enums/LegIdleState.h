@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+UENUM()
 enum class ELegIdleState
 {
 	Relaxed,

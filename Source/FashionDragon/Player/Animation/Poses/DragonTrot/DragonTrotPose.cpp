@@ -11,6 +11,7 @@
 #include "FashionDragon/Player/Animation/Poses/DragonIdle/Drivers/DragonIdleWingDriver.h"
 #include "FashionDragon/Player/Animation/Poses/DragonWalk/DragonWalkPose.h"
 #include "FashionDragon/Player/Animation/Poses/DragonSprint/DragonSprintPose.h"
+#include "FashionDragon/Utils/Utils.h"
 
 #define STEP_DURATION 0.9f
 #define PLANTED_DURATION STEP_DURATION * 0.6f
@@ -124,9 +125,6 @@ void FDragonTrotPose::SyncStateFrom(const FDragonSprintPose* SourcePose) const
 void FDragonTrotPose::ResetState()
 {
 	RootDriver->ResetState();
-	LeftLegDriver->LockToWorldGround();
-	RightLegDriver->SetWalkingState(ELegWalkingState::Stepping);
-
 	WalkCycleComponent->ResetState();
 }
 
@@ -142,16 +140,23 @@ FDragonTrotLegDriver::FDragonTrotLegDriver(UDragonAnimInstance* AnimInstance, FC
 
 void FDragonTrotLegDriver::Tick(const float DeltaTime)
 {
-	// Advance time forward. Adjusted by character's movement speed.
+	if (BlendAlpha <= 0.0f)
+	{
+		FBaseDriver::Tick(DeltaTime);
+		return;
+	}
+	
 	const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
 	const auto MovementSpeed = OwningActor->GetVelocity().Size();
 
 	const float AdvanceValue = DeltaTime + MovementSpeed * 0.001f * DeltaTime;
-
 	FProceduralLegSteppingDriver::Tick(AdvanceValue);
 
 	// If the leg is stretched too far, disconnect
-	if (WalkingState == ELegWalkingState::Planted && Leg->Position.Size() > 350.0f && Leg->Position.Y < 0.0f)
+	const auto LegReference = RotateVectorToInputRotation(Leg->Position, true);
+	const auto ShouldDisconnect = FMath::Abs(LegReference.X) > 200.f || LegReference.Z < -150.0f || LegReference.Y > 600.0f || LegReference.Y < -300.0f
+		|| FUtils::GetRotatorDistance(Leg->Rotation) > 50.0f;
+	if (WalkingState == ELegWalkingState::Planted && ShouldDisconnect)
 	{
 		SetWalkingState(ELegWalkingState::Raised);
 	}

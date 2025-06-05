@@ -25,15 +25,19 @@ void FDragonIdleLegDriver::Tick(const float DeltaTime)
 {
 	FProceduralLegSteppingDriver::Tick(DeltaTime);
 
-	// TODO: Fix the logic for cliffs or uneven surfaces (the leg position will rarely be able to go to 0)
-	if (IdleState == ELegIdleState::ArticulatedReturn && Leg->Position.Size() < 5.f && FUtils::GetRotatorDistance(Leg->Rotation) < 5.f)
+	if (BlendAlpha <= 0.0f)
+		return;
+
+	if (IdleState == ELegIdleState::ArticulatedReturn && CyclePosition >= GetRawWalkStateData().Duration)
 	{
 		LockToWorldGround();
 		SetIdleState(ELegIdleState::Planted);
 	}
 
-	const auto ShouldDisconnect = Leg->Position.Size() > 150.0f || FUtils::GetRotatorDistance(Leg->Rotation) > 50.0f;
-	if (IdleState != ELegIdleState::ArticulatedReturn && IdleState == ELegIdleState::Planted && ShouldDisconnect)
+	const auto LegReference = RotateVectorToInputRotation(Leg->Position, true);
+	const auto ShouldDisconnect = FMath::Abs(LegReference.X) > 200.f || LegReference.Z < -150.0f || LegReference.Y > 600.0f || LegReference.Y < -200.0f
+		|| FUtils::GetRotatorDistance(Leg->Rotation) > 50.0f;
+	if (IdleState == ELegIdleState::Planted && ShouldDisconnect)
 	{
 		SetIdleState(ELegIdleState::ArticulatedReturn);
 	}
@@ -66,6 +70,11 @@ void FDragonIdleLegDriver::SetIdleState(const ELegIdleState NewState, const bool
 		OnIdleStateChanged.Broadcast(IdleState, NewState);
 	}
 	IdleState = NewState;
+}
+
+FString FDragonIdleLegDriver::GetDebugState() const
+{
+	return FProceduralLegSteppingDriver::GetDebugState().Append(", ").Append(FUtils::EnumToString(IdleState));
 }
 
 template<typename DriverT>

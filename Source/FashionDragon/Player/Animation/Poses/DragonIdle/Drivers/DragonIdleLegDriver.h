@@ -19,6 +19,8 @@ public:
 	template<typename DriverT>
 	void SyncIdleStateFrom(const DriverT* TargetDriver);
 
+	virtual FString GetDebugState() const override;
+
 private:
 	FDragonWalkStateData ArticulatedReturnData = {};
 };

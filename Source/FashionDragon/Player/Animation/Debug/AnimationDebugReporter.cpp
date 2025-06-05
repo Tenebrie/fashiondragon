@@ -51,3 +51,16 @@ void UAnimationDebugReporter::CollectInfo()
 		PoseDebugInfo.Add(PoseInfo);
 	}
 }
+
+void UAnimationDebugReporter::SetPoseEnabled(const int PoseIndex, const bool Enabled) const
+{
+	const auto Player = Cast<AMainCharacter>(GetOwner());
+	if (!Player || !Player->DragonMesh) { return; }
+	const auto AnimInstance = Cast<UDragonAnimInstance>(Player->DragonMesh->GetAnimInstance());
+	if (!AnimInstance) { return; }
+
+	const auto Target = AnimInstance->StateMachine->PoseDrivers[PoseIndex];
+	if (!Target) { return; }
+
+	Target->SetEnabled(Enabled);
+}

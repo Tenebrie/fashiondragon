@@ -40,4 +40,7 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FPoseDebugInfo> PoseDebugInfo;
+
+	UFUNCTION(BlueprintCallable)
+	void SetPoseEnabled(const int PoseIndex, const bool Enabled) const;
 };

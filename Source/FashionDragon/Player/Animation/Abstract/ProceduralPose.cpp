@@ -32,6 +32,9 @@ void FProceduralPose::Tick(const float DeltaTime)
 
 FPoseEffector FProceduralPose::ToBoneEffector(const FPoseEffector& BaseEffector, const FControlledBone* Bone, const float DeltaTime) const
 {
+	if (!Enabled)
+		return BaseEffector;
+	
 	for (const auto& BoneDriver : BoneDrivers)
 	{
 		if (BoneDriver && BoneDriver->GetBone() == Bone)
@@ -50,6 +53,9 @@ FPoseEffector FProceduralPose::ToBoneEffector(const FPoseEffector& BaseEffector,
 
 FPoseEffector FProceduralPose::ToLegEffector(const FPoseEffector& BaseEffector, const FControlledLeg* Leg, const float DeltaTime) const
 {
+	if (!Enabled)
+		return BaseEffector;
+	
 	for (const auto& LegDriver : LegDrivers)
 	{
 		if (LegDriver && LegDriver->GetLeg() == Leg)
@@ -68,6 +74,9 @@ FPoseEffector FProceduralPose::ToLegEffector(const FPoseEffector& BaseEffector, 
 
 FPoseWingEffector FProceduralPose::ToWingEffector(const FPoseWingEffector& BaseEffector, const FControlledWing* Wing, const float DeltaTime) const
 {
+	if (!Enabled)
+		return BaseEffector;
+	
 	for (const auto& WingDriver : WingDrivers)
 	{
 		if (WingDriver && WingDriver->GetWing() == Wing)

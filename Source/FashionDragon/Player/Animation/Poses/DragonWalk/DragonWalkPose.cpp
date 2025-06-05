@@ -119,12 +119,16 @@ FDragonWalkStateData FDragonWalkLegDriver::GetRawWalkStateData() const
 
 void FDragonWalkLegDriver::Tick(const float DeltaTime)
 {
-	// Advance time forward. Adjusted by character's movement speed.
+	if (BlendAlpha <= 0.0f)
+	{
+		FBaseDriver::Tick(DeltaTime);
+		return;
+	}
+	
 	const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
 	const auto MovementSpeed = OwningActor->GetVelocity().Size();
 
 	const float AdvanceValue = DeltaTime + MovementSpeed * 0.001f * DeltaTime;
-
 	FProceduralLegSteppingDriver::Tick(AdvanceValue);
 	
 	// If the leg is stretched too far, disconnect
@@ -217,13 +221,5 @@ template void FDragonWalkPose::SyncStateFrom(const FDragonSprintPose*) const;
 // TODO: If it's not been enough time since we have been here, don't reset, but continue the previous state
 void FDragonWalkPose::ResetState()
 {
-	const auto PushingLeg = SwitchStartingLeg ? RightLegDriver : LeftLegDriver;
-	const auto SteppingLeg = SwitchStartingLeg ? LeftLegDriver : RightLegDriver;
-
-	PushingLeg->LockToWorldGround();
-	SteppingLeg->SetWalkingState(ELegWalkingState::Stepping);
-
-	SwitchStartingLeg = !SwitchStartingLeg;
-
 	WalkCycleComponent->ResetState();
 }

@@ -19,7 +19,6 @@ public:
 
 class FDragonWalkPose final : public FProceduralPose
 {
-	bool SwitchStartingLeg = false;
 public:
 	explicit FDragonWalkPose(UDragonAnimInstance* Anim);
 

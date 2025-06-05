@@ -2,6 +2,7 @@
 
 #include <map>
 
+#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "FashionDragon/Player/Animation/Components/WalkCyclePoseComponent.h"
@@ -11,6 +12,7 @@
 #include "FashionDragon/Player/Animation/Poses/DragonIdle/Drivers/DragonIdleWingDriver.h"
 #include "FashionDragon/Player/Animation/Poses/DragonWalk/DragonWalkPose.h"
 #include "FashionDragon/Player/Animation/Poses/DragonTrot/DragonTrotPose.h"
+#include "FashionDragon/Utils/Utils.h"
 
 FDragonSprintLegDriver::FDragonSprintLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg): FProceduralLegSteppingDriver(AnimInstance, ControlledLeg)
 {
@@ -24,18 +26,24 @@ FDragonSprintLegDriver::FDragonSprintLegDriver(UDragonAnimInstance* AnimInstance
 
 void FDragonSprintLegDriver::Tick(const float DeltaTime)
 {
-	// Advance time forward. Adjusted by character's movement speed.
+	if (BlendAlpha <= 0.0f)
+	{
+		FBaseDriver::Tick(DeltaTime);
+		return;
+	}
+	
 	const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
 	const auto MovementSpeed = OwningActor->GetVelocity().Size();
 
 	const float AdvanceValue = DeltaTime + MovementSpeed * 0.001f * DeltaTime;
-
 	FProceduralLegSteppingDriver::Tick(AdvanceValue);
 
-	// If the leg is stretched too far, disconnect
-	if (WalkingState == ELegWalkingState::Planted && Leg->Position.Size() > 350.0f && Leg->Position.Y < 0.0f)
+	const auto LegReference = RotateVectorToInputRotation(Leg->Position, true);
+	const auto ShouldDisconnect = FMath::Abs(LegReference.X) > 100.f || LegReference.Z < -150.0f || LegReference.Y > 600.0f || LegReference.Y < -300.0f
+		|| FUtils::GetRotatorDistance(Leg->Rotation) > 50.0f;
+	if (WalkingState == ELegWalkingState::Planted && ShouldDisconnect)
 	{
-		// SetWalkingState(ELegWalkingState::Inertia, true);
+		SetWalkingState(ELegWalkingState::Raised);
 	}
 }
 
@@ -85,8 +93,8 @@ FDragonWalkStateData FDragonSprintLegDriver::GetRawWalkStateData() const
 			{
 				.TargetPosition = FVector(0.0f, 0.0f, 150.0f),
 				.TargetRotation = FRotator(0.0f, 0.0f, 60.0f),
-				.LinearForce = 0.7f,
-				.AngularForce = 0.1f,
+				.LinearForce = 1.7f,
+				.AngularForce = 1.0f,
 				.Duration = 0.3f
 			}
 		},
@@ -235,8 +243,6 @@ void FDragonSprintPose::ResetState()
 {
 	RootDriver->ResetState();
 	HipsDriver->ResetState();
-	LeftLegDriver->LockToWorldGround();
-	RightLegDriver->SetWalkingState(ELegWalkingState::Stepping);
 
 	WalkCycleComponent->ResetState();
 }

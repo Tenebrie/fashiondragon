@@ -16,6 +16,8 @@ class FProceduralPoseComponent;
 class FProceduralPose : public FObject
 {
 protected:
+	bool Enabled = true;
+	
 	TArray<FProceduralPoseComponent*> Components;
 	TArray<FProceduralBoneDriver*> BoneDrivers;
 	TArray<FProceduralLegDriver*> LegDrivers;
@@ -32,6 +34,7 @@ public:
 	FPoseEffector ToLegEffector(const FPoseEffector& BaseEffector, const FControlledLeg* Leg, const float DeltaTime) const;
 	FPoseWingEffector ToWingEffector(const FPoseWingEffector& BaseEffector, const FControlledWing* Wing, const float DeltaTime) const;
 
+	void SetEnabled(const bool Value) { Enabled = Value; }
 	void AddBlendAlpha(const float Delta);
 	void SetBlendAlpha(const float BlendAlpha);
 

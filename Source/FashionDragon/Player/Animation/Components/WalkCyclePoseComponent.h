@@ -12,6 +12,8 @@ class FWalkCyclePoseComponent final : public FProceduralPoseComponent
 	FProceduralLegSteppingDriver* LeftLegDriver;
 	FProceduralLegSteppingDriver* RightLegDriver;
 
+	float TimeSinceLastSync = 0.0f;
+	bool SwitchStartingLeg = false;
 	int LeftState = -1;
 	int RightState = -1;
 	
