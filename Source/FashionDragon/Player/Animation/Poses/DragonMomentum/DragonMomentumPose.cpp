@@ -34,6 +34,18 @@ void FDragonMomentumDriverLeg::Tick(const float DeltaTime)
 {
 }
 
+void FDragonMomentumDriverLeg::ResetState()
+{
+	FProceduralLegDriver::ResetState();
+	MomentumOffset = FVector::ZeroVector;
+	PreviousWorldPosition = Leg->GetWorldPosition();
+	PreviousWorldRotation = Leg->GetWorldRotation();
+	PreviousWorldPosition = FVector::ZeroVector;
+	PreviousWorldRotation = FQuat::Identity;
+	SpringState = FVectorSpringState();
+	SpringStateVertical = FVectorSpringState();
+}
+
 FPoseEffector FDragonMomentumDriverLeg::ToEffector(const FPoseEffector& BaseEffector,
                                                    const FPoseEffectorContext& Context)
 {
@@ -55,6 +67,13 @@ FPoseEffector FDragonMomentumDriverLeg::ToEffector(const FPoseEffector& BaseEffe
 
 	const auto WorldPosition = Leg->GetWorldPosition(Position);
 	const auto WorldRotation = Leg->GetWorldRotation(Rotation.Quaternion());
+
+	if (FVector::DistSquared(WorldPosition, PreviousWorldPosition) > 150000.0f)
+	{
+		ResetState();
+		PreviousWorldPosition = WorldPosition;
+		PreviousWorldRotation = WorldRotation;
+	}
 
 	const auto Transform = AnimInstance->GetSkelMeshComponent()->GetAttachParent()->GetComponentTransform().Inverse();
 

@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "FashionDragon/Player/Animation/Abstract/ProceduralLegDriver.h"
 #include "FashionDragon/Player/Animation/Abstract/ProceduralPose.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -40,5 +41,6 @@ public:
 
 	virtual void NativeBeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+	virtual void ResetState() override;
 	virtual FPoseEffector ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context) override;
 };
