@@ -9,6 +9,10 @@ class URotationInputHandler final : public UPlayerComponent
 {
 	GENERATED_BODY()
 
+	FVector2D UserInput = FVector2D::ZeroVector;
+	FVector2D WorldUserInput = FVector2D::ZeroVector;
+	FRotator MovementRotation = FRotator::ZeroRotator;
+
 	float HorizontalSensitivity = 1.0f;
 	float VerticalSensitivity = 1.0f;
 
@@ -17,13 +21,15 @@ class URotationInputHandler final : public UPlayerComponent
 	float CurrentRoll = 0.0f;
 	
 public:
-	FRotator GetRotation() const { return FRotator(CurrentPitch, CurrentYaw, CurrentRoll); }
+	FRotator GetFacingWorldRotation() const { return MovementRotation; }
+	FRotator GetCameraWorldRotation() const { return FRotator(CurrentPitch, CurrentYaw, CurrentRoll); }
 	void ResetRotation(const FQuat& Rotation)
 	{
 		CurrentPitch = Rotation.Rotator().Pitch;
 		CurrentYaw = Rotation.Rotator().Yaw;
 		CurrentRoll = Rotation.Rotator().Roll;
 	}
-	
-	void HandleInput(const FInputActionValue& Value);
+
+	void HandleMovementInput(const FInputActionValue& Value);
+	void HandleRotationInput(const FInputActionValue& Value);
 };

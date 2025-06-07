@@ -28,6 +28,7 @@ class FASHIONDRAGON_API ADefaultPlayerController : public ABasePlayerController
 public:
 	void SetControlMode(EControlMode Mode) const;
 
+	UPROPERTY() UInputMappingContext* CommonInputContext;
 	UPROPERTY() UInputMappingContext* DragonGroundInputContext;
 	UPROPERTY() UInputMappingContext* DragonFlyingInputContext;
 	UPROPERTY() UInputMappingContext* DebugInputContext;

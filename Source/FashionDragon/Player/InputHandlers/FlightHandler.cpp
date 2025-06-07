@@ -33,7 +33,7 @@ void UFlightHandler::TickComponent(const float DeltaTime, const ELevelTick TickT
 	// LastFrameLeftOpenness = LeftWing->Openness;
 	// LastFrameRightOpenness = RightWing->Openness;
 
-	const FRotator TargetRotation = GetCharacter()->RotationInputHandler->GetRotation();
+	const FRotator TargetRotation = GetCharacter()->RotationInputHandler->GetCameraWorldRotation();
 
 	// ─── Tunables you’ll actually tweak in-editor ──────────────────────
 	const float IdealGlideSpeed    = 2500.f;   // speed where wings work best
@@ -88,5 +88,10 @@ void UFlightHandler::TickComponent(const float DeltaTime, const ELevelTick TickT
 void UFlightHandler::StartFlight()
 {
 	IsInFlight = true;
+}
+
+void UFlightHandler::CancelFlight()
+{
+	IsInFlight = false;
 }
 

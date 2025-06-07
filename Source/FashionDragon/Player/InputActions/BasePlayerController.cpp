@@ -53,10 +53,19 @@ FKeyMappingBuilder& FKeyMappingBuilder::Swizzle()
 	return AddModifier(NewObject<UInputModifierSwizzleAxis>(Context));
 }
 
-FKeyMappingBuilder& FKeyMappingBuilder::DeadZone(const float Value)
+FKeyMappingBuilder& FKeyMappingBuilder::RadialDeadZone(const float Value)
 {
 	const auto Modifier = NewObject<UInputModifierDeadZone>(Context);
 	Modifier->Type = EDeadZoneType::Radial;
+	Modifier->LowerThreshold = Value;
+	Modifier->UpperThreshold = 1.0f;
+	return AddModifier(Modifier);
+}
+
+FKeyMappingBuilder& FKeyMappingBuilder::PerAxisDeadZone(const float Value)
+{
+	const auto Modifier = NewObject<UInputModifierDeadZone>(Context);
+	Modifier->Type = EDeadZoneType::Axial;
 	Modifier->LowerThreshold = Value;
 	Modifier->UpperThreshold = 1.0f;
 	return AddModifier(Modifier);

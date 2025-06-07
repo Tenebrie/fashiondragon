@@ -75,9 +75,9 @@ void AMainCharacter::BeginPlay()
     GetCharacterMovement()->bOrientRotationToMovement = false;
     GetCharacterMovement()->JumpZVelocity = 700.f;
     GetCharacterMovement()->AirControl = 0.75f;
-    GetCharacterMovement()->MaxAcceleration = 2048.f;
+    GetCharacterMovement()->MaxAcceleration = 4096.f;
     GetCharacterMovement()->BrakingDecelerationWalking = 1000.f;
-    DetachedMeshRoot->SetUsingAbsoluteRotation(false);
+    DetachedMeshRoot->SetUsingAbsoluteRotation(true);
 
     SwitchGroundMovementMode(EGroundMovementMode::Trotting);
 
@@ -92,7 +92,7 @@ void AMainCharacter::Tick(const float DeltaTime)
     const auto SpringArmComponent = FindComponentByClass<USpringArmComponent>();
     if (!Controller || !SpringArmComponent) { return; }
 
-    const auto DesiredRotation = RotationInputHandler->GetRotation();
+    const auto DesiredRotation = RotationInputHandler->GetCameraWorldRotation();
 
     // Return camera to default in flight
     if (FlightHandler->IsFlying())
@@ -114,15 +114,22 @@ void AMainCharacter::Tick(const float DeltaTime)
         if (GetMovementComponent()->Velocity.Size() > KINDA_SMALL_NUMBER)
         {
             Controller->SetControlRotation(FMath::RInterpTo(Controller->GetControlRotation(), TargetControlRotation, DeltaTime, 50.0f));
-            
-            const auto DirVector = GetMovementComponent()->Velocity.GetSafeNormal2D();
+
+            const auto MovementSpeedScalar = FMath::Clamp(GetMovementComponent()->Velocity.Size() / 700.0f, 0, 1);
             const auto CurrentRot = DetachedMeshRoot->GetComponentRotation();
-            auto TargetRot = DirVector.Rotation();
-            if (FMath::Abs(CurrentRot.Yaw - TargetRot.Yaw) > 110.0f)
+
+            const FRotator NewDesiredRotation = RotationInputHandler->GetFacingWorldRotation();
+            if (NewDesiredRotation.Vector().Dot(DesiredFacingRotation.Vector()) < -0.6f)
             {
-                TargetRot = FRotator(TargetRot.Pitch, FMath::Modulo(TargetRot.Yaw + 180.0f, 360.0f), 0.0f);
+                DesiredFacingRotation = NewDesiredRotation + FRotator(0.0f, 180.0f,0.0f);
             }
-            const auto NewRot = FMath::RInterpTo(CurrentRot, TargetRot, DeltaTime, 5.0f);
+            else
+            {
+                DesiredFacingRotation = NewDesiredRotation;
+            }
+
+            const FRotator FacingRotation = DesiredFacingRotation;
+            const auto NewRot = FMath::RInterpTo(CurrentRot, FacingRotation, DeltaTime, 10.0f * MovementSpeedScalar);
             DetachedMeshRoot->SetWorldRotation(NewRot);
         }
     }
@@ -138,14 +145,15 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
     if (!Input) return;
     
     Input->BindAction(UActions::GroundMovement(), ETriggerEvent::Triggered, this, &AMainCharacter::GroundMovement);
-    Input->BindAction(UActions::FlightCamera(), ETriggerEvent::Triggered, this, &AMainCharacter::FlightCameraMove);
-    Input->BindAction(UActions::CameraMove(), ETriggerEvent::Triggered, RotationInputHandler, &URotationInputHandler::HandleInput);
+    
+    Input->BindAction(UActions::GroundMovement(), ETriggerEvent::Triggered, RotationInputHandler, &URotationInputHandler::HandleMovementInput);
+    Input->BindAction(UActions::CameraMove(), ETriggerEvent::Triggered, RotationInputHandler, &URotationInputHandler::HandleRotationInput);
     
     Input->BindAction(UActions::Jump(), ETriggerEvent::Started, this, &AMainCharacter::StartJump);
-    Input->BindAction(UActions::Jump(), ETriggerEvent::Completed & ETriggerEvent::Canceled, this, &AMainCharacter::ReleaseJump);
+    Input->BindAction(UActions::CancelFlight(), ETriggerEvent::Started, this, &AMainCharacter::CancelFlight);
 
     Input->BindAction(UActions::Sprint(), ETriggerEvent::Started, this, &AMainCharacter::StartSprint);
-    Input->BindAction(UActions::Sprint(), ETriggerEvent::Completed & ETriggerEvent::Canceled, this, &AMainCharacter::StopSprint);
+    Input->BindAction(UActions::Sprint(), ETriggerEvent::Completed | ETriggerEvent::Canceled, this, &AMainCharacter::StopSprint);
 
     Input->BindAction(UActions::TogglePreferredMovement(), ETriggerEvent::Started, this, &AMainCharacter::TogglePreferredGroundMovement);
     
@@ -192,16 +200,16 @@ void AMainCharacter::StartJump()
         FlightHandler->StartFlight();
         const auto PlayerController = Cast<ADefaultPlayerController>(GetController());
         PlayerController->SetControlMode(EControlMode::Flying);
-
-        GetCharacterMovement()->AirControl = 1.0f;
-        GetCharacterMovement()->MaxWalkSpeed = 0.f;
         GetCharacterMovement()->SetMovementMode(MOVE_Flying);
-        GetCharacterMovement()->MaxFlySpeed = 0.f;
     }
 }
 
-void AMainCharacter::ReleaseJump()
+void AMainCharacter::CancelFlight()
 {
+    FlightHandler->CancelFlight();
+    const auto PlayerController = Cast<ADefaultPlayerController>(GetController());
+    PlayerController->SetControlMode(EControlMode::Ground);
+    GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 }
 
 void AMainCharacter::StartSprint() { SwitchGroundMovementMode(EGroundMovementMode::Sprinting); }

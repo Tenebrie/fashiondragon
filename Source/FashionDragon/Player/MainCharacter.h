@@ -8,6 +8,7 @@
 #include "PhysicsEngine/PhysicalAnimationComponent.h"
 #include "MainCharacter.generated.h"
 
+class UCameraComponent;
 class UAnimationDebugReporter;
 class UFlightHandler;
 class URotationInputHandler;
@@ -28,6 +29,8 @@ class FASHIONDRAGON_API AMainCharacter : public ACharacter
 public:
 	AMainCharacter();
 
+	FRotator DesiredFacingRotation = FRotator::ZeroRotator;
+
 	EGroundMovementMode MovementMode;
 	EGroundMovementMode PreferredMovementMode = EGroundMovementMode::Trotting;
 
@@ -44,6 +47,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UPhysicalAnimationComponent* PhysicalAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cameras", meta = (AllowPrivateAccess = "true"))
+	UCameraComponent* MainCamera;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cameras", meta = (AllowPrivateAccess = "true"))
+	UCameraComponent* AimCamera;
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Assets", meta = (AllowPrivateAccess = "true"))
@@ -63,7 +72,7 @@ protected:
 	void GroundMovement(const FInputActionValue& Value);
 	void FlightCameraMove(const FInputActionValue& Value);
 	void StartJump();
-	void ReleaseJump();
+	void CancelFlight();
 	void StartSprint();
 	void StopSprint();
 	void TogglePreferredGroundMovement();

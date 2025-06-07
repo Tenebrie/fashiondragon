@@ -34,13 +34,13 @@ void FDragonIdleLegDriver::Tick(const float DeltaTime)
 		SetIdleState(ELegIdleState::Planted);
 	}
 
-	// const auto LegReference = RotateVectorToInputRotation(Leg->Position, true);
-	// const auto ShouldDisconnect = FMath::Abs(LegReference.X) > 200.f || LegReference.Z < -150.0f || LegReference.Y > 600.0f || LegReference.Y < -200.0f
-	// 	|| FUtils::GetRotatorDistance(Leg->Rotation) > 50.0f;
-	// if (IdleState == ELegIdleState::Planted && ShouldDisconnect)
-	// {
-	// 	SetIdleState(ELegIdleState::ArticulatedReturn);
-	// }
+	const auto LegReference = RotateVectorToInputRotation(Leg->Position, true);
+	const auto ShouldDisconnect = FMath::Abs(LegReference.Y) > 200.f || LegReference.Z < -150.0f || LegReference.X > 600.0f || LegReference.X < -200.0f
+		|| FUtils::GetRotatorDistance(Leg->Rotation) > 50.0f;
+	if (IdleState == ELegIdleState::Planted && ShouldDisconnect)
+	{
+		SetIdleState(ELegIdleState::ArticulatedReturn);
+	}
 }
 
 void FDragonIdleLegDriver::SetIdleState(const ELegIdleState NewState, const bool SkipBroadcast)

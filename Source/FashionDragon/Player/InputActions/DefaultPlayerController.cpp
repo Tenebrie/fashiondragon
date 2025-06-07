@@ -18,11 +18,24 @@ void ADefaultPlayerController::SetupInputComponent()
 
 	SetupInputMappings();
 	SetControlMode(EControlMode::Ground);
+	InputSubsystem->AddMappingContext(CommonInputContext, 0);
 	InputSubsystem->AddMappingContext(DebugInputContext, 0);
 }
 
 void ADefaultPlayerController::SetupInputMappings()
 {
+	CommonInputContext = MakeInputContext();
+	{
+		const auto Context = CommonInputContext;
+		AddMapping(Context, UActions::CameraMove(), EKeys::MouseX);
+		AddMapping(Context, UActions::CameraMove(), EKeys::MouseY).Swizzle();
+		AddMapping(Context, UActions::CameraMove(), EKeys::Gamepad_RightX).RadialDeadZone(0.15f).PerAxisDeadZone(0.04f);
+		AddMapping(Context, UActions::CameraMove(), EKeys::Gamepad_RightY).Swizzle().Negate().RadialDeadZone(0.15f).PerAxisDeadZone(0.04f);
+		
+		AddMapping(Context, UActions::HoldAimDownSights(), EKeys::RightMouseButton);
+		AddMapping(Context, UActions::HoldAimDownSights(), EKeys::Gamepad_LeftTrigger);
+	}
+	
 	DragonGroundInputContext = MakeInputContext();
 	{
 		const auto Context = DragonGroundInputContext;
@@ -30,12 +43,7 @@ void ADefaultPlayerController::SetupInputMappings()
 		AddMapping(Context, UActions::GroundMovement(), EKeys::A).Negate();
 		AddMapping(Context, UActions::GroundMovement(), EKeys::S).Swizzle().Negate();
 		AddMapping(Context, UActions::GroundMovement(), EKeys::D);
-		AddMapping(Context, UActions::GroundMovement(), EKeys::Gamepad_Left2D).DeadZone(0.1f);
-
-		AddMapping(Context, UActions::CameraMove(), EKeys::MouseX);
-		AddMapping(Context, UActions::CameraMove(), EKeys::MouseY).Swizzle();
-		AddMapping(Context, UActions::CameraMove(), EKeys::Gamepad_RightX).DeadZone(0.1f);
-		AddMapping(Context, UActions::CameraMove(), EKeys::Gamepad_RightY).Swizzle().Negate().DeadZone(0.1f);
+		AddMapping(Context, UActions::GroundMovement(), EKeys::Gamepad_Left2D).RadialDeadZone(0.2f).PerAxisDeadZone(0.1f);
 
 		AddMapping(Context, UActions::Jump(), EKeys::SpaceBar);
 		AddMapping(Context, UActions::Jump(), EKeys::Gamepad_FaceButton_Bottom);
@@ -51,15 +59,9 @@ void ADefaultPlayerController::SetupInputMappings()
 	DragonFlyingInputContext = MakeInputContext();
 	{
 		const auto Context = DragonFlyingInputContext;
-		// AddMapping(Context, UActions::FlightCamera(), EKeys::MouseX);
-		// AddMapping(Context, UActions::FlightCamera(), EKeys::MouseY).Swizzle();
-		// AddMapping(Context, UActions::FlightCamera(), EKeys::Gamepad_RightX).DeadZone(0.1f);
-		// AddMapping(Context, UActions::FlightCamera(), EKeys::Gamepad_RightY).Swizzle().Negate().DeadZone(0.1f);
 
-		AddMapping(Context, UActions::CameraMove(), EKeys::MouseX);
-		AddMapping(Context, UActions::CameraMove(), EKeys::MouseY).Swizzle();
-		AddMapping(Context, UActions::CameraMove(), EKeys::Gamepad_RightX).DeadZone(0.1f);
-		AddMapping(Context, UActions::CameraMove(), EKeys::Gamepad_RightY).Swizzle().Negate().DeadZone(0.1f);
+		AddMapping(Context, UActions::CancelFlight(), EKeys::SpaceBar);
+		AddMapping(Context, UActions::CancelFlight(), EKeys::Gamepad_FaceButton_Bottom);
 	}
 
 	DebugInputContext = MakeInputContext();
@@ -78,12 +80,12 @@ void ADefaultPlayerController::SetControlMode(const EControlMode Mode) const
 	if (Mode == EControlMode::Ground)
 	{
 		InputSubsystem->RemoveMappingContext(DragonFlyingInputContext);
-		InputSubsystem->AddMappingContext(DragonGroundInputContext, 1);
+		InputSubsystem->AddMappingContext(DragonGroundInputContext, 2);
 	}
 	else if (Mode == EControlMode::Flying)
 	{
 		InputSubsystem->RemoveMappingContext(DragonGroundInputContext);
-		InputSubsystem->AddMappingContext(DragonFlyingInputContext, 1);
+		InputSubsystem->AddMappingContext(DragonFlyingInputContext, 2);
 	}
 	else
 	{

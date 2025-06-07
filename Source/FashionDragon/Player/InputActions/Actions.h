@@ -17,14 +17,16 @@ class UActions : public UGameInstanceSubsystem
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 public:
-	inline static const FInputActionFactory GroundMovement = Action(EInputActionValueType::Axis2D);
 	inline static const FInputActionFactory CameraMove = Action(EInputActionValueType::Axis2D);
+	inline static const FInputActionFactory HoldAimDownSights = Action(EInputActionValueType::Boolean);
+	
+	inline static const FInputActionFactory GroundMovement = Action(EInputActionValueType::Axis2D);
 	inline static const FInputActionFactory Jump = Action(EInputActionValueType::Boolean);
 	inline static const FInputActionFactory Sprint = Action(EInputActionValueType::Boolean);
 	inline static const FInputActionFactory TogglePreferredMovement = Action(EInputActionValueType::Boolean);
 	inline static const FInputActionFactory CastASpell = Action(EInputActionValueType::Boolean);
 
-	inline static const FInputActionFactory FlightCamera = Action(EInputActionValueType::Axis2D);
+	inline static const FInputActionFactory CancelFlight = Action(EInputActionValueType::Boolean);
 
 	inline static const FInputActionFactory ShowAnimDebug = Action(EInputActionValueType::Boolean);
 	inline static const FInputActionFactory DebugButtonNum2 = Action(EInputActionValueType::Boolean);

@@ -28,5 +28,6 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void StartFlight();
+	void CancelFlight();
 	bool IsFlying() const { return IsInFlight; }
 };

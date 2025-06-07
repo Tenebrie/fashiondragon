@@ -21,7 +21,8 @@ public:
 	FKeyMappingBuilder& AsFalse();
 	FKeyMappingBuilder& Negate();
 	FKeyMappingBuilder& Swizzle();
-	FKeyMappingBuilder& DeadZone(float Value);
+	FKeyMappingBuilder& RadialDeadZone(float Value);
+	FKeyMappingBuilder& PerAxisDeadZone(float Value);
 };
 
 UCLASS()
