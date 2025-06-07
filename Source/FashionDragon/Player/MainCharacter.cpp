@@ -62,11 +62,12 @@ void AMainCharacter::PostInitializeComponents()
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-    PhysicalAnimation->ApplyPhysicalAnimationProfileBelow(TEXT("Tail_001"), TEXT("MyProfile"), true);
+    
+    PhysicalAnimation->SetSkeletalMeshComponent(DragonMesh);
     PhysicalAnimation->ApplyPhysicalAnimationProfileBelow(TEXT("Back_L"), TEXT("MyProfile"), true);
     PhysicalAnimation->ApplyPhysicalAnimationProfileBelow(TEXT("Back_R"), TEXT("MyProfile"), true);
-
-    DragonMesh->SetConstraintProfileForAll(TEXT("MyProfile"));
+    DragonMesh->SetAllBodiesBelowPhysicsBlendWeight(TEXT("Back_R"), 1.0f, true, true);
+    DragonMesh->SetAllBodiesBelowPhysicsBlendWeight(TEXT("Back_L"), 1.0f, true, true);
     DragonMesh->SetAllBodiesBelowSimulatePhysics(TEXT("Tail_001"), true, true);
     DragonMesh->SetAllBodiesBelowSimulatePhysics(TEXT("Back_R"), true, true);
     DragonMesh->SetAllBodiesBelowSimulatePhysics(TEXT("Back_L"), true, true);
@@ -74,7 +75,6 @@ void AMainCharacter::BeginPlay()
     GetCharacterMovement()->bOrientRotationToMovement = false;
     GetCharacterMovement()->JumpZVelocity = 700.f;
     GetCharacterMovement()->AirControl = 0.75f;
-    GetCharacterMovement()->MaxWalkSpeed = 2000.f;
     GetCharacterMovement()->MaxAcceleration = 2048.f;
     GetCharacterMovement()->BrakingDecelerationWalking = 1000.f;
     DetachedMeshRoot->SetUsingAbsoluteRotation(false);
@@ -92,18 +92,40 @@ void AMainCharacter::Tick(const float DeltaTime)
     const auto SpringArmComponent = FindComponentByClass<USpringArmComponent>();
     if (!Controller || !SpringArmComponent) { return; }
 
+    const auto DesiredRotation = RotationInputHandler->GetRotation();
+
     // Return camera to default in flight
     if (FlightHandler->IsFlying())
     {
         const FRotator TargetRotationTwo = FRotator(0, 0, 0);
         SpringArmComponent->SetRelativeRotation(FMath::RInterpTo(SpringArmComponent->GetRelativeRotation(), TargetRotationTwo, GetWorld()->GetDeltaSeconds(), 5.0f));
+
+        const auto TargetControlRotation = FRotator(0, DesiredRotation.Yaw, 0);
+        Controller->SetControlRotation(FMath::RInterpTo(Controller->GetControlRotation(), TargetControlRotation, DeltaTime, 50.0f));
+
+        const auto TargetRot = FRotator(-DesiredRotation.Roll, 0, -DesiredRotation.Pitch);
+        MeshRoot->SetRelativeRotation(TargetRot);
     }
+    else
+    {
+        const auto TargetControlRotation = FRotator(0, DesiredRotation.Yaw, 0);
+        SpringArmComponent->SetWorldRotation(FRotator(DesiredRotation.Pitch, DesiredRotation.Yaw, 0.0f));
 
-    const auto DesiredRotation = RotationInputHandler->GetRotation();
-
-    const auto TargetControlRotation = FRotator(0, DesiredRotation.Yaw, 0);
-    Controller->SetControlRotation(FMath::RInterpTo(Controller->GetControlRotation(), TargetControlRotation, DeltaTime, 50.0f));
-
+        if (GetMovementComponent()->Velocity.Size() > KINDA_SMALL_NUMBER)
+        {
+            Controller->SetControlRotation(FMath::RInterpTo(Controller->GetControlRotation(), TargetControlRotation, DeltaTime, 50.0f));
+            
+            const auto DirVector = GetMovementComponent()->Velocity.GetSafeNormal2D();
+            const auto CurrentRot = DetachedMeshRoot->GetComponentRotation();
+            auto TargetRot = DirVector.Rotation();
+            if (FMath::Abs(CurrentRot.Yaw - TargetRot.Yaw) > 110.0f)
+            {
+                TargetRot = FRotator(TargetRot.Pitch, FMath::Modulo(TargetRot.Yaw + 180.0f, 360.0f), 0.0f);
+            }
+            const auto NewRot = FMath::RInterpTo(CurrentRot, TargetRot, DeltaTime, 5.0f);
+            DetachedMeshRoot->SetWorldRotation(NewRot);
+        }
+    }
     SpringArmComponent->SetWorldRotation(FRotator(DesiredRotation.Pitch, DesiredRotation.Yaw, 0.0f));
 }
 
@@ -167,12 +189,14 @@ void AMainCharacter::StartJump()
     }
     else
     {
-        // FlightController->StartFlight();
-        // const auto PlayerController = Cast<ADefaultPlayerController>(GetController());
-        // PlayerController->SetControlMode(EControlMode::Flying);
+        FlightHandler->StartFlight();
+        const auto PlayerController = Cast<ADefaultPlayerController>(GetController());
+        PlayerController->SetControlMode(EControlMode::Flying);
 
-        // GetCharacterMovement()->AirControl = 1.0f;
-        // GetCharacterMovement()->MaxWalkSpeed = 0.f;
+        GetCharacterMovement()->AirControl = 1.0f;
+        GetCharacterMovement()->MaxWalkSpeed = 0.f;
+        GetCharacterMovement()->SetMovementMode(MOVE_Flying);
+        GetCharacterMovement()->MaxFlySpeed = 0.f;
     }
 }
 

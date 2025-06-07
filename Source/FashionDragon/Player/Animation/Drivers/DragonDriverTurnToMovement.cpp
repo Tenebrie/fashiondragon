@@ -24,9 +24,9 @@ FPoseEffector FDragonDriverTurnToMovement::ToEffector(const FPoseEffector& BaseE
 	FRotator BankRotation = FRotator::ZeroRotator;
 	const auto Sensitivity = FMath::Clamp(AnimInstance->GetCharacter()->GetVelocity().Size() / 2000.0f, 0.1f, 1.0f);
 
-	BankRotation.Pitch = FMath::Clamp(DragDirection.Yaw * Sensitivity * 0.5f, -25.0f, 25.0f) * AxisMask.X;
+	BankRotation.Pitch = FMath::Clamp(DragDirection.Yaw * Sensitivity * 0.5f, -25.0f, 25.0f) * AxisMask.X * FMath::Sign(DragDirection.Yaw);
 	BankRotation.Yaw = FMath::Clamp(DragDirection.Yaw * Sensitivity * 0.5f, -25.0f, 25.0f) * AxisMask.Y;
-	BankRotation.Roll = FMath::Clamp(DragDirection.Yaw * Sensitivity * 0.5f, -25.0f, 25.0f) * AxisMask.Z * FMath::Sign(DragDirection.Yaw);
+	BankRotation.Roll = FMath::Clamp(DragDirection.Yaw * Sensitivity * 0.5f, -25.0f, 25.0f) * AxisMask.Z;
 	
 	return BaseEffector.SetRotation(BankRotation);
 }

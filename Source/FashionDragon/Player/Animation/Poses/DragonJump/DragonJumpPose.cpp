@@ -43,7 +43,7 @@ void FDragonJumpBodyDriver::Tick(const float DeltaTime)
 	else if (JumpingState == ELegJumpState::Impact)
 	{
 		DesiredPosition = FVector(0.0f, 0.0f, -75.0f) * ImpactMultiplier;
-		DesiredRotation = FRotator(0.0f, 0.0f, 7.5f) * ImpactMultiplier;
+		DesiredRotation = FRotator(-7.5f, 0.0f, 0.0f) * ImpactMultiplier;
 		DesiredForce = 10.f;
 	}
 	else
@@ -136,7 +136,7 @@ FDragonWalkStateData FDragonJumpLegDriver::GetRawWalkStateData() const
 		{ ELegJumpState::Pushing,
 			{
 				.TargetPosition = FVector(0.0f, 0.0f, -1000.0f),
-				.TargetRotation = FRotator(0.0f, 0.0f, 30.0f),
+				.TargetRotation = FRotator(-30.0f, 0.0f, 0.0f),
 				.LinearForce = 1.0f,
 				.Duration = 0.10f + JumpLagBehind,
 			}
@@ -144,14 +144,14 @@ FDragonWalkStateData FDragonJumpLegDriver::GetRawWalkStateData() const
 		{ ELegJumpState::Retracting,
 			{
 				.TargetPosition = FVector(0.0f, 0.0f, 150.0f) + JumpPositionOffset,
-				.TargetRotation = FRotator(0.0f, 0.0f, 60.0f),
+				.TargetRotation = FRotator(-60.0f, 0.0f, 0.0f),
 				.Duration = 0.50f,
 			}
 		},
 		{ ELegJumpState::DelayedLanding,
 			{
 				.TargetPosition = FVector(0.0f, 0.0f, 150.0f) + JumpPositionOffset,
-				.TargetRotation = FRotator(0.0f, 0.0f, 60.0f),
+				.TargetRotation = FRotator(-60.0f, 0.0f, 0.0f),
 				.Duration = JumpLagBehind,
 			}
 		},

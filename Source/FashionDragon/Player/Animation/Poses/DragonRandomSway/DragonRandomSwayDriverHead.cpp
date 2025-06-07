@@ -41,14 +41,14 @@ void FDragonRandomSwayDriverHead::Tick(const float DeltaTime)
 		else
 		{
 			HeadLookState = EHeadLookState::LookingAtTarget;
-			constexpr float MaxPitch = 0.0f;
+			constexpr float MaxPitch = 20.0f;
 			constexpr float MaxYaw = 20.0f;
-			constexpr float MaxRoll = 20.0f;
+			constexpr float MaxRoll = 0.0f;
 
 			DesiredRotation = FRotator(
-				FMath::RandRange(-MaxPitch, MaxPitch),
+				FMath::RandRange(-10.0f, MaxPitch),
 				FMath::RandRange(-MaxYaw, MaxYaw),
-				FMath::RandRange(-10.0f, MaxRoll)
+				FMath::RandRange(-MaxRoll, MaxRoll)
 			);
 			Cooldown = FMath::RandRange(2.0f, 4.0f);
 			return;
@@ -58,14 +58,14 @@ void FDragonRandomSwayDriverHead::Tick(const float DeltaTime)
 	if (HeadLookState == EHeadLookState::LookingAround && LookingAroundStatesLeft > 0)
 	{
 		LookingAroundStatesLeft -= 1;
-		constexpr float MaxPitch = 0.0f;
+		constexpr float MaxPitch = 20.0f;
 		constexpr float MaxYaw = 20.0f;
-		constexpr float MaxRoll = 20.0f;
+		constexpr float MaxRoll = 0.0f;
 
 		DesiredRotation = FRotator(
-			FMath::RandRange(-MaxPitch, MaxPitch),
+			FMath::RandRange(-10.0f, MaxPitch),
 			FMath::RandRange(-MaxYaw, MaxYaw),
-			FMath::RandRange(-10.0f, MaxRoll)
+			FMath::RandRange(-MaxRoll, MaxRoll)
 		);
 		Cooldown = FMath::RandRange(1.5f, 2.5f);
 	}

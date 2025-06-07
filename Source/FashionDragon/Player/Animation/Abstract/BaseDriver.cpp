@@ -1,5 +1,6 @@
 ﻿#include "BaseDriver.h"
 
+#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -53,7 +54,7 @@ FVector FBaseDriver::RotateVectorToInputRotation(const FVector& VectorToRotate, 
 	
 	// Get normalized input vector in local space
 	// const auto ActorRotation = OwningActor->GetActorRotation();
-	const auto ActorRotation = AnimInstance->GetSkelMeshComponent()->GetAttachParent()->GetComponentRotation() + FRotator(0.f, 90.f, 0.f);
+	const auto ActorRotation = AnimInstance->GetSkelMeshComponent()->GetAttachParent()->GetComponentRotation();
 	const auto InputVector = ActorRotation.UnrotateVector(VelocityVector).GetSafeNormal2D();
 	// const auto InputVector = VelocityVector;
 
@@ -63,6 +64,7 @@ FVector FBaseDriver::RotateVectorToInputRotation(const FVector& VectorToRotate, 
 	{
 		AngleRadians = -AngleRadians;
 	}
+	// float AngleRadians = 0.0f;
 
 	// Create rotation matrix around Z axis using the angle
 	const FRotator Rotation(0, FMath::RadiansToDegrees(AngleRadians), 0);

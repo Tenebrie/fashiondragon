@@ -31,15 +31,14 @@ void FDragonWingPoseAdapter::SetBoneOffset(
 	const FVector& Position,
 	const FRotator& Rotation) const
 {
-	const FRotator FixedRotation = FRotator(Rotation.Yaw, Rotation.Roll, -Rotation.Pitch + 90);
 	for (const auto Constraints = Anim->GetSkelMeshComponent()->Constraints; FConstraintInstance* Constraint : Constraints)
 	{
 		if (Constraint->GetParentBoneName() == ParentBone && Constraint->GetChildBoneName() == ChildName)
 		{
 			Constraint->SetRefPosition(EConstraintFrame::Frame1, Position);
 
-			FVector PriAxis = FixedRotation.RotateVector(FVector::ForwardVector);
-			FVector SecAxis = FixedRotation.RotateVector(FVector::UpVector);
+			FVector PriAxis = Rotation.RotateVector(FVector::ForwardVector);
+			FVector SecAxis = Rotation.RotateVector(FVector::UpVector);
 			Constraint->SetRefOrientation(EConstraintFrame::Frame1, PriAxis, SecAxis);
 		}
 	}

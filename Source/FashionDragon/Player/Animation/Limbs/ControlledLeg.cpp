@@ -19,7 +19,7 @@ FPlantedPositionData FControlledLeg::GetPlantedWorldPosition(const FVector& AtPo
 	const auto WorldFootBase = GetWorldPosition(AtPosition);
 
 	// TODO: Fix. As the rotation is not taken into account, this is checking for flat collision.
-	const auto WorldFootTip = WorldFootBase + FootRotation.RotateVector(FVector(0, 20, 0));
+	const auto WorldFootTip = WorldFootBase + FootRotation.RotateVector(FVector(20, 0, 0));
 	// const auto WorldFootTip = WorldFootBase + FVector(0, 20, 0);
 
 	constexpr float TraceDistance = 300.0f;

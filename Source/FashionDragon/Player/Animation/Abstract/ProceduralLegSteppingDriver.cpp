@@ -129,19 +129,19 @@ FDragonWalkStateData FProceduralLegSteppingDriver::GetTargetPosition() const
 FDragonWalkStateData FProceduralLegSteppingDriver::AlignPoseToInputDirection(FDragonWalkStateData PoseData) const
 {
 	const auto Data = FDragonWalkStateData(PoseData);
-	Data.TargetPosition = FVector(Data.TargetPosition.X * Leg->MirrorScalar, Data.TargetPosition.Y, Data.TargetPosition.Z);
+	Data.TargetPosition = FVector(Data.TargetPosition.X, Data.TargetPosition.Y * Leg->MirrorScalar, Data.TargetPosition.Z);
 	Data.TargetRotation.Yaw *= Leg->MirrorScalar;
-	Data.StartArticulationPosition.X *= Leg->MirrorScalar;
-	Data.EndArticulationPosition.X *= Leg->MirrorScalar;
+	Data.StartArticulationPosition.Y *= Leg->MirrorScalar;
+	Data.EndArticulationPosition.Y *= Leg->MirrorScalar;
 	
 	Data.TargetPosition = RotateVectorToInputRotation(Data.TargetPosition);
 	
-	const auto InputRotation = FMath::Abs(FMath::Cos(GetInputRotation()));
-	const auto OriginalZ = Data.TargetPosition.Z;
-	const auto StepScale = (InputRotation + 2.0f) / 3.0f;
-	Data.TargetPosition *= StepScale;
-	Data.TargetPosition.Z = OriginalZ;
-	Data.PlaybackSpeed = PoseData.PlaybackSpeed / StepScale;
+	// const auto InputRotation = FMath::Abs(FMath::Cos(GetInputRotation()));
+	// const auto OriginalZ = Data.TargetPosition.Z;
+	// const auto StepScale = (InputRotation + 2.0f) / 3.0f;
+	// Data.TargetPosition *= StepScale;
+	// Data.TargetPosition.Z = OriginalZ;
+	// Data.PlaybackSpeed = PoseData.PlaybackSpeed / StepScale;
 
 	if (WalkingState == ELegWalkingState::Stepping || WalkingState == ELegWalkingState::Relaxed || WalkingState == ELegWalkingState::Inertia)
 	{

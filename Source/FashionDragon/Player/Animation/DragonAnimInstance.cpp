@@ -42,12 +42,12 @@ void UDragonAnimInstance::NativeInitializeAnimation()
 	BackLeftLeg = TFControlledBoneGroup("LeftLeg", new FControlledLeg(
 		this,
 		"Foot_Back_L",
-		FVector(108.491488, -125.883428, -323.843154),
+		FVector(-125.883428, -108.491488, -323.843154),
 				0));
 	BackRightLeg = TFControlledBoneGroup("RightLeg", new FControlledLeg(
 		this,
 		"Foot_Back_R",
-		FVector(-108.491488, -125.883428, -323.843154),
+		FVector(-125.883428, 108.491488, -323.843154),
 				1));
 	
 	ControlledLegs = TArray<TFControlledBoneGroup<FControlledLeg>*>();
@@ -123,9 +123,9 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 	constexpr float HipTransformFraction = 0.35f;
 	constexpr float TailTransformFraction = 1.0f - HipTransformFraction;
 	const FRotator HipRotation = FRotator(
-		Effector.Rotation.Roll * HipTransformFraction,
+		Effector.Rotation.Pitch * HipTransformFraction,
 		Effector.Rotation.Yaw * HipTransformFraction,
-		Effector.Rotation.Pitch * HipTransformFraction);
+		Effector.Rotation.Roll * HipTransformFraction);
 	HipTransform = FTransform(HipRotation, Effector.Position * HipTransformFraction);
 
 	const FRotator TailRotation = FRotator(
@@ -173,7 +173,7 @@ void UDragonAnimInstance::NativeBeginPlay()
 
 void UDragonAnimInstance::SetPhysicalBoneOffset(const FName ParentBone, const FName ChildName, const FVector& Position, const FRotator& Rotation) const
 {
-	const FRotator FixedRotation = FRotator(Rotation.Yaw, Rotation.Roll, -Rotation.Pitch + 90);
+	const FRotator FixedRotation = FRotator(Rotation.Yaw, -Rotation.Roll, Rotation.Pitch + 90);
 	for (const auto Constraints = GetSkelMeshComponent()->Constraints; FConstraintInstance* Constraint : Constraints)
 	{
 		if (Constraint->GetParentBoneName() == ParentBone && Constraint->GetChildBoneName() == ChildName)

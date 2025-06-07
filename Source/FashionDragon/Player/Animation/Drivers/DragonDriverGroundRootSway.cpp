@@ -22,7 +22,7 @@ void FDragonDriverGroundRootSway::Tick(const float DeltaTime)
 		const auto CurrentVerticalOffset = LeadingLegOffset * -VerticalAmplitude;
 
 		const auto LastPos = DesiredPosition - FVector(0, 0, VerticalOffset);
-		DesiredPosition = FMath::VInterpTo(LastPos, FVector(SideOffsetSign * HorizontalAmplitude, ForwardOffset, CurrentVerticalOffset), DeltaTime, 5.5f);
+		DesiredPosition = FMath::VInterpTo(LastPos, FVector(ForwardOffset, SideOffsetSign * HorizontalAmplitude, CurrentVerticalOffset), DeltaTime, 5.5f);
 		DesiredPosition += FVector(0.0f, 0.0f, VerticalOffset);
 	}
 
@@ -34,15 +34,15 @@ void FDragonDriverGroundRootSway::Tick(const float DeltaTime)
 		const auto HorizontalMovementSpeed = OwningActor->GetVelocity().Size2D();
 		TargetLean += FMath::Clamp(HorizontalMovementSpeed * 0.007f, 0.0f, 20.0f);
 	
-		DesiredRotation = FRotator(0, 0, TargetLean);
+		DesiredRotation = FRotator(-TargetLean, 0, 0);
 	}
 
 	// Lean into ground gradient
 	{
 		const auto CurLeftPos = LeftLeg->GetPlantedWorldPosition(FVector::ZeroVector, FRotator::ZeroRotator, 300.0f);
 		const auto CurRightPos = RightLeg->GetPlantedWorldPosition(FVector::ZeroVector, FRotator::ZeroRotator, 300.0f);
-		const auto ProbeLeftPos = LeftLeg->GetPlantedWorldPosition(FVector(0, 1000, 0), FRotator::ZeroRotator, 300.0f);
-		const auto ProbeRightPos = RightLeg->GetPlantedWorldPosition(FVector(0, 1000, 0), FRotator::ZeroRotator, 300.0f);
+		const auto ProbeLeftPos = LeftLeg->GetPlantedWorldPosition(FVector(1000, 0, 0), FRotator::ZeroRotator, 300.0f);
+		const auto ProbeRightPos = RightLeg->GetPlantedWorldPosition(FVector(1000, 0, 0), FRotator::ZeroRotator, 300.0f);
 
 		const float CurLeftDepth = CurLeftPos.GroundHit ? CurLeftPos.DeltaPosition.Z : -300.0f;
 		const float CurRightDepth = CurRightPos.GroundHit ? CurRightPos.DeltaPosition.Z : -300.0f;
@@ -56,8 +56,7 @@ void FDragonDriverGroundRootSway::Tick(const float DeltaTime)
 
 		CurrentGradient = FMath::FInterpTo(CurrentGradient, ForwardGradient, DeltaTime, 2.0f);
 
-		DesiredPosition.Z += -CurrentGradient / 70.0f;
-		DesiredRotation.Pitch += SideGradient / 30.0f;
-		DesiredRotation.Roll += -CurrentGradient / 20.0f;
+		DesiredRotation.Roll += SideGradient / 30.0f;
+		DesiredRotation.Pitch += CurrentGradient / 20.0f;
 	}
 }

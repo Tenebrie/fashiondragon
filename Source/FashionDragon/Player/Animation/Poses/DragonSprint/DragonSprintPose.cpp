@@ -39,7 +39,7 @@ void FDragonSprintLegDriver::Tick(const float DeltaTime)
 	FProceduralLegSteppingDriver::Tick(AdvanceValue);
 
 	const auto LegReference = RotateVectorToInputRotation(Leg->Position, true);
-	const auto ShouldDisconnect = FMath::Abs(LegReference.X) > 100.f || LegReference.Z < -150.0f || LegReference.Y > 600.0f || LegReference.Y < -300.0f
+	const auto ShouldDisconnect = FMath::Abs(LegReference.Y) > 100.f || LegReference.Z < -150.0f || LegReference.X > 600.0f || LegReference.X < -300.0f
 		|| FUtils::GetRotatorDistance(Leg->Rotation) > 50.0f;
 	if (WalkingState == ELegWalkingState::Planted && ShouldDisconnect)
 	{
@@ -92,7 +92,7 @@ FDragonWalkStateData FDragonSprintLegDriver::GetRawWalkStateData() const
 		{ ELegWalkingState::Raised,
 			{
 				.TargetPosition = FVector(0.0f, 0.0f, 150.0f),
-				.TargetRotation = FRotator(0.0f, 0.0f, 60.0f),
+				.TargetRotation = FRotator(-60.0f, 0.0f, 0.0f),
 				.LinearForce = 1.7f,
 				.AngularForce = 1.0f,
 				.Duration = 0.3f
@@ -118,7 +118,7 @@ FDragonWalkStateData FDragonSprintLegDriver::GetRawWalkStateData() const
 		},
 		{ ELegWalkingState::Stepping,
 			{
-				.TargetPosition = FVector(0.0f, 350.0f, 0.0f),
+				.TargetPosition = FVector(350.0f, 0.0f, 0.0f),
 				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
 				.LinearForce = 80.0f,
 				.AngularForce = 1.0f,
@@ -126,13 +126,13 @@ FDragonWalkStateData FDragonSprintLegDriver::GetRawWalkStateData() const
 				.StartArticulationPosition = FVector(0.0f, 0.0f, 100.0f),
 				.StartArticulationRotation = FVector(0.0f, 0.0f, 0.0f),
 				.EndArticulationPosition = FVector(0.0f, 0.0f, 30.0f),
-				.EndArticulationRotation = FVector(0.0f, 0.0f, 10.0f),
+				.EndArticulationRotation = FVector(-10.0f, 0.0f, 0.0f),
 			}
 		},
 		{ ELegWalkingState::Inertia,
 			{
-				.TargetPosition = FVector(0.0f, -500.0f, 150.0f),
-				.TargetRotation = FRotator(0.0f, 0.0f, 90.0f),
+				.TargetPosition = FVector(-500.0f, 0.0f, 150.0f),
+				.TargetRotation = FRotator(-90.0f, 0.0f, 0.0f),
 				.LinearForce = 15.0f,
 				.AngularForce = 5.0f,
 				.Duration = INERTIA_DURATION
@@ -150,13 +150,13 @@ FDragonSprintPose::FDragonSprintPose(UDragonAnimInstance* Anim): FProceduralPose
 	RootDriver->SetVerticalAmplitude(350);
 	
 	const auto RootTurnDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledRoot.GetBone(EDriverLayer::RotateToMovement));
-	RootTurnDriver->SetAxisMask(0.5f, 0.0f, 0.0f);
+	RootTurnDriver->SetAxisMask(0.0f, 0.5f, 0.0f);
 
 	const auto NeckTurnDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledHead.GetBone(EDriverLayer::RotateToMovement));
-	NeckTurnDriver->SetAxisMask(FVector(-1, 1, 0));
+	NeckTurnDriver->SetAxisMask(FVector(0, 2, -1));
 
 	const auto BodyTurnDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledBody.GetBone(EDriverLayer::RotateToMovement));
-	BodyTurnDriver->SetAxisMask(FVector(0, 1.25, 0));
+	BodyTurnDriver->SetAxisMask(FVector(0, 1.5, -0.75));
 	
 	HipsDriver = new FDragonDriverGroundHipSway(Anim, Anim->ControlledHips.GetBone(EDriverLayer::Primary),  Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
 	
