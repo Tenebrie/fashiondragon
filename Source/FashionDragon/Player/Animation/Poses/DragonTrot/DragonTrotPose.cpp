@@ -13,9 +13,9 @@
 #include "FashionDragon/Player/Animation/Poses/DragonSprint/DragonSprintPose.h"
 #include "FashionDragon/Utils/Utils.h"
 
-#define STEP_DURATION 0.9f
-#define PLANTED_DURATION STEP_DURATION * 0.6f
-#define INERTIA_DURATION STEP_DURATION - PLANTED_DURATION
+constexpr float GTrotStepDuration = 0.9f;
+constexpr float GTrotPlantedDuration = GTrotStepDuration * 0.6f;
+constexpr float GTrotInertiaDuration = GTrotStepDuration - GTrotPlantedDuration;
 
 // ============================================================================
 // Pose
@@ -67,9 +67,9 @@ FDragonTrotPose::FDragonTrotPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 
 	WalkCycleComponent = new FWalkCyclePoseComponent(this, LeftLegDriver, RightLegDriver);
 	WalkCycleComponent->SetCycleBreakpoints({
-		FBreakpoint(STEP_DURATION, ELegWalkingState::Stepping),
-		FBreakpoint(PLANTED_DURATION, ELegWalkingState::Planted),
-		FBreakpoint(INERTIA_DURATION, ELegWalkingState::Inertia),
+		FBreakpoint(GTrotStepDuration, ELegWalkingState::Stepping),
+		FBreakpoint(GTrotPlantedDuration, ELegWalkingState::Planted),
+		FBreakpoint(GTrotInertiaDuration, ELegWalkingState::Inertia),
 	});
 	Components = {
 		WalkCycleComponent,
@@ -85,7 +85,7 @@ void FDragonTrotPose::SyncStateFrom(const FDragonWalkPose* SourcePose) const
 
 	const auto LeadingLeg = LeftLegDriver->WalkingState == ELegWalkingState::Stepping ? LeftLegDriver : RightLegDriver;
 	const auto OtherLeg = LeadingLeg == LeftLegDriver ? RightLegDriver : LeftLegDriver;
-	if (LeadingLeg->GetCyclePosition() < PLANTED_DURATION)
+	if (LeadingLeg->GetCyclePosition() < GTrotPlantedDuration)
 	{
 		OtherLeg->LockToWorldGround();
 		OtherLeg->SetCyclePosition(LeadingLeg->GetCyclePosition());
@@ -93,7 +93,7 @@ void FDragonTrotPose::SyncStateFrom(const FDragonWalkPose* SourcePose) const
 	else
 	{
 		OtherLeg->SetWalkingState(ELegWalkingState::Inertia);
-		OtherLeg->SetCyclePosition(LeadingLeg->GetCyclePosition() - PLANTED_DURATION);
+		OtherLeg->SetCyclePosition(LeadingLeg->GetCyclePosition() - GTrotInertiaDuration);
 	}
 
 	WalkCycleComponent->SyncStateFrom(SourcePose->WalkCycleComponent);
@@ -108,7 +108,7 @@ void FDragonTrotPose::SyncStateFrom(const FDragonSprintPose* SourcePose) const
 
 	const auto LeadingLeg = LeftLegDriver->WalkingState == ELegWalkingState::Stepping ? LeftLegDriver : RightLegDriver;
 	const auto OtherLeg = LeadingLeg == LeftLegDriver ? RightLegDriver : LeftLegDriver;
-	if (LeadingLeg->GetCyclePosition() < PLANTED_DURATION)
+	if (LeadingLeg->GetCyclePosition() < GTrotPlantedDuration)
 	{
 		OtherLeg->LockToWorldGround();
 		OtherLeg->SetCyclePosition(LeadingLeg->GetCyclePosition());
@@ -116,7 +116,7 @@ void FDragonTrotPose::SyncStateFrom(const FDragonSprintPose* SourcePose) const
 	else
 	{
 		OtherLeg->SetWalkingState(ELegWalkingState::Inertia);
-		OtherLeg->SetCyclePosition(LeadingLeg->GetCyclePosition() - PLANTED_DURATION);
+		OtherLeg->SetCyclePosition(LeadingLeg->GetCyclePosition() - GTrotPlantedDuration);
 	}
 
 	WalkCycleComponent->SyncStateFrom(SourcePose->WalkCycleComponent);
@@ -222,7 +222,7 @@ FDragonWalkStateData FDragonTrotLegDriver::GetRawWalkStateData() const
 				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
 				.LinearForce = 10.f,
 				.AngularForce = 1.0f,
-				.Duration = PLANTED_DURATION,
+				.Duration = GTrotPlantedDuration,
 			}
 		},
 		{ ELegWalkingState::Stepping,
@@ -231,7 +231,7 @@ FDragonWalkStateData FDragonTrotLegDriver::GetRawWalkStateData() const
 				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
 				.LinearForce = 8000.0f,
 				.AngularForce = 1.0f,
-				.Duration = STEP_DURATION,
+				.Duration = GTrotStepDuration,
 				.StartArticulationPosition = FVector(0.0f, 0.0f, 150.0f),
 				.StartArticulationRotation = FVector(0.0f, 0.0f, 0.0f),
 				.EndArticulationPosition = FVector(0.0f, 0.0f, 10.0f),
@@ -244,7 +244,7 @@ FDragonWalkStateData FDragonTrotLegDriver::GetRawWalkStateData() const
 				.TargetRotation = FRotator(-70.0f, 0.0f, 0.0f),
 				.LinearForce = 3.0f,
 				.AngularForce = 0.2f,
-				.Duration = INERTIA_DURATION,
+				.Duration = GTrotInertiaDuration,
 			}
 		},
 	};

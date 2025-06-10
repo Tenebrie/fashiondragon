@@ -3,10 +3,10 @@
 #include <string>
 
 #include "Adapters/DragonNeckPoseAdapter.h"
-#include "Adapters/DragonWingPoseAdapter.h"
 #include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/MainCharacter.h"
 #include "Limbs/ControlledLeg.h"
+#include "Limbs/ControlledWing.h"
 #include "Poses/DragonFlight/DragonFlightPose.h"
 #include "Poses/DragonFootPlacement/DragonFootPlacementPose.h"
 #include "Poses/DragonIdle/DragonIdlePose.h"
@@ -23,30 +23,39 @@
  */
 void UDragonAnimInstance::NativeInitializeAnimation()
 {
+	HandTransforms = TArray<FTransform>();
 	LegPositions = TArray<FVector>();
 	LegRotations = TArray<FRotator>();
+	WingEffectors = TArray<FPoseWingEffector>();
 	for (int i = 0; i < 2; i++)
 	{
+		HandTransforms.Add(FTransform());
 		LegPositions.Add(FVector(0.0f, 0.0f, 0.0f));
 		LegRotations.Add(FRotator(0.0f, 0.0f, 0.0f));
+		WingEffectors.Add(FPoseWingEffector());
 	}
-	WingPoseAdapter = new FDragonWingPoseAdapter(this);
 
 	// Simple groups
-	ControlledRoot = TFControlledBoneGroup("Root", new FControlledBone());
-	ControlledHead = TFControlledBoneGroup("Head", new FControlledBone());
-	ControlledBody = TFControlledBoneGroup("Body", new FControlledBone());
-	ControlledHips = TFControlledBoneGroup("Hips", new FControlledBone());
+	ControlledRoot = TFControlledBoneGroup("Root", new FControlledBone(this));
+	ControlledHead = TFControlledBoneGroup("Head", new FControlledBone(this));
+	ControlledBody = TFControlledBoneGroup("Body", new FControlledBone(this));
+	ControlledHips = TFControlledBoneGroup("Hips", new FControlledBone(this));
+
+	// Hands
+	LeftHand = TFControlledBoneGroup("LeftHand", new FControlledBone(this));
+	RightHand = TFControlledBoneGroup("RightHand", new FControlledBone(this));
+	
+	ControlledHands = TArray<TFControlledBoneGroup<FControlledBone>*>();
+	ControlledHands.Add(&LeftHand);
+	ControlledHands.Add(&RightHand);
 
 	// Legs
 	BackLeftLeg = TFControlledBoneGroup("LeftLeg", new FControlledLeg(
 		this,
-		"Foot_Back_L",
 		FVector(-125.883428, -108.491488, -323.843154),
 				0));
 	BackRightLeg = TFControlledBoneGroup("RightLeg", new FControlledLeg(
 		this,
-		"Foot_Back_R",
 		FVector(-125.883428, 108.491488, -323.843154),
 				1));
 	
@@ -63,7 +72,7 @@ void UDragonAnimInstance::NativeInitializeAnimation()
 	ControlledWings.Add(&RightWing);
 
 	// State machine
-	StateMachine = new FDragonAnimStateMachine(
+	StateMachine = MakeUnique<FDragonAnimStateMachine>(
 		new FDragonNullPose(this),
 		new FDragonIdlePose(this),
 		new FDragonWalkPose(this),
@@ -83,6 +92,7 @@ void UDragonAnimInstance::NativeInitializeAnimation()
 void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 {
 	Super::NativeUpdateAnimation(DeltaTime);
+	
 	if (DeltaTime <= KINDA_SMALL_NUMBER) { return; }
 
 	const auto OwningActor = Cast<AMainCharacter>(GetOwningActor());
@@ -134,6 +144,15 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 		Effector.Rotation.Roll * TailTransformFraction);
 	SetPhysicalBoneOffset("Hip", "Tail_001", Effector.Position * TailTransformFraction, TailRotation);
 
+	// Apply hand drivers
+	for (int i = 0; i < ControlledHands.Num(); i++)
+	{
+		Effector = ControlledHands[i]->MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToBoneEffector, DeltaTime);
+		Effector = ControlledHands[i]->MakePostProcessEffector(Effector, StateMachine->PoseDrivers, &FProceduralPose::ToBoneEffector, DeltaTime);
+
+		HandTransforms[i] = FTransform(Effector.Rotation, Effector.Position);
+	}
+
 	// Apply leg drivers
 	for (int i = 0; i < ControlledLegs.Num(); i++)
 	{
@@ -150,9 +169,8 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 		const auto WingGroup = ControlledWings[i];
 		auto WingEffector = WingGroup->MakeWingEffector(StateMachine->PoseDrivers, &FProceduralPose::ToWingEffector, DeltaTime);
 		WingEffector = WingGroup->MakePostProcessWingEffector(WingEffector, StateMachine->PoseDrivers, &FProceduralPose::ToWingEffector, DeltaTime);
-
-		for (const auto Layer : *WingGroup)
-			WingPoseAdapter->ApplyEffector(Layer, WingEffector);
+		
+		WingEffectors[i] = WingEffector;
 	}
 
 	ControlledRoot.Tick(DeltaTime);
@@ -190,4 +208,15 @@ void UDragonAnimInstance::SetPhysicalBoneOffset(const FName ParentBone, const FN
 AMainCharacter* UDragonAnimInstance::GetCharacter() const
 {
 	return Cast<AMainCharacter>(GetOwningActor());
+}
+
+TFControlledBoneGroup<FControlledBone>* UDragonAnimInstance::GetBoneGroup(const FName& BoneName)
+{
+	const auto BoneGroups = { &ControlledRoot, &ControlledHead, &ControlledBody, &ControlledHips, &LeftHand, &RightHand };
+	for (const auto Group : BoneGroups)
+	{
+		if (BoneName == Group->GetGroupName())
+			return Group;
+	}
+	return nullptr;
 }

@@ -4,10 +4,11 @@
 #include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/MainCharacter.h"
 
-FControlledLeg::FControlledLeg(UDragonAnimInstance* AnimInstance, const FName IKBoneName, const FVector& IKBoneOffset, const int Idx):
-	AnimInstance(AnimInstance), Idx(Idx), IKBoneName(IKBoneName), IKBoneOffset(IKBoneOffset)
+FControlledLeg::FControlledLeg(UDragonAnimInstance* AnimInstance, const FVector& BoneOffset, const int Idx):
+	FControlledBone(AnimInstance), Idx(Idx)
 {
 	MirrorScalar = Idx == 1 ? -1.0f : 1.0f;
+	FControlledBone::BoneOffset = BoneOffset;
 }
 
 /**
@@ -110,16 +111,4 @@ void FControlledLeg::Tick(const float DeltaTime)
 	
 	PreviousWorldPosition = WorldPosition;
 	PreviousWorldRotation = WorldRotation;
-}
-
-FVector FControlledLeg::GetWorldPosition(const FVector& FromPosition) const
-{
-	const auto ComponentTransform = AnimInstance->GetSkelMeshComponent()->GetAttachParent()->GetComponentTransform();
-	return ComponentTransform.TransformPosition(FromPosition + IKBoneOffset);
-}
-
-FQuat FControlledLeg::GetWorldRotation(const FQuat& FromRotation) const
-{
-	const auto ComponentTransform = AnimInstance->GetSkelMeshComponent()->GetAttachParent()->GetComponentTransform();
-	return ComponentTransform.TransformRotation(FromRotation);
 }

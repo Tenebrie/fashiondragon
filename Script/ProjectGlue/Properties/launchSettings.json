@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "UnrealSharp": {
+      "commandName": "Executable",
+      "executablePath": "V:\\Unreal\\UE_5.5\\Engine\\Binaries\\Win64\\UnrealEditor.exe",
+      "commandLineArgs": "\"V:\\Unreal\\Projects\\FashionDragon\\FashionDragon.uproject\""
+    }
+  }
+}

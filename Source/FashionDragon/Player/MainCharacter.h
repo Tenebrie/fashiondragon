@@ -8,6 +8,7 @@
 #include "PhysicsEngine/PhysicalAnimationComponent.h"
 #include "MainCharacter.generated.h"
 
+class USpringArmComponent;
 class UCameraComponent;
 class UAnimationDebugReporter;
 class UFlightHandler;
@@ -34,6 +35,7 @@ public:
 	EGroundMovementMode MovementMode;
 	EGroundMovementMode PreferredMovementMode = EGroundMovementMode::Trotting;
 
+	UPROPERTY() UCameraComponent* ActiveCamera;
 	UPROPERTY() UFlightHandler* FlightHandler;
 	UPROPERTY() URotationInputHandler* RotationInputHandler;
 	UPROPERTY(BlueprintReadOnly)
@@ -42,33 +44,39 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="Events")
 	FOnLegPlanted OnLegPlanted;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* DragonMesh;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UPhysicalAnimationComponent* PhysicalAnimation;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cameras", meta = (AllowPrivateAccess = "true"))
-	UCameraComponent* MainCamera;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cameras", meta = (AllowPrivateAccess = "true"))
-	UCameraComponent* AimCamera;
-
 private:
-	UPROPERTY(EditAnywhere, Category = "Assets", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	USkeletalMesh* DragonMeshAsset;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	USceneComponent* MeshRoot;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	USceneComponent* DetachedMeshRoot;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	USpringArmComponent* SpringArm;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UCameraComponent* MainCamera;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UCameraComponent* AimCamera;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	// Input callbacks
+	void StartAimDownSights();
+	void StopAimDownSights();
+
 	void GroundMovement(const FInputActionValue& Value);
 	void FlightCameraMove(const FInputActionValue& Value);
 	void StartJump();
@@ -81,6 +89,7 @@ protected:
 
 public:
 	virtual void PostInitializeComponents() override;
+	virtual void CalcCamera(float DeltaTime, FMinimalViewInfo& OutResult) override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 };

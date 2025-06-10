@@ -49,7 +49,7 @@ void FDragonWalkLegDriver::AdvanceState()
 	}
 }
 
-#define STEP_DURATION 0.9f
+#define WALK_STEP_DURATION 0.9f
 FDragonWalkStateData FDragonWalkLegDriver::GetRawWalkStateData() const
 {
 	const std::map<ELegWalkingState, FDragonWalkStateData> AnimData =
@@ -87,7 +87,7 @@ FDragonWalkStateData FDragonWalkLegDriver::GetRawWalkStateData() const
 				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
 				.LinearForce = 10.f,
 				.AngularForce = 1.0f,
-				.Duration = STEP_DURATION
+				.Duration = WALK_STEP_DURATION
 			}
 		},
 		{ ELegWalkingState::Stepping,
@@ -96,7 +96,7 @@ FDragonWalkStateData FDragonWalkLegDriver::GetRawWalkStateData() const
 				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
 				.LinearForce = 2.0f,
 				.AngularForce = 1.0f,
-				.Duration = STEP_DURATION,
+				.Duration = WALK_STEP_DURATION,
 				.StartArticulationPosition = FVector(15.0f, 0.0f, 150.0f),
 				.StartArticulationRotation = FVector(-60.0f, 0.0f, 0.0f),
 				.EndArticulationPosition = FVector(15.0f, 0.0f, 30.0f),
@@ -186,8 +186,8 @@ FDragonWalkPose::FDragonWalkPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 
 	WalkCycleComponent = new FWalkCyclePoseComponent(this, LeftLegDriver, RightLegDriver);
 	WalkCycleComponent->SetCycleBreakpoints({
-		FBreakpoint(STEP_DURATION, ELegWalkingState::Stepping),
-		FBreakpoint(STEP_DURATION, ELegWalkingState::Planted),
+		FBreakpoint(WALK_STEP_DURATION, ELegWalkingState::Stepping),
+		FBreakpoint(WALK_STEP_DURATION, ELegWalkingState::Planted),
 	});
 	Components = {
 		WalkCycleComponent,

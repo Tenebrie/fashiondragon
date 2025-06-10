@@ -4,7 +4,7 @@ using UnrealBuildTool;
 
 public class FashionDragonEditorTarget : TargetRules
 {
-	public FashionDragonEditorTarget( TargetInfo Target) : base(Target)
+	public FashionDragonEditorTarget(TargetInfo target) : base(target)
 	{
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V5;

@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/Animation/Enums/DriverLayer.h"
 
 template <typename T, typename EffectorT>
@@ -17,6 +18,7 @@ public:
 
 	void Tick(const float DeltaTime);
 
+	FName GetGroupName() const { return GroupName; }
 	T* GetBone(const EDriverLayer Layer);
 	T* GetPostProcessBone();
 	TArray<T*> GetAllLayers();
@@ -136,15 +138,15 @@ FPoseWingEffector TFControlledBoneGroup<T>::MakeWingEffector(
 	for (int i = 0; i < ControlledBones.Num(); i++)
 	{
 		const auto Wing = GetBone(static_cast<EDriverLayer>(i));
-		auto CumulativeWingEffector = FPoseWingEffector(Wing->Flap, Wing->Openness);
+		auto CumulativeWingEffector = FPoseWingEffector(Wing->Openness, Wing->Flap, 0.0f);
 		for (const auto PoseDriver : PoseDrivers)
 		{
 			CumulativeWingEffector = (PoseDriver->*EffectorFunc)(CumulativeWingEffector, Wing, DeltaTime);
 		}
 
-		Wing->Flap = CumulativeWingEffector.Flap;
+		Wing->Flap = CumulativeWingEffector.FlapAngle;
 		Wing->Openness = CumulativeWingEffector.Openness;
-		CumulativeEffector.Flap += CumulativeWingEffector.Flap;
+		CumulativeEffector.FlapAngle += CumulativeWingEffector.FlapAngle;
 		CumulativeEffector.Openness += CumulativeWingEffector.Openness;
 	}
 	return CumulativeEffector;
@@ -157,7 +159,7 @@ FPoseWingEffector TFControlledBoneGroup<T>::MakePostProcessWingEffector(FPoseWin
 	auto Effector = FPoseWingEffector(BaseEffector);
 	T* Bone = GetPostProcessBone();
 
-	Bone->Flap = Effector.Flap;
+	Bone->Flap = Effector.FlapAngle;
 	Bone->Openness = Effector.Openness;
 	for (const auto PoseDriver : PoseDrivers)
 	{

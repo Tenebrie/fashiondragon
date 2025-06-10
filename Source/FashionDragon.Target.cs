@@ -4,7 +4,7 @@ using UnrealBuildTool;
 
 public class FashionDragonTarget : TargetRules
 {
-	public FashionDragonTarget(TargetInfo Target) : base(Target)
+	public FashionDragonTarget(TargetInfo target) : base(target)
 	{
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V5;

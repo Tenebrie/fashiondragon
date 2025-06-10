@@ -1,5 +1,6 @@
 ﻿#include "DragonAnimStateMachine.h"
 
+#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/InputHandlers/FlightHandler.h"
 #include "FashionDragon/Utils/Utils.h"

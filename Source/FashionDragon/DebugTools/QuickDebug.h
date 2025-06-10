@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// ReSharper disable CppPrintfBadFormat
+#pragma once
 
 class FDebugString
 {
@@ -54,6 +55,15 @@ public:
 		}
 	}
 
+	static void PrintException(const FString& ClassName, const std::exception& E)
+	{
+		UE_LOG(LogAnimation, Error, TEXT("[%s] %s"), *ClassName, UTF8_TO_TCHAR(E.what()));
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("[%s]: %ls"), *ClassName, UTF8_TO_TCHAR(E.what())));
+		}
+	}
+
 private:
 	// Helper for const char*
 	static void AppendArg(FString& Message, const char* Arg)
@@ -86,6 +96,8 @@ private:
 			Message.Append(FString::Printf(TEXT("FVector2D(%f; %f)"), Arg.X, Arg.Y));
 		else if constexpr (std::is_same_v<T, FRotator>)
 			Message.Append(FString::Printf(TEXT("FRotator(%f; %f; %f)"), Arg.Pitch, Arg.Yaw, Arg.Roll));
+		else if constexpr (std::is_same_v<T, FString>)
+			Message.Append(Arg);
 		else if constexpr (std::is_same_v<T, std::string>)
 			Message.Append(UTF8_TO_TCHAR(Arg.c_str()));
 		else

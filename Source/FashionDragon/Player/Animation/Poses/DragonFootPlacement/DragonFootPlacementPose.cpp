@@ -15,9 +15,9 @@ FPoseEffector FDragonFootPlacementLegDriver::ToEffector(const FPoseEffector& Bas
 	
 	const auto Mesh = AnimInstance->GetSkelMeshComponent();
 	const auto Transform = Mesh->GetRelativeTransform();
-	const auto SourcePosition = Effector.Position + Leg->IKBoneOffset;
+	const auto SourcePosition = Effector.Position + Leg->BoneOffset;
 	const auto SourceRotation = Effector.Rotation;
-	const auto LocalPosition = Transform.InverseTransformPosition(SourcePosition) - Leg->IKBoneOffset;
+	const auto LocalPosition = Transform.InverseTransformPosition(SourcePosition) - Leg->BoneOffset;
 	const auto LocalRotation = Transform.InverseTransformRotation(FQuat(SourceRotation)).Rotator();
 
 	return Effector.SetPosition(LocalPosition).SetRotation(LocalRotation);

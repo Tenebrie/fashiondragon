@@ -61,6 +61,6 @@ FPoseWingEffector FProceduralWingDriver::ToEffector(const FPoseWingEffector& Bas
 	if (Context.BlendAlpha <= 0.0f) { return BaseEffector; }
 
 	return BaseEffector
-		.SetFlap(FMath::FInterpTo(BaseEffector.Flap, DesiredFlap, Context.DeltaTime, State.TransitionSpeed * Context.BlendAlpha))
+		.SetFlapAngle(FMath::FInterpTo(BaseEffector.FlapAngle, DesiredFlap, Context.DeltaTime, State.TransitionSpeed * Context.BlendAlpha))
 		.SetOpenness(FMath::FInterpTo(BaseEffector.Openness, DesiredOpenness, Context.DeltaTime, State.TransitionSpeed * Context.BlendAlpha));
 }

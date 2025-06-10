@@ -21,6 +21,7 @@ public:
 	bool CanProduceEvents = false;
 	FName GroupName = NAME_None;
 	EDriverLayer Layer = EDriverLayer::Unknown;
+	FVector Position = FVector::ZeroVector;
 	
 	float MirrorModifier = 1.0f;
 	// Flap state [-1.0f, 1.0f]

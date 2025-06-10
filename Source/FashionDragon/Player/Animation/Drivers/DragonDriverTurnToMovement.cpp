@@ -9,7 +9,7 @@ void FDragonDriverTurnToMovement::Tick(const float DeltaTime)
 {
 	FProceduralBoneDriver::Tick(DeltaTime);
 
-	const auto Rotation = AnimInstance->GetCharacter()->RotationInputHandler->GetCameraWorldRotation();
+	const auto Rotation = AnimInstance->GetCharacter()->RotationInputHandler->GetFacingWorldRotation();
 	const auto Diff = Rotation - LastSeenRotation;
 
 	DragDirection += Diff;

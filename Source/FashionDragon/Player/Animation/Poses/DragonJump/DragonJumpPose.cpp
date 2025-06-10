@@ -12,6 +12,8 @@
 #include "FashionDragon/Player/Animation/Poses/DragonTrot/DragonTrotPose.h"
 // ReSharper disable once CppUnusedIncludeDirective Required for template instantation
 #include "FashionDragon/DebugTools/QuickDebug.h"
+#include "FashionDragon/Player/Animation/Drivers/DragonDriverConstPosition.h"
+#include "FashionDragon/Player/Animation/Drivers/DragonDriverTurnToMovement.h"
 #include "FashionDragon/Player/Animation/Poses/DragonSprint/DragonSprintPose.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -204,7 +206,21 @@ void FDragonJumpLegDriver::UpdateRandomness(const bool LagBehind)
 FDragonJumpPose::FDragonJumpPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
 	BodyDriver = new FDragonJumpBodyDriver(Anim, Anim->ControlledRoot.GetBone(EDriverLayer::Jump));
-	BoneDrivers = { BodyDriver };
+
+	const auto RootTurnDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledRoot.GetBone(EDriverLayer::RotateToMovement));
+	RootTurnDriver->SetAxisMask(0.0f, 0.5f, 0.0f);
+
+	const auto NeckConstDriver = new FDragonDriverConstPosition(Anim, Anim->ControlledHead.GetBone(EDriverLayer::Constant));
+	NeckConstDriver->Rotation = FRotator(20.0f, 0.0f, 0.0f);
+	NeckConstDriver->AdditionMode = EDriverConstPositionMode::Absolute;
+	
+	const auto NeckTurnDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledHead.GetBone(EDriverLayer::RotateToMovement));
+	NeckTurnDriver->SetAxisMask(FVector(0, 2, -1));
+
+	const auto BodyTurnDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledBody.GetBone(EDriverLayer::RotateToMovement));
+	BodyTurnDriver->SetAxisMask(FVector(0, 1.5, -0.75));
+	
+	BoneDrivers = { BodyDriver, RootTurnDriver, NeckConstDriver, NeckTurnDriver, BodyTurnDriver };
 
 	LeftLegDriver = new FDragonJumpLegDriver(Anim, Anim->BackLeftLeg.GetBone(EDriverLayer::Primary));
 	RightLegDriver = new FDragonJumpLegDriver(Anim, Anim->BackRightLeg.GetBone(EDriverLayer::Primary));

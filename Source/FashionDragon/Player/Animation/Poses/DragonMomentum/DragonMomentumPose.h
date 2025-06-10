@@ -9,6 +9,7 @@
 // class FDragonIdleHipsDriver;
 // class FDragonIdleLegDriver;
 // class FDragonIdleWingDriver;
+class FDragonMomentumDriverBone;
 class FDragonMomentumDriverLeg;
 
 class FDragonMomentumPose final : public FProceduralPose
@@ -20,27 +21,42 @@ public:
 
 	// FDragonIdleBodyDriver* BodyDriver;
 	// FDragonIdleHipsDriver* HipsDriver;
+	FDragonMomentumDriverBone* LeftHandDriver;
+	FDragonMomentumDriverBone* RightHandDriver;
 	FDragonMomentumDriverLeg* LeftLegDriver;
 	FDragonMomentumDriverLeg* RightLegDriver;
 	// FDragonIdleWingDriver* LeftWingDriver;
 	// FDragonIdleWingDriver* RightWingDriver;
 };
 
-class FDragonMomentumDriverLeg final : public FProceduralLegDriver
+class FDragonMomentumDriverBone : public FProceduralBoneDriver
 {
+protected:
 	FVector MomentumOffset = FVector::ZeroVector;
 	FVectorSpringState SpringState = FVectorSpringState();
-	FVectorSpringState SpringStateVertical = FVectorSpringState();
+	FQuaternionSpringState RotSpringState = FQuaternionSpringState();
 	FVector PreviousWorldPosition = FVector::ZeroVector;
 	FQuat PreviousWorldRotation = FQuat::Identity;
+	
+public:
+	FDragonMomentumDriverBone(UDragonAnimInstance* AnimInstance, FControlledBone* Bone)
+		: FProceduralBoneDriver(AnimInstance, Bone) {}
+
+	virtual void NativeBeginPlay() override;
+	virtual void ResetState() override;
+	FPoseEffector ToEffectorBase(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context,
+	                             const FVector& Position, const FRotator& Rotation, const float Stiffness,
+	                             const float Damping);
+	virtual FPoseEffector ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context) override;
+};
+
+class FDragonMomentumDriverLeg final : public FDragonMomentumDriverBone, public FProceduralLegDriver
+{
 public:
 	FDragonMomentumDriverLeg(UDragonAnimInstance* AnimInstance, FControlledLeg* Leg)
-		: FProceduralLegDriver(AnimInstance, Leg)
+		: FDragonMomentumDriverBone(AnimInstance, Leg), FProceduralLegDriver(AnimInstance, Leg)
 	{
 	}
 
-	virtual void NativeBeginPlay() override;
-	virtual void Tick(float DeltaTime) override;
-	virtual void ResetState() override;
 	virtual FPoseEffector ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context) override;
 };

@@ -10,6 +10,8 @@ FDragonNullPose::FDragonNullPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 		BoneDrivers.Add(new FDragonNullDriverBone(AnimInstance, AnimInstance->ControlledHead.GetBone(static_cast<EDriverLayer>(i))));
 		BoneDrivers.Add(new FDragonNullDriverBone(AnimInstance, AnimInstance->ControlledBody.GetBone(static_cast<EDriverLayer>(i))));
 		BoneDrivers.Add(new FDragonNullDriverBone(AnimInstance, AnimInstance->ControlledHips.GetBone(static_cast<EDriverLayer>(i))));
+		BoneDrivers.Add(new FDragonNullDriverBone(AnimInstance, AnimInstance->LeftHand.GetBone(static_cast<EDriverLayer>(i))));
+		BoneDrivers.Add(new FDragonNullDriverBone(AnimInstance, AnimInstance->RightHand.GetBone(static_cast<EDriverLayer>(i))));
 		LegDrivers.Add(new FDragonNullDriverLeg(AnimInstance, AnimInstance->BackLeftLeg.GetBone(static_cast<EDriverLayer>(i))));
 		LegDrivers.Add(new FDragonNullDriverLeg(AnimInstance, AnimInstance->BackRightLeg.GetBone(static_cast<EDriverLayer>(i))));
 	}

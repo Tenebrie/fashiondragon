@@ -13,6 +13,7 @@
 #include "PhysicsEngine/PhysicalAnimationComponent.h"
 #include "EnhancedInputComponent.h"
 #include "Animation/Debug/AnimationDebugReporter.h"
+#include "Camera/CameraComponent.h"
 #include "FashionDragon/DebugTools/QuickDebug.h"
 #include "InputActions/Actions.h"
 #include "InputActions/DefaultPlayerController.h"
@@ -41,6 +42,19 @@ AMainCharacter::AMainCharacter()
     PhysicalAnimation = CreateDefaultSubobject<UPhysicalAnimationComponent>(TEXT("PhysicalAnimationComponent"));
     PhysicalAnimation->SetSkeletalMeshComponent(DragonMesh);
     DetachedMeshRoot->SetUsingAbsoluteRotation(true);
+
+    SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
+    SpringArm->SetupAttachment(GetRootComponent());
+    SpringArm->SetRelativeLocation(FVector(0.0f, 0.0f, 190.0f));
+    SpringArm->SetRelativeRotation(FRotator(-20.0f, 0.0f, 0.0f));
+    SpringArm->TargetArmLength = 1200.0f;
+    
+    MainCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("MainCamera"));
+    MainCamera->SetupAttachment(SpringArm);
+
+    AimCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("AimCamera"));
+    AimCamera->SetupAttachment(DetachedMeshRoot);
+    AimCamera->SetRelativeLocation(FVector(-40.0f, 240.0f, 864.0f));
 }
 
 void AMainCharacter::PostInitializeComponents()
@@ -56,6 +70,27 @@ void AMainCharacter::PostInitializeComponents()
     AddInstanceComponent(FlightHandler);
     AddInstanceComponent(RotationInputHandler);
     AddInstanceComponent(AnimationDebugReporter);
+}
+
+void AMainCharacter::CalcCamera(const float DeltaTime, FMinimalViewInfo& OutResult)
+{
+    if (!ActiveCamera)
+    {
+        Super::CalcCamera(DeltaTime, OutResult);
+        return;
+    }
+    
+    TInlineComponentArray<UCameraComponent*> Cameras;
+    GetComponents(/*out*/ Cameras);
+    
+    for (UCameraComponent* CameraComponent : Cameras)
+    {
+        if (CameraComponent->GetName() == ActiveCamera->GetName())
+        {
+            CameraComponent->GetCameraView(DeltaTime, OutResult);
+            return;
+        }
+    }
 }
 
 // Called when the game starts or when spawned
@@ -84,6 +119,24 @@ void AMainCharacter::BeginPlay()
     RotationInputHandler->ResetRotation(GetActorRotation().Quaternion());
 }
 
+void AMainCharacter::StartAimDownSights()
+{
+    ActiveCamera = AimCamera;
+    // APlayerController* PC = Cast<APlayerController>(GetController());
+    MainCamera->Deactivate();
+    AimCamera->Activate();
+    // PC->SetViewTargetWithBlend(this, 0.5f, VTBlend_Cubic, 0.0f, false);
+}
+
+void AMainCharacter::StopAimDownSights()
+{
+    ActiveCamera = MainCamera;
+    // APlayerController* PC = Cast<APlayerController>(GetController());
+    MainCamera->Activate();
+    AimCamera->Deactivate();
+    // PC->SetViewTargetWithBlend(this, 0.5f, VTBlend_Cubic, 0.0f, false);
+}
+
 // Called every frame
 void AMainCharacter::Tick(const float DeltaTime)
 {
@@ -103,8 +156,17 @@ void AMainCharacter::Tick(const float DeltaTime)
         const auto TargetControlRotation = FRotator(0, DesiredRotation.Yaw, 0);
         Controller->SetControlRotation(FMath::RInterpTo(Controller->GetControlRotation(), TargetControlRotation, DeltaTime, 50.0f));
 
-        const auto TargetRot = FRotator(-DesiredRotation.Roll, 0, -DesiredRotation.Pitch);
-        MeshRoot->SetRelativeRotation(TargetRot);
+        // const auto TargetRot = FRotator(-DesiredRotation.Roll, 0, -DesiredRotation.Pitch);
+        // MeshRoot->SetRelativeRotation(TargetRot);
+
+        // const auto NewRot = FMath::RInterpTo(
+            // DetachedMeshRoot->GetComponentRotation(), FRotator::ZeroRotator, DeltaTime, 3.0f);
+        // DetachedMeshRoot->SetWorldRotation(NewRot);
+
+        const auto CurrentRot = DetachedMeshRoot->GetComponentRotation();
+        
+        const auto NewRot = FMath::RInterpTo(CurrentRot, DesiredRotation, DeltaTime, 10.0f);
+        DetachedMeshRoot->SetWorldRotation(NewRot);
     }
     else
     {
@@ -131,6 +193,9 @@ void AMainCharacter::Tick(const float DeltaTime)
             const FRotator FacingRotation = DesiredFacingRotation;
             const auto NewRot = FMath::RInterpTo(CurrentRot, FacingRotation, DeltaTime, 10.0f * MovementSpeedScalar);
             DetachedMeshRoot->SetWorldRotation(NewRot);
+
+            const auto ResetMeshRotation = FMath::RInterpTo(MeshRoot->GetRelativeRotation(), FRotator::ZeroRotator, DeltaTime, 3.0f);
+            MeshRoot->SetRelativeRotation(ResetMeshRotation);
         }
     }
     SpringArmComponent->SetWorldRotation(FRotator(DesiredRotation.Pitch, DesiredRotation.Yaw, 0.0f));
@@ -143,6 +208,10 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
     
     UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PlayerInputComponent);
     if (!Input) return;
+
+    Input->BindAction(UActions::HoldAimDownSights(), ETriggerEvent::Started, this, &AMainCharacter::StartAimDownSights);
+    Input->BindAction(UActions::HoldAimDownSights(), ETriggerEvent::Completed, this, &AMainCharacter::StopAimDownSights);
+    Input->BindAction(UActions::HoldAimDownSights(), ETriggerEvent::Canceled, this, &AMainCharacter::StopAimDownSights);
     
     Input->BindAction(UActions::GroundMovement(), ETriggerEvent::Triggered, this, &AMainCharacter::GroundMovement);
     
@@ -153,7 +222,8 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
     Input->BindAction(UActions::CancelFlight(), ETriggerEvent::Started, this, &AMainCharacter::CancelFlight);
 
     Input->BindAction(UActions::Sprint(), ETriggerEvent::Started, this, &AMainCharacter::StartSprint);
-    Input->BindAction(UActions::Sprint(), ETriggerEvent::Completed | ETriggerEvent::Canceled, this, &AMainCharacter::StopSprint);
+    Input->BindAction(UActions::Sprint(), ETriggerEvent::Completed, this, &AMainCharacter::StopSprint);
+    Input->BindAction(UActions::Sprint(), ETriggerEvent::Canceled, this, &AMainCharacter::StopSprint);
 
     Input->BindAction(UActions::TogglePreferredMovement(), ETriggerEvent::Started, this, &AMainCharacter::TogglePreferredGroundMovement);
     
