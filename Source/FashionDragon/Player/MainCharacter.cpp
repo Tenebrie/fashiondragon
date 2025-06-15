@@ -97,7 +97,7 @@ void AMainCharacter::CalcCamera(const float DeltaTime, FMinimalViewInfo& OutResu
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-    
+
     PhysicalAnimation->SetSkeletalMeshComponent(DragonMesh);
     PhysicalAnimation->ApplyPhysicalAnimationProfileBelow(TEXT("Back_L"), TEXT("MyProfile"), true);
     PhysicalAnimation->ApplyPhysicalAnimationProfileBelow(TEXT("Back_R"), TEXT("MyProfile"), true);
@@ -191,7 +191,7 @@ void AMainCharacter::Tick(const float DeltaTime)
             }
 
             const FRotator FacingRotation = DesiredFacingRotation;
-            const auto NewRot = FMath::RInterpTo(CurrentRot, FacingRotation, DeltaTime, 10.0f * MovementSpeedScalar);
+            const auto NewRot = FMath::RInterpTo(CurrentRot, FacingRotation, DeltaTime, 3.0f * MovementSpeedScalar);
             DetachedMeshRoot->SetWorldRotation(NewRot);
 
             const auto ResetMeshRotation = FMath::RInterpTo(MeshRoot->GetRelativeRotation(), FRotator::ZeroRotator, DeltaTime, 3.0f);

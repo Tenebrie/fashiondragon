@@ -36,12 +36,9 @@ protected:
 	UInputMappingContext* MakeInputContext();
 	static FKeyMappingBuilder AddMapping(UInputMappingContext* Context, const UInputAction* Value, const FKey& Key);
 
-	UFUNCTION(BlueprintImplementableEvent, Category="InputActions")
-	void OnShowAnimDebug();
-
-	UFUNCTION(BlueprintImplementableEvent, Category="InputActions")
-	void OnDebugButton2();
-
-	UFUNCTION(BlueprintImplementableEvent, Category="InputActions")
-	void OnDebugButton3();
+	UFUNCTION(BlueprintImplementableEvent, Category="InputActions") void OnInteract();
+	
+	UFUNCTION(BlueprintImplementableEvent, Category="InputActions") void OnShowAnimDebug();
+	UFUNCTION(BlueprintImplementableEvent, Category="InputActions") void OnDebugButton2();
+	UFUNCTION(BlueprintImplementableEvent, Category="InputActions") void OnDebugButton3();
 };

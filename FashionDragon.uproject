@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "5.5",
+	"EngineAssociation": "{2ABE8BA0-4290-0351-D52B-7DAEFE6608AE}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -40,7 +40,7 @@
 		},
 		{
 			"Name": "FSR3",
-			"Enabled": true,
+			"Enabled": false,
 			"SupportedTargetPlatforms": [
 				"Win64"
 			]

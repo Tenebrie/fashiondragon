@@ -16,7 +16,7 @@ class FASHIONDRAGON_API UPlayerComponent : public UActorComponent
 public:
 	UPlayerComponent() { PrimaryComponentTick.bCanEverTick = true; }
 
-	AMainCharacter* GetCharacter() const;
-	UDragonAnimInstance* GetAnimInstance() const;
-	UCharacterMovementComponent* GetCharacterMovement() const;
+	UFUNCTION(BlueprintCallable) AMainCharacter* GetCharacter() const;
+	UFUNCTION(BlueprintCallable) UDragonAnimInstance* GetAnimInstance() const;
+	UFUNCTION(BlueprintCallable) UCharacterMovementComponent* GetCharacterMovement() const;
 };

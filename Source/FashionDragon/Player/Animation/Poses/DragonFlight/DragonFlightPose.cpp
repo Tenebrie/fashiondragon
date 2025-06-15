@@ -1,5 +1,6 @@
 ﻿#include "DragonFlightPose.h"
 
+#include "DragonFlightDriverLeg.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "FashionDragon/Player/Animation/Enums/DriverLayer.h"
 
@@ -56,6 +57,10 @@ void FDragonFlightWingDriver::AdvanceState()
 
 FDragonFlightPose::FDragonFlightPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
+	LegDrivers = {
+		new FDragonFlightDriverLeg(Anim, Anim->BackLeftLeg.GetBone(EDriverLayer::Primary)),
+		new FDragonFlightDriverLeg(Anim, Anim->BackRightLeg.GetBone(EDriverLayer::Primary)),
+	};
 	LeftWingDriver = new FDragonFlightWingDriver(Anim, Anim->LeftWing.GetBone(EDriverLayer::Primary));
 	RightWingDriver = new FDragonFlightWingDriver(Anim, Anim->RightWing.GetBone(EDriverLayer::Primary));
 	WingDrivers = {

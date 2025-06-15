@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Animation/AnimNodeBase.h"
 #include "Editor/AnimGraph/Public/AnimGraphNode_Base.h"
-#include "FashionDragon/Player/Animation/Adapters/WingPoseAdapterFuse/AnimNode_DragonWingPoseAdapter.h"
+#include "FashionDragon/Player/Animation/Adapters/WingPose/AnimNode_DragonWingPoseAdapter.h"
 #include "AnimGraphNode_DragonWingPoseAdapter.generated.h"
 
 UCLASS()

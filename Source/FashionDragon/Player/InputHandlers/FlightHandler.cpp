@@ -22,17 +22,6 @@ void UFlightHandler::TickComponent(const float DeltaTime, const ELevelTick TickT
 
 	const auto MovementComponent = GetCharacter()->GetCharacterMovement();
 
-	// const auto FlapHappened = (LeftWing->Flap - LastFrameLeftFlap) * LeftWing->Openness + (RightWing->Flap - LastFrameRightFlap) * RightWing->Openness;
-
-	// const FVector LiftVector = FVector(0.0f, 0.0f, FlapHappened * 900.0f);
-
-	// MovementComponent->AddImpulse(LiftVector, true);
-
-	// LastFrameLeftFlap = LeftWing->Flap;
-	// LastFrameRightFlap = RightWing->Flap;
-	// LastFrameLeftOpenness = LeftWing->Openness;
-	// LastFrameRightOpenness = RightWing->Openness;
-
 	const FRotator TargetRotation = GetCharacter()->RotationInputHandler->GetCameraWorldRotation();
 
 	// ─── Tunables you’ll actually tweak in-editor ──────────────────────

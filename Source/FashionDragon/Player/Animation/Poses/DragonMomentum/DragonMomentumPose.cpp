@@ -3,6 +3,7 @@
 #include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
+#include "FashionDragon/Player/InputHandlers/FlightHandler.h"
 
 FDragonMomentumPose::FDragonMomentumPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
 {
@@ -99,9 +100,15 @@ FPoseEffector FDragonMomentumDriverBone::ToEffector(const FPoseEffector& BaseEff
 	const auto MovementSpeed = Bone->GetWorldRotation().UnrotateVector(OwningActor->GetVelocity());
 	
 	const auto PreProcessEffector = ToEffectorBase(BaseEffector, Context, Position, Rotation, 400.0f, 0.7f);
+
+	float Stiffness = 35.0f;
+	if (OwningActor->FlightHandler->IsFlying())
+	{
+		Stiffness += 100.0f;
+	}
 	const auto Effector = PreProcessEffector
 		.SetPosition(FVector(PreProcessEffector.Position.X, PreProcessEffector.Position.Y, PreProcessEffector.Position.Z))
-		.AddPosition(-MovementSpeed / 35.0f);
+		.AddPosition(-MovementSpeed / Stiffness);
 
 	constexpr float Coefficient = 0.4f;
 	const auto TargetEffector = Effector.SetRotation(FRotator(Effector.Position.X * Coefficient, Effector.Position.Y * Coefficient, 0.0f));
@@ -128,6 +135,10 @@ FPoseEffector FDragonMomentumDriverLeg::ToEffector(const FPoseEffector& BaseEffe
 	{
 		const float Coefficient = FMath::Clamp(1.0f - PlantedPos.DeltaPosition.Size() / 150.0f, 0.0f, 1.0f);
 		Stiffness += 1000.0f * Coefficient;
+	}
+	if (FDragonMomentumDriverBone::AnimInstance->GetCharacter()->FlightHandler->IsFlying())
+	{
+		Stiffness += 100.0f;
 	}
 
 	return ToEffectorBase(BaseEffector, Context, Position, Rotation, Stiffness, 1.0f);

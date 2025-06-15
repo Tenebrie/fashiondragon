@@ -45,6 +45,9 @@ void ADefaultPlayerController::SetupInputMappings()
 		AddMapping(Context, UActions::GroundMovement(), EKeys::D);
 		AddMapping(Context, UActions::GroundMovement(), EKeys::Gamepad_Left2D).RadialDeadZone(0.2f).PerAxisDeadZone(0.1f);
 
+		AddMapping(Context, UActions::Interact(), EKeys::F);
+		AddMapping(Context, UActions::Interact(), EKeys::Gamepad_FaceButton_Left);
+
 		AddMapping(Context, UActions::Jump(), EKeys::SpaceBar);
 		AddMapping(Context, UActions::Jump(), EKeys::Gamepad_FaceButton_Bottom);
 

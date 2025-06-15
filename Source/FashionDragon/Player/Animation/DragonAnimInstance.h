@@ -4,10 +4,12 @@
 #include "Limbs/ControlledLeg.h"
 #include "DragonAnimStateMachine.h"
 #include "Adapters/DragonWingPoseAdapter.h"
+#include "Adapters/WingPose/BaseDragonWingPoseAdapter.h"
 #include "Animation/AnimInstance.h"
 #include "Structs/ControlledBoneGroup.h"
 #include "DragonAnimInstance.generated.h"
 
+class UBaseDragonWingPoseAdapter;
 class FControlledWing;
 class AMainCharacter;
 
@@ -64,6 +66,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
 	TArray<FPoseWingEffector> WingEffectors;
 
-	AMainCharacter* GetCharacter() const;
+	UFUNCTION(BlueprintCallable) AMainCharacter* GetCharacter() const;
 	TFControlledBoneGroup<FControlledBone>* GetBoneGroup(const FName& BoneName);
 };

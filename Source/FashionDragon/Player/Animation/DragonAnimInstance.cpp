@@ -23,6 +23,8 @@
  */
 void UDragonAnimInstance::NativeInitializeAnimation()
 {
+	Super::NativeInitializeAnimation();
+	
 	HandTransforms = TArray<FTransform>();
 	LegPositions = TArray<FVector>();
 	LegRotations = TArray<FRotator>();

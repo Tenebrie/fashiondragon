@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
 #include "GameFramework/Character.h"
 #include "PhysicsEngine/PhysicalAnimationComponent.h"
@@ -13,16 +14,19 @@ class UCameraComponent;
 class UAnimationDebugReporter;
 class UFlightHandler;
 class URotationInputHandler;
+class UDragonFlightHandler;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLegPlanted, FVector, SpawnLocation);
 
-enum class EGroundMovementMode
+UENUM(BlueprintType)
+enum class EGroundMovementMode : uint8
 {
 	Walking,
 	Trotting,
 	Sprinting,
 };
 
-UCLASS()
+UCLASS(BlueprintType)
 class FASHIONDRAGON_API AMainCharacter : public ACharacter
 {
 	GENERATED_BODY()
@@ -32,8 +36,8 @@ public:
 
 	FRotator DesiredFacingRotation = FRotator::ZeroRotator;
 
-	EGroundMovementMode MovementMode;
-	EGroundMovementMode PreferredMovementMode = EGroundMovementMode::Trotting;
+	UPROPERTY(BlueprintReadWrite) EGroundMovementMode MovementMode;
+	UPROPERTY(BlueprintReadWrite) EGroundMovementMode PreferredMovementMode = EGroundMovementMode::Trotting;
 
 	UPROPERTY() UCameraComponent* ActiveCamera;
 	UPROPERTY() UFlightHandler* FlightHandler;
@@ -71,21 +75,21 @@ private:
 
 protected:
 	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	UFUNCTION(BlueprintCallable) virtual void BeginPlay() override;
 
 	// Input callbacks
-	void StartAimDownSights();
-	void StopAimDownSights();
+	UFUNCTION(BlueprintCallable) void StartAimDownSights();
+	UFUNCTION(BlueprintCallable) void StopAimDownSights();
 
-	void GroundMovement(const FInputActionValue& Value);
-	void FlightCameraMove(const FInputActionValue& Value);
-	void StartJump();
-	void CancelFlight();
-	void StartSprint();
-	void StopSprint();
-	void TogglePreferredGroundMovement();
-	void CastSomeSpell();
-	void SwitchGroundMovementMode(EGroundMovementMode NewMode);
+	UFUNCTION(BlueprintCallable) void GroundMovement(const FInputActionValue& Value);
+	UFUNCTION(BlueprintCallable) void FlightCameraMove(const FInputActionValue& Value);
+	UFUNCTION(BlueprintCallable) void StartJump();
+	UFUNCTION(BlueprintCallable) void CancelFlight();
+	UFUNCTION(BlueprintCallable) void StartSprint();
+	UFUNCTION(BlueprintCallable) void StopSprint();
+	UFUNCTION(BlueprintCallable) void TogglePreferredGroundMovement();
+	UFUNCTION(BlueprintCallable) void CastSomeSpell();
+	UFUNCTION(BlueprintCallable) void SwitchGroundMovementMode(EGroundMovementMode NewMode);
 
 public:
 	virtual void PostInitializeComponents() override;

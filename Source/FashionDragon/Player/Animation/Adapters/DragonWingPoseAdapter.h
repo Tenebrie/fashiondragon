@@ -4,5 +4,5 @@
 class FDragonWingPoseAdapter
 {
 public:
-	static void ProcessDrivenBone(FTransform& OutTransform, const FString& BoneName, const FPoseWingEffector& Effector);
+	
 };

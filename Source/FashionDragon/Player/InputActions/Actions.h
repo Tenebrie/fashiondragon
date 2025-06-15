@@ -1,12 +1,14 @@
 ﻿#pragma once
+#include <functional>
+
 #include "InputAction.h"
 
 #include "Actions.generated.h"
 
 using FInputActionFactory = std::function<UInputAction*()>;
 
-UCLASS()
-class UActions : public UGameInstanceSubsystem
+UCLASS(BlueprintType)
+class FASHIONDRAGON_API UActions : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 
@@ -25,6 +27,7 @@ public:
 	inline static const FInputActionFactory Sprint = Action(EInputActionValueType::Boolean);
 	inline static const FInputActionFactory TogglePreferredMovement = Action(EInputActionValueType::Boolean);
 	inline static const FInputActionFactory CastASpell = Action(EInputActionValueType::Boolean);
+	inline static const FInputActionFactory Interact = Action(EInputActionValueType::Boolean);
 
 	inline static const FInputActionFactory CancelFlight = Action(EInputActionValueType::Boolean);
 
