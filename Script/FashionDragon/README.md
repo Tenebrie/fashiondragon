@@ -1,0 +1,3 @@
+# FashionDragon AngelScript
+
+Placeholder readme.
