@@ -3,6 +3,7 @@
 #include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
+#include "FashionDragon/Player/InputHandlers/RotationInputHandler.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 float FBaseDriver::GetRawInputRotation() const
@@ -48,13 +49,14 @@ FVector FBaseDriver::RotateVectorToInputRotation(const FVector& VectorToRotate, 
 	const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
 	if (!OwningActor) { return VectorToRotate; }
 	
-	auto VelocityVector = OwningActor->GetCharacterMovement()->GetLastUpdateVelocity();
-	VelocityVector.Normalize();
+	// auto VelocityVector = OwningActor->GetCharacterMovement()->GetLastUpdateVelocity();
+	// VelocityVector.Normalize();
+	auto VelocityVector = OwningActor->RotationInputHandler->GetInputForwardWorldRotation().Vector();
 	if (VelocityVector.IsNearlyZero()) { return VectorToRotate; }
 	
 	// Get normalized input vector in local space
 	// const auto ActorRotation = OwningActor->GetActorRotation();
-	const auto ActorRotation = AnimInstance->GetSkelMeshComponent()->GetAttachParent()->GetComponentRotation();
+	const auto ActorRotation = AnimInstance->GetSkelMeshComponent()->GetComponentRotation();
 	const auto InputVector = ActorRotation.UnrotateVector(VelocityVector).GetSafeNormal2D();
 	// const auto InputVector = VelocityVector;
 

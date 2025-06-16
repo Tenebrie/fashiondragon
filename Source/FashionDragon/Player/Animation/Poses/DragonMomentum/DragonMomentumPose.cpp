@@ -110,7 +110,7 @@ FPoseEffector FDragonMomentumDriverBone::ToEffector(const FPoseEffector& BaseEff
 		.SetPosition(FVector(PreProcessEffector.Position.X, PreProcessEffector.Position.Y, PreProcessEffector.Position.Z))
 		.AddPosition(-MovementSpeed / Stiffness);
 
-	constexpr float Coefficient = 0.4f;
+	constexpr float Coefficient = 0.1f;
 	const auto TargetEffector = Effector.SetRotation(FRotator(Effector.Position.X * Coefficient, Effector.Position.Y * Coefficient, 0.0f));
 
 	return BaseEffector

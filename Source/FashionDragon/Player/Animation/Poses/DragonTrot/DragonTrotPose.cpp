@@ -29,10 +29,10 @@ FDragonTrotPose::FDragonTrotPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 	RootTurnDriver->SetAxisMask(0.0f, 0.5f, 0.0f);
 	
 	const auto NeckTurnDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledHead.GetBone(EDriverLayer::RotateToMovement));
-	NeckTurnDriver->SetAxisMask(FVector(0, 2, -1));
+	NeckTurnDriver->SetAxisMask(FVector(0, 0.5, -0.3));
 
 	const auto BodyTurnDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledBody.GetBone(EDriverLayer::RotateToMovement));
-	BodyTurnDriver->SetAxisMask(FVector(0, 1.5, -0.75));
+	BodyTurnDriver->SetAxisMask(FVector(0, 2.0, -0.75));
 
 	HipsDriver = new FDragonDriverGroundHipSway(Anim, Anim->ControlledHips.GetBone(EDriverLayer::Primary),  Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
 	BoneDrivers = { RootDriver, RootTurnDriver, NeckTurnDriver, BodyTurnDriver, HipsDriver };
@@ -232,7 +232,7 @@ FDragonWalkStateData FDragonTrotLegDriver::GetRawWalkStateData() const
 				.LinearForce = 8000.0f,
 				.AngularForce = 1.0f,
 				.Duration = GTrotStepDuration,
-				.StartArticulationPosition = FVector(0.0f, 0.0f, 150.0f),
+				.StartArticulationPosition = FVector(0.0f, 0.0f, 100.0f),
 				.StartArticulationRotation = FVector(0.0f, 0.0f, 0.0f),
 				.EndArticulationPosition = FVector(0.0f, 0.0f, 10.0f),
 				.EndArticulationRotation = FVector(0.0f, 0.0f, 10.0f),
@@ -240,7 +240,7 @@ FDragonWalkStateData FDragonTrotLegDriver::GetRawWalkStateData() const
 		},
 		{ ELegWalkingState::Inertia,
 			{
-				.TargetPosition = FVector(-450.0f, 0.0f, 100.0f),
+				.TargetPosition = FVector(-500.0f, 0.0f, 100.0f),
 				.TargetRotation = FRotator(-70.0f, 0.0f, 0.0f),
 				.LinearForce = 3.0f,
 				.AngularForce = 0.2f,

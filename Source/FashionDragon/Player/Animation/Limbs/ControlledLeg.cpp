@@ -14,7 +14,7 @@ FControlledLeg::FControlledLeg(UDragonAnimInstance* AnimInstance, const FVector&
 /**
  * @brief Performs a raycast to find the ground position directly under the leg.
  */
-FPlantedPositionData FControlledLeg::GetPlantedWorldPosition(const FVector& AtPosition, const FRotator& AtRotation, const float SweepDown) const
+FPlantedPositionData FControlledLeg::GetPlantedWorldPosition(const FVector& AtPosition, const FRotator& AtRotation, const float SweepDown, const float TraceUp) const
 {
 	const auto FootRotation = GetWorldRotation(AtRotation.Quaternion());
 	const auto WorldFootBase = GetWorldPosition(AtPosition);
@@ -23,8 +23,6 @@ FPlantedPositionData FControlledLeg::GetPlantedWorldPosition(const FVector& AtPo
 	const auto WorldFootTip = WorldFootBase + FootRotation.RotateVector(FVector(20, 0, 0));
 	// const auto WorldFootTip = WorldFootBase + FVector(0, 20, 0);
 
-	constexpr float TraceDistance = 300.0f;
-
 	FHitResult HitResultA;
 	FHitResult HitResultB;
 	FCollisionQueryParams Params;
@@ -32,7 +30,7 @@ FPlantedPositionData FControlledLeg::GetPlantedWorldPosition(const FVector& AtPo
 
 	const bool bHitOnFootBase = AnimInstance->GetWorld()->LineTraceSingleByChannel(
 		HitResultA,
-		WorldFootBase + FVector(0, 0, TraceDistance),
+		WorldFootBase + FVector(0, 0, TraceUp),
 		WorldFootBase - FVector(0, 0, SweepDown),
 		ECC_Visibility,
 		Params
@@ -40,7 +38,7 @@ FPlantedPositionData FControlledLeg::GetPlantedWorldPosition(const FVector& AtPo
 
 	const bool bHitOnFootTip = AnimInstance->GetWorld()->LineTraceSingleByChannel(
 		HitResultB,
-		WorldFootTip + FVector(0, 0, TraceDistance),
+		WorldFootTip + FVector(0, 0, TraceUp),
 		WorldFootTip - FVector(0, 0, SweepDown),
 		ECC_Visibility,
 		Params

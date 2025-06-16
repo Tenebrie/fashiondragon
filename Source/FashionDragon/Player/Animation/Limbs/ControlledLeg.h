@@ -49,13 +49,13 @@ public:
 
 	int GetIdx() const { return Idx; }
 
-	FPlantedPositionData GetPlantedWorldPosition(const FVector& AtPosition, const FRotator& AtRotation, const float SweepDown = 0.00f) const;
-	FPlantedPositionData GetPlantedWorldPosition(const float SweepDown = 0.00f) const
+	FPlantedPositionData GetPlantedWorldPosition(const FVector& AtPosition, const FRotator& AtRotation, const float SweepDown = 0.00f, const float TraceUp = 50.0f) const;
+	FPlantedPositionData GetPlantedWorldPosition(const float SweepDown = 0.00f, const float TraceUp = 50.0f) const
 	{
-		return GetPlantedWorldPosition(Position, Rotation, SweepDown);
+		return GetPlantedWorldPosition(Position, Rotation, SweepDown, TraceUp);
 	}
-	FPlantedPositionData GetPlantedWorldPosition(const FPoseEffector& Effector, const float SweepDown = 0.00f) const
+	FPlantedPositionData GetPlantedWorldPosition(const FPoseEffector& Effector, const float SweepDown = 0.00f, const float TraceUp = 50.0f) const
 	{
-		return GetPlantedWorldPosition(Effector.Position, Effector.Rotation, SweepDown);
+		return GetPlantedWorldPosition(Effector.Position, Effector.Rotation, SweepDown, TraceUp);
 	}
 };

@@ -4,5 +4,5 @@
 class FASHIONDRAGON_API FBaseDragonWingPoseAdapter
 {
 public:
-	static FTransform ProcessBone(const FName& BoneName, const FPoseWingEffector& Effector);
+	static FTransform ProcessBone(const FName& FullBoneName, const FPoseWingEffector& Effector);
 };

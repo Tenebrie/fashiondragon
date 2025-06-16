@@ -15,6 +15,12 @@ void URotationInputHandler::HandleMovementInput(const FInputActionValue& Value)
 	const FVector RightDirection = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
 	const FVector WorldMovement = ForwardDirection * TargetMovement.Y + RightDirection * TargetMovement.X;
 	MovementRotation = WorldMovement.Rotation();
+	SmoothMovementRotation = FMath::VInterpTo(
+		SmoothMovementRotation,
+		MovementRotation.Vector(),
+		GetWorld()->GetDeltaSeconds(),
+		1.0f
+	);
 }
 
 void URotationInputHandler::HandleRotationInput(const FInputActionValue& Value)

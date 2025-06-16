@@ -29,8 +29,9 @@ void FDragonWingPoseAdapterApplicator::Evaluate(FPoseContext& Output, const FPos
 	ProcessBoneAsHelper(Output, "Wing_Helper_026_L", {"Wing_021_L", "Wing_031_L"});
 	ProcessBoneAsHelper(Output, "Wing_Helper_035_L", {"Wing_030_L", "Wing_040_L"});
 	ProcessBoneAsHelper(Output, "Wing_Helper_036_L", {"Wing_031_L", "Wing_041_L"});
-	ProcessBoneAsHelper(Output, "Wing_Helper_006_L", {"Wing_001_L", "Wing_002_L"});
+	ProcessBoneAsHelper(Output, "Wing_Helper_006_L", {"Wing_001_L", "Wing_002_L", "Wing_040_L"});
 	ProcessBoneAsHelper(Output, "Wing_Helper_005_L", {"Wing_001_L", "Wing_Helper_006_L"});
+	// Needs special handling
 	ProcessBoneAsHelper(Output, "Wing_Helper_007_L", {"Wing_002_L", "Wing_040_L"});
 
 	ProcessBoneAsHelper(Output, "Wing_Helper_015_R", {"Wing_010_R", "Wing_020_R"});
@@ -39,8 +40,9 @@ void FDragonWingPoseAdapterApplicator::Evaluate(FPoseContext& Output, const FPos
 	ProcessBoneAsHelper(Output, "Wing_Helper_026_R", {"Wing_021_R", "Wing_031_R"});
 	ProcessBoneAsHelper(Output, "Wing_Helper_035_R", {"Wing_030_R", "Wing_040_R"});
 	ProcessBoneAsHelper(Output, "Wing_Helper_036_R", {"Wing_031_R", "Wing_041_R"});
-	ProcessBoneAsHelper(Output, "Wing_Helper_006_R", {"Wing_001_R", "Wing_002_R"});
+	ProcessBoneAsHelper(Output, "Wing_Helper_006_R", {"Wing_001_R", "Wing_002_R", "Wing_040_R"});
 	ProcessBoneAsHelper(Output, "Wing_Helper_005_R", {"Wing_001_R", "Wing_Helper_006_R"});
+	// Needs special handling
 	ProcessBoneAsHelper(Output, "Wing_Helper_007_R", {"Wing_002_R", "Wing_040_R"});
 }
 
@@ -51,7 +53,7 @@ void FDragonWingPoseAdapterApplicator::ProcessBoneAsDriven(FPoseContext& Output,
 	const FCompactPoseBoneIndex BoneIndex(BoneContainer.GetPoseBoneIndexForBoneName(BoneName));
 
 	if (BoneIndex == INDEX_NONE)
-		return;;
+		return;
 
 	FTransform& OutTransform = Output.Pose[BoneIndex];
 
@@ -76,7 +78,7 @@ void FDragonWingPoseAdapterApplicator::ProcessBoneAsHelper(
     /* ---------------------------------------------------------
      * 1)  Grab the helper-bone’s current pose AND its ref-pose
      * --------------------------------------------------------*/
-    FTransform& BoneCurrent = Output.Pose[BoneIndex];              
+    FTransform& BoneCurrent = Output.Pose[BoneIndex];
     const FTransform BoneRest = BoneContainer.GetRefPoseTransform(BoneIndex);
 
     /* ---------------------------------------------------------

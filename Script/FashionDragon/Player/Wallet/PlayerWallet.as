@@ -18,6 +18,12 @@ class UPlayerWallet : UPlayerComponent
 {
 	FWalletTransaction Current = FWalletTransaction();
 	UPlayerWalletWidget Widget;
+
+	void Add(FWalletTransaction Transaction)
+	{
+		Current.Add(Transaction);
+		Widget.Update(Current);
+	}
 	
 	void OnPickup(APickup Pickup)
 	{

@@ -98,8 +98,6 @@ private:
 			Message.Append(FString::Printf(TEXT("FRotator(%f; %f; %f)"), Arg.Pitch, Arg.Yaw, Arg.Roll));
 		else if constexpr (std::is_same_v<T, FString>)
 			Message.Append(Arg);
-		else if constexpr (std::is_same_v<T, std::string>)
-			Message.Append(UTF8_TO_TCHAR(Arg.c_str()));
 		else
 			Message.Append(TEXT("[Unknown Type]"));
 

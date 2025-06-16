@@ -117,7 +117,7 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 
 	// Apply body driver
 	Effector = ControlledBody.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToBoneEffector, DeltaTime);
-	constexpr float FrontTransformFraction = 0.5f;
+	constexpr float FrontTransformFraction = 0.3f;
 	constexpr float BackTransformFraction = 1.0f - FrontTransformFraction;
 	const FRotator FrontRotation = FRotator(
 		Effector.Rotation.Pitch * FrontTransformFraction,

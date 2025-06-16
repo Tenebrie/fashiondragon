@@ -11,7 +11,7 @@ void FProceduralLegSteppingDriver::SetWalkingState(const ELegWalkingState NewSta
 	WalkingState = NewState;
 	CyclePosition = 0.0f;
 
-	const auto PlantedPos = Leg->GetPlantedWorldPosition();
+	const auto PlantedPos = Leg->GetPlantedWorldPosition(0.0f, 50.0f);
 	PositionFrom = Leg->Position + PlantedPos.DeltaPosition;
 	RotationFrom = Leg->Rotation + PlantedPos.DeltaRotation.Rotator();
 }
@@ -26,7 +26,7 @@ bool FProceduralLegSteppingDriver::LockToWorldGround()
 	SetWalkingState(ELegWalkingState::SeekingGround);
 	
 	const auto Transform = AnimInstance->GetSkelMeshComponent()->GetAttachParent()->GetComponentTransform();
-	const auto PlantedPosition = Leg->GetPlantedWorldPosition(300.0f);
+	const auto PlantedPosition = Leg->GetPlantedWorldPosition(300.0f, 50.0f);
 
 	const FRotator LockedRotation = FRotator(Leg->Rotation.Pitch, Leg->Rotation.Yaw, 0);
 	if (!PlantedPosition.GroundHit)
@@ -88,6 +88,7 @@ void FProceduralLegSteppingDriver::RecalculatePose([[maybe_unused]] const float 
 {
 	// Calculate the desired position of the current state
 	const auto Direction = GetTargetPosition();
+
 	auto Duration = Direction.Duration;
 	if (FMath::Abs(Duration) < 0.001f)
 		Duration = 0.001f;
@@ -136,25 +137,16 @@ FDragonWalkStateData FProceduralLegSteppingDriver::AlignPoseToInputDirection(FDr
 	
 	Data.TargetPosition = RotateVectorToInputRotation(Data.TargetPosition);
 	
-	// const auto InputRotation = FMath::Abs(FMath::Cos(GetInputRotation()));
-	// const auto OriginalZ = Data.TargetPosition.Z;
-	// const auto StepScale = (InputRotation + 2.0f) / 3.0f;
-	// Data.TargetPosition *= StepScale;
-	// Data.TargetPosition.Z = OriginalZ;
-	// Data.PlaybackSpeed = PoseData.PlaybackSpeed / StepScale;
-
 	if (WalkingState == ELegWalkingState::Stepping || WalkingState == ELegWalkingState::Relaxed || WalkingState == ELegWalkingState::Inertia)
 	{
 		const auto DesiredHeight = Data.TargetPosition.Z;
 		Data.TargetPosition.Z = 0.0f;
-		const auto Planted = Leg->GetPlantedWorldPosition(Data.TargetPosition, Data.TargetRotation, 150.0f);
+		const auto Planted = Leg->GetPlantedWorldPosition(Data.TargetPosition, Data.TargetRotation, 150.0f, 50.0f);
 		FVector DeltaPosition = FVector(0, 0, -150);
 		if (Planted.GroundHit)
 			DeltaPosition = Planted.DeltaPosition;
 		Data.TargetPosition += DeltaPosition;
 		Data.TargetPosition.Z += DesiredHeight;
-		// Data.StartArticulationPosition.Z *= 1.0f + FMath::Abs(DeltaPosition.Z + DesiredHeight) / 150.0f;
-		// Data.EndArticulationPosition.Z *= 1.0f + FMath::Abs(DeltaPosition.Z + DesiredHeight) / 150.0f;
 	}
 	
 	return Data;

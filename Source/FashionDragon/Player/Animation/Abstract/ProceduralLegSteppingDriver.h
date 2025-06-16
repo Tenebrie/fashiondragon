@@ -18,6 +18,7 @@ class FProceduralLegSteppingDriver : public FProceduralLegDriver
 protected:
 	FVector LockedWorldPosition = FVector::ZeroVector;
 	FRotator LockedWorldRotation = FRotator::ZeroRotator;
+	FVector LastFrameTargetPosition = FVector::ZeroVector;
 	
 	void SnapToLockedPosition();
 	void RecalculatePose(const float DeltaTime);
@@ -66,4 +67,3 @@ struct FDragonWalkStateData {
 	mutable FVector EndArticulationPosition = FVector::ZeroVector;
 	mutable FVector EndArticulationRotation = FVector::ZeroVector;
 };
-

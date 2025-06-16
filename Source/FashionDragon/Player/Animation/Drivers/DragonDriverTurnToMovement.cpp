@@ -1,15 +1,13 @@
 ﻿#include "DragonDriverTurnToMovement.h"
 
-#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
-#include "FashionDragon/Player/InputHandlers/RotationInputHandler.h"
 
 void FDragonDriverTurnToMovement::Tick(const float DeltaTime)
 {
 	FProceduralBoneDriver::Tick(DeltaTime);
 
-	const auto Rotation = AnimInstance->GetCharacter()->RotationInputHandler->GetFacingWorldRotation();
+	const auto Rotation = AnimInstance->GetCharacter()->GetMeshActorRotation();
 	const auto Diff = Rotation - LastSeenRotation;
 
 	DragDirection += Diff;

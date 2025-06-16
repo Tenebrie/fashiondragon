@@ -180,7 +180,7 @@ void AMainCharacter::Tick(const float DeltaTime)
             const auto MovementSpeedScalar = FMath::Clamp(GetMovementComponent()->Velocity.Size() / 700.0f, 0, 1);
             const auto CurrentRot = DetachedMeshRoot->GetComponentRotation();
 
-            const FRotator NewDesiredRotation = RotationInputHandler->GetFacingWorldRotation();
+            const FRotator NewDesiredRotation = RotationInputHandler->GetInputForwardWorldRotation();
             if (NewDesiredRotation.Vector().Dot(DesiredFacingRotation.Vector()) < -0.6f)
             {
                 DesiredFacingRotation = NewDesiredRotation + FRotator(0.0f, 180.0f,0.0f);
@@ -191,7 +191,7 @@ void AMainCharacter::Tick(const float DeltaTime)
             }
 
             const FRotator FacingRotation = DesiredFacingRotation;
-            const auto NewRot = FMath::RInterpTo(CurrentRot, FacingRotation, DeltaTime, 3.0f * MovementSpeedScalar);
+            const auto NewRot = FMath::RInterpTo(CurrentRot, FacingRotation, DeltaTime, 10.0f * MovementSpeedScalar);
             DetachedMeshRoot->SetWorldRotation(NewRot);
 
             const auto ResetMeshRotation = FMath::RInterpTo(MeshRoot->GetRelativeRotation(), FRotator::ZeroRotator, DeltaTime, 3.0f);
@@ -228,6 +228,11 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
     Input->BindAction(UActions::TogglePreferredMovement(), ETriggerEvent::Started, this, &AMainCharacter::TogglePreferredGroundMovement);
     
     Input->BindAction(UActions::CastASpell(), ETriggerEvent::Triggered, this, &AMainCharacter::CastSomeSpell);
+}
+
+FRotator AMainCharacter::GetMeshActorRotation() const
+{
+    return DetachedMeshRoot->GetComponentRotation();
 }
 
 void AMainCharacter::GroundMovement(const FInputActionValue& Value)

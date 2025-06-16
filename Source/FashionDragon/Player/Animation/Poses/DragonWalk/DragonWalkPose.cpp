@@ -154,7 +154,7 @@ FDragonWalkPose::FDragonWalkPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 	NeckTurnDriver->SetAxisMask(FVector(0, 2, -1));
 
 	const auto BodyTurnDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledBody.GetBone(EDriverLayer::RotateToMovement));
-	BodyTurnDriver->SetAxisMask(FVector(0, 1.5, -0.75));
+	BodyTurnDriver->SetAxisMask(FVector(0, 2.5, -0.75));
 
 	HipsDriver = new FDragonDriverGroundHipSway(Anim, Anim->ControlledHips.GetBone(EDriverLayer::Primary), Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
 	

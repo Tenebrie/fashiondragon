@@ -153,10 +153,10 @@ FDragonSprintPose::FDragonSprintPose(UDragonAnimInstance* Anim): FProceduralPose
 	RootTurnDriver->SetAxisMask(0.0f, 0.5f, 0.0f);
 
 	const auto NeckTurnDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledHead.GetBone(EDriverLayer::RotateToMovement));
-	NeckTurnDriver->SetAxisMask(FVector(0, 2, -1));
+	NeckTurnDriver->SetAxisMask(FVector(0, 0.3, -0.18));
 
 	const auto BodyTurnDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledBody.GetBone(EDriverLayer::RotateToMovement));
-	BodyTurnDriver->SetAxisMask(FVector(0, 1.5, -0.75));
+	BodyTurnDriver->SetAxisMask(FVector(0, 1.25, -0.5));
 	
 	HipsDriver = new FDragonDriverGroundHipSway(Anim, Anim->ControlledHips.GetBone(EDriverLayer::Primary),  Anim->BackLeftLeg.GetBone(EDriverLayer::Primary), Anim->BackRightLeg.GetBone(EDriverLayer::Primary));
 	
