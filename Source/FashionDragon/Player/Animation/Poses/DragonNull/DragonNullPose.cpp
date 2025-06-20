@@ -14,6 +14,8 @@ FDragonNullPose::FDragonNullPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 		BoneDrivers.Add(new FDragonNullDriverBone(AnimInstance, AnimInstance->RightHand.GetBone(static_cast<EDriverLayer>(i))));
 		LegDrivers.Add(new FDragonNullDriverLeg(AnimInstance, AnimInstance->BackLeftLeg.GetBone(static_cast<EDriverLayer>(i))));
 		LegDrivers.Add(new FDragonNullDriverLeg(AnimInstance, AnimInstance->BackRightLeg.GetBone(static_cast<EDriverLayer>(i))));
+		WingDrivers.Add(new FDragonNullDriverWing(AnimInstance, AnimInstance->LeftWing.GetBone(static_cast<EDriverLayer>(i))));
+		WingDrivers.Add(new FDragonNullDriverWing(AnimInstance, AnimInstance->RightWing.GetBone(static_cast<EDriverLayer>(i))));
 	}
 }
 
@@ -53,6 +55,32 @@ void FDragonNullPose::EvaluateBlending()
 			for (const FProceduralLegDriver* Driver : Pose->ListLegDrivers())
 			{
 				if (Driver->GetLeg() == NullDriver->GetLeg())
+				{
+					TotalBoneAlpha += Driver->GetBlendAlpha();
+				}
+			}
+		}
+
+		if (TotalBoneAlpha < 1.0f)
+		{
+			NullDriver->ForceSetBlendAlpha(1.0f - TotalBoneAlpha);
+		}
+		else
+		{
+			NullDriver->ForceSetBlendAlpha(0.0f);
+		}
+	}
+
+	for (FProceduralWingDriver* NullDriver : WingDrivers)
+	{
+		float TotalBoneAlpha = 0.0f;
+		for (const FProceduralPose* Pose : AnimInstance->StateMachine->PoseDrivers)
+		{
+			if (Pose == this) { continue; }
+
+			for (const FProceduralWingDriver* Driver : Pose->ListWingDrivers())
+			{
+				if (Driver->GetWing() == NullDriver->GetWing())
 				{
 					TotalBoneAlpha += Driver->GetBlendAlpha();
 				}

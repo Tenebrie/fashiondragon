@@ -23,7 +23,7 @@ protected:
 	FVector ArticulationPosition = FVector::ZeroVector;
 	FVector ArticulationRotation = FVector::ZeroVector;
 
-	FProceduralDriverDebugReporter DebugReporter;
+	FProceduralBoneDriverDebugReporter DebugReporter;
 	
 public:
 	FProceduralBoneDriver(UDragonAnimInstance* AnimInstance, FControlledBone* Bone):
@@ -39,7 +39,7 @@ public:
 	FRotator GetDesiredRotation() const { return DesiredRotation; }
 	FVector GetPositionFrom() const { return PositionFrom; }
 	FRotator GetRotationFrom() const { return RotationFrom; }
-	FProceduralDriverDebugReporter* GetDebugReporter() { return &DebugReporter; }
+	FProceduralBoneDriverDebugReporter* GetDebugReporter() { return &DebugReporter; }
 
 	void SetDesiredPosition(const FVector& NewDesiredPosition) { DesiredPosition = NewDesiredPosition; }
 	void SetDesiredRotation(const FRotator& NewDesiredRotation) { DesiredRotation = NewDesiredRotation; }

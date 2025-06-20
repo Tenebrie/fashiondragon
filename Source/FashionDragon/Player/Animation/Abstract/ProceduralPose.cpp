@@ -83,8 +83,9 @@ FPoseWingEffector FProceduralPose::ToWingEffector(const FPoseWingEffector& BaseE
 		{
 			const auto Context = FPoseEffectorContext(DeltaTime, 1.0f);
 			const auto UpdatedEffector = WingDriver->ToEffector(BaseEffector, Context);
-			// TODO: Blending & reporting
-			return UpdatedEffector;
+			const auto BlendedEffector = BaseEffector + ((UpdatedEffector - BaseEffector) * WingDriver->GetBlendAlpha());
+			WingDriver->GetDebugReporter()->LogEffectorDelta(BaseEffector, BlendedEffector);
+			return BlendedEffector;
 		}
 	}
 	return BaseEffector;

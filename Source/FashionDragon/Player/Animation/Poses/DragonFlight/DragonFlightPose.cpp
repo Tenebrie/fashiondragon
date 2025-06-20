@@ -1,6 +1,7 @@
 ﻿#include "DragonFlightPose.h"
 
 #include "DragonFlightDriverLeg.h"
+#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "FashionDragon/Player/Animation/Enums/DriverLayer.h"
 
@@ -10,16 +11,16 @@ FDragonWingStateData FDragonFlightWingDriver::GetRawStateData() const
 	{
 		{ EDragonFlightState::Pushing,
 			{
-				.Flap = FArticulatedValue(1.2f),
-				.Openness = FArticulatedValue(1.0f),
+				.FlapAngle = FArticulatedValue(1.2f),
+				.FlightFoldState = FArticulatedValue(1.0f),
 				.Duration = 0.4f,
 				.TransitionSpeed = 300.0f,
 			}
 		},
 		{ EDragonFlightState::Retracting,
 			{
-				.Flap = FArticulatedValue(-1.2f),
-				.Openness = FArticulatedValue(1.0f, -1.2f, -0.5f),
+				.FlapAngle = FArticulatedValue(-1.2f),
+				.FlightFoldState = FArticulatedValue(1.0f, -1.2f, -0.5f),
 				.Duration = 0.9f,
 				.TransitionSpeed = 8.0f,
 			}
@@ -51,8 +52,7 @@ void FDragonFlightWingDriver::AdvanceState()
 		FlightState = EDragonFlightState::Pushing;
 		break;
 	}
-	StartedFlapFrom = Wing->Flap;
-	StartedOpennessFrom = Wing->Openness;
+	StartingState = Wing->State;
 }
 
 FDragonFlightPose::FDragonFlightPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
@@ -64,8 +64,8 @@ FDragonFlightPose::FDragonFlightPose(UDragonAnimInstance* Anim): FProceduralPose
 	LeftWingDriver = new FDragonFlightWingDriver(Anim, Anim->LeftWing.GetBone(EDriverLayer::Primary));
 	RightWingDriver = new FDragonFlightWingDriver(Anim, Anim->RightWing.GetBone(EDriverLayer::Primary));
 	WingDrivers = {
-		LeftWingDriver,
-		RightWingDriver,
+		// LeftWingDriver,
+		// RightWingDriver,
 	};
 }
 

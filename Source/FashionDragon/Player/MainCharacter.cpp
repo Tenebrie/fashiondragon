@@ -116,6 +116,7 @@ void AMainCharacter::BeginPlay()
 
     SwitchGroundMovementMode(EGroundMovementMode::Trotting);
 
+    DesiredFacingRotation = GetActorRotation();
     RotationInputHandler->ResetRotation(GetActorRotation().Quaternion());
 }
 
@@ -147,7 +148,6 @@ void AMainCharacter::Tick(const float DeltaTime)
 
     const auto DesiredRotation = RotationInputHandler->GetCameraWorldRotation();
 
-    // Return camera to default in flight
     if (FlightHandler->IsFlying())
     {
         const FRotator TargetRotationTwo = FRotator(0, 0, 0);
@@ -156,17 +156,11 @@ void AMainCharacter::Tick(const float DeltaTime)
         const auto TargetControlRotation = FRotator(0, DesiredRotation.Yaw, 0);
         Controller->SetControlRotation(FMath::RInterpTo(Controller->GetControlRotation(), TargetControlRotation, DeltaTime, 50.0f));
 
-        // const auto TargetRot = FRotator(-DesiredRotation.Roll, 0, -DesiredRotation.Pitch);
-        // MeshRoot->SetRelativeRotation(TargetRot);
-
-        // const auto NewRot = FMath::RInterpTo(
-            // DetachedMeshRoot->GetComponentRotation(), FRotator::ZeroRotator, DeltaTime, 3.0f);
-        // DetachedMeshRoot->SetWorldRotation(NewRot);
-
-        const auto CurrentRot = DetachedMeshRoot->GetComponentRotation();
-        
-        const auto NewRot = FMath::RInterpTo(CurrentRot, DesiredRotation, DeltaTime, 10.0f);
-        DetachedMeshRoot->SetWorldRotation(NewRot);
+        const FQuat  CurrentQ = DetachedMeshRoot->GetComponentQuat();
+        // const FQuat  TargetQ  = UE::Math::TQuat<double>::Slerp(GetCharacterMovement()->Velocity.ToOrientationQuat(), DesiredRotation.Quaternion(), 0.2f);
+        const FQuat TargetQ = DesiredRotation.Quaternion();
+        const FQuat  NewQ = FMath::QInterpTo(CurrentQ, TargetQ, DeltaTime, 10.f);
+        DetachedMeshRoot->SetWorldRotation(NewQ);
     }
     else
     {
@@ -193,9 +187,6 @@ void AMainCharacter::Tick(const float DeltaTime)
             const FRotator FacingRotation = DesiredFacingRotation;
             const auto NewRot = FMath::RInterpTo(CurrentRot, FacingRotation, DeltaTime, 10.0f * MovementSpeedScalar);
             DetachedMeshRoot->SetWorldRotation(NewRot);
-
-            const auto ResetMeshRotation = FMath::RInterpTo(MeshRoot->GetRelativeRotation(), FRotator::ZeroRotator, DeltaTime, 3.0f);
-            MeshRoot->SetRelativeRotation(ResetMeshRotation);
         }
     }
     SpringArmComponent->SetWorldRotation(FRotator(DesiredRotation.Pitch, DesiredRotation.Yaw, 0.0f));
@@ -284,7 +275,7 @@ void AMainCharacter::CancelFlight()
     FlightHandler->CancelFlight();
     const auto PlayerController = Cast<ADefaultPlayerController>(GetController());
     PlayerController->SetControlMode(EControlMode::Ground);
-    GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+    GetCharacterMovement()->SetMovementMode(MOVE_Falling);
 }
 
 void AMainCharacter::StartSprint() { SwitchGroundMovementMode(EGroundMovementMode::Sprinting); }

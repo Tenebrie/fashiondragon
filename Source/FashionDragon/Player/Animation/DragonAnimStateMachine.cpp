@@ -142,6 +142,12 @@ void FDragonAnimStateMachine::InitTransitions()
 				SprintPoseDriver->LeftLegDriver->ForceSetBlendAlpha(0.0f);
 				SprintPoseDriver->RightLegDriver->ForceSetBlendAlpha(0.0f);
 			}},
+		}},
+		{ EAnimationState::Flight, {
+			{ EAnimationState::Jumping, [this]
+			{
+				JumpPoseDriver->StartFalling();
+			}},
 		}}
 	};
 }
@@ -192,6 +198,11 @@ void FDragonAnimStateMachine::Tick(const float DeltaTime, const AMainCharacter* 
 		{
 			SetState(EAnimationState::Flight);
 			FlightPoseDriver->ResetState();
+		}
+		if (AnimationState == EAnimationState::Flight && !OwningActor->FlightHandler->IsFlying())
+		{
+			SetState(EAnimationState::Jumping);
+			JumpPoseDriver->StartFalling();
 		}
 	}
 

@@ -14,6 +14,7 @@
 #include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/Animation/Drivers/DragonDriverConstPosition.h"
 #include "FashionDragon/Player/Animation/Drivers/DragonDriverTurnToMovement.h"
+#include "FashionDragon/Player/Animation/Poses/DragonIdle/Drivers/DragonIdleWingDriver.h"
 #include "FashionDragon/Player/Animation/Poses/DragonSprint/DragonSprintPose.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -90,10 +91,11 @@ void FDragonJumpLegDriver::Tick(const float DeltaTime)
 	{
 		SetJumpState(ELegJumpState::DelayedLanding);
 	}
-	if ((JumpingState == ELegJumpState::DelayedLanding || JumpingState == ELegJumpState::Landing) && Leg->GetPlantedWorldPosition(1).GroundHit)
+	const auto IsJumping = AnimInstance->StateMachine->AnimationState == EAnimationState::Jumping || AnimInstance->StateMachine->AnimationState == EAnimationState::Flight;
+	if ((JumpingState == ELegJumpState::DelayedLanding || JumpingState == ELegJumpState::Landing) && !IsJumping)
 	{
 		SetJumpState(ELegJumpState::Impact);
-		AnimInstance->GetCharacter()->GetCharacterMovement()->Velocity *= 0.8f;
+		AnimInstance->GetCharacter()->GetCharacterMovement()->Velocity *= 0.9f;
 	}
 }
 
@@ -215,10 +217,10 @@ FDragonJumpPose::FDragonJumpPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 	NeckConstDriver->AdditionMode = EDriverConstPositionMode::Absolute;
 	
 	const auto NeckTurnDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledHead.GetBone(EDriverLayer::RotateToMovement));
-	NeckTurnDriver->SetAxisMask(FVector(0, 2, -1));
+	NeckTurnDriver->SetAxisMask(FVector(0, 0.5, -0.25));
 
 	const auto BodyTurnDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledBody.GetBone(EDriverLayer::RotateToMovement));
-	BodyTurnDriver->SetAxisMask(FVector(0, 1.5, -0.75));
+	BodyTurnDriver->SetAxisMask(FVector(0, 1.0, -0.5));
 	
 	BoneDrivers = { BodyDriver, RootTurnDriver, NeckConstDriver, NeckTurnDriver, BodyTurnDriver };
 
@@ -238,8 +240,8 @@ FDragonJumpPose::FDragonJumpPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 		BodyDriver->SetJumpState(NewState);
 	});
 
-	LeftWingDriver = new FDragonJumpWingDriver(Anim, Anim->LeftWing.GetBone(EDriverLayer::Primary));
-	RightWingDriver = new FDragonJumpWingDriver(Anim, Anim->RightWing.GetBone(EDriverLayer::Primary));
+	LeftWingDriver = new FDragonIdleWingDriver(Anim, Anim->LeftWing.GetBone(EDriverLayer::Primary));
+	RightWingDriver = new FDragonIdleWingDriver(Anim, Anim->RightWing.GetBone(EDriverLayer::Primary));
 	WingDrivers = {
 		LeftWingDriver,
 		RightWingDriver,

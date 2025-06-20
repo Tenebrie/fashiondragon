@@ -45,25 +45,25 @@ public:
 	TArray<TFControlledBoneGroup<FControlledWing>*> ControlledWings;
 
 	// IK Rig outputs
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="ProceduralAnimation")
 	FTransform HeadTransform;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="ProceduralAnimation")
 	FTransform UpperNeckTransform;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="ProceduralAnimation")
 	FTransform LowerNeckTransform;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="ProceduralAnimation")
 	FTransform SpineFrontTransform;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="ProceduralAnimation")
 	FTransform SpineBackTransform;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="ProceduralAnimation")
 	FTransform HipTransform;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="ProceduralAnimation")
 	TArray<FTransform> HandTransforms;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="ProceduralAnimation")
 	TArray<FVector> LegPositions;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="ProceduralAnimation")
 	TArray<FRotator> LegRotations;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Assets")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="ProceduralAnimation")
 	TArray<FPoseWingEffector> WingEffectors;
 
 	UFUNCTION(BlueprintCallable) AMainCharacter* GetCharacter() const;

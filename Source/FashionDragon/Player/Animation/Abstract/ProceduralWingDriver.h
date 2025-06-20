@@ -1,25 +1,15 @@
 ﻿#pragma once
 #include "ProceduralBoneDriver.h"
-#include "FashionDragon/Player/Animation/Limbs/ControlledLeg.h"
 #include "FashionDragon/Player/Animation/Limbs/ControlledWing.h"
+#include "FashionDragon/Player/Animation/Structs/ArticulatedValue.h"
 #include "FashionDragon/Player/Animation/Structs/PoseWingEffector.h"
-
-struct FArticulatedValue
-{
-	float Value = 0.0f;
-	float StartArticulation = 0.0f;
-	float EndArticulation = 0.0f;
-
-	FArticulatedValue() = default;
-	explicit FArticulatedValue(const float Value): Value(Value) {}
-	FArticulatedValue(const float Value, const float StartArticulation, const float EndArticulation)
-		: Value(Value), StartArticulation(StartArticulation), EndArticulation(EndArticulation) {}
-};
 
 struct FDragonWingStateData
 {
-	FArticulatedValue Flap = FArticulatedValue();
-	FArticulatedValue Openness = FArticulatedValue();
+	FArticulatedValue FlapAngle = FArticulatedValue();
+	FArticulatedValue TiltAngle = FArticulatedValue();
+	FArticulatedValue FlightFoldState = FArticulatedValue();
+	FArticulatedValue RestFoldState = FArticulatedValue();
 
 	float Duration = 1.0f;
 	float TransitionSpeed = 1.0f;
@@ -33,22 +23,24 @@ class FProceduralWingDriver: public FBaseDriver
 protected:
 	FControlledWing* Wing;
 
-	float DesiredFlap = 0.0f;
-	float DesiredOpenness = 0.0f;
+	FPoseWingEffector DesiredState;
+	FPoseWingEffector StartingState;
 
-	float StartedFlapFrom = 0.0f;
-	float StartedOpennessFrom = 0.0f;
+	FProceduralWingDriverDebugReporter DebugReporter;
 	
 	virtual FDragonWingStateData GetRawStateData() const;
 	void RecalculatePose();
 	
 public:
-	FProceduralWingDriver(UDragonAnimInstance* AnimInstance, FControlledWing* ControlledWing);
+	FProceduralWingDriver(UDragonAnimInstance* AnimInstance, FControlledWing* ControlledWing):
+		FBaseDriver(AnimInstance), Wing(ControlledWing) {}
 
-	virtual void Tick(float DeltaTime);
+	virtual void Tick(float DeltaTime) override;
 	virtual void ResetState();
 
 	virtual FPoseWingEffector ToEffector(const FPoseWingEffector& BaseEffector, const FPoseEffectorContext& Context);
+
+	FProceduralWingDriverDebugReporter* GetDebugReporter() { return &DebugReporter; }
 
 	FControlledWing* GetWing() const { return Wing; }
 };

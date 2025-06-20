@@ -4,8 +4,8 @@ FDragonWingStateData FDragonJumpWingDriver::GetRawStateData() const
 {
 	return FDragonWingStateData
 	{
-		.Flap = FArticulatedValue(-1.0f),
-		.Openness = FArticulatedValue(1.0f),
+		.FlapAngle = FArticulatedValue(-1.0f),
+		.RestFoldState = FArticulatedValue(0.0f),
 		.Duration = 0.5f,
 		.TransitionSpeed = 5.0f,
 	};

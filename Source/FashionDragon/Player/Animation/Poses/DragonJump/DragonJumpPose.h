@@ -2,6 +2,7 @@
 #include "FashionDragon/Player/Animation/Abstract/ProceduralLegSteppingDriver.h"
 #include "FashionDragon/Player/Animation/Abstract/ProceduralPose.h"
 
+class FDragonIdleWingDriver;
 class FDragonJumpWingDriver;
 
 enum class ELegJumpState
@@ -71,8 +72,8 @@ class FDragonJumpPose final : public FProceduralPose
 	FDragonJumpBodyDriver* BodyDriver;
 	FDragonJumpLegDriver* LeftLegDriver;
 	FDragonJumpLegDriver* RightLegDriver;
-	FDragonJumpWingDriver* LeftWingDriver;
-	FDragonJumpWingDriver* RightWingDriver;
+	FDragonIdleWingDriver* LeftWingDriver;
+	FDragonIdleWingDriver* RightWingDriver;
 public:
 	explicit FDragonJumpPose(UDragonAnimInstance* Anim);
 

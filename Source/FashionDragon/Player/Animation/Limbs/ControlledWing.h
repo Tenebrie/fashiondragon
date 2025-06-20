@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "FashionDragon/Player/Animation/Enums/DriverLayer.h"
+#include "FashionDragon/Player/Animation/Structs/PoseWingEffector.h"
 
 class UDragonAnimInstance;
 
@@ -24,12 +25,7 @@ public:
 	FVector Position = FVector::ZeroVector;
 	
 	float MirrorModifier = 1.0f;
-	// Flap state [-1.0f, 1.0f]
-	float Flap = 0.0f;
-	// 0: Wing folded, 1: Wing fully extended
-	float Openness = 1.0f;
-
-	FName GetBoneName(int BoneIdx) const;
+	FPoseWingEffector State = FPoseWingEffector();
 
 	virtual void Tick(const float DeltaTime) {}
 

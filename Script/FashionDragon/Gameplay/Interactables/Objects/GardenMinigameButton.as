@@ -7,10 +7,16 @@ class AGardenMinigameButton : AWorldButton
 	TSubclassOf<APickup_GardenFlower> FlowerToSpawn;
 
 	UPROPERTY()
+	TSubclassOf<APickupProjectile> PickupProjectile;
+
+	UPROPERTY()
 	UStaticMesh FlowerMesh;
 
 	UPROPERTY(DefaultComponent)
 	UHierarchicalInstancedStaticMeshComponent FlowersHISM;
+
+	UPROPERTY()
+	TMap<int, float> FadingOutInstances;
 
 	UFUNCTION(BlueprintOverride)
 	void BeginPlay()
@@ -22,8 +28,22 @@ class AGardenMinigameButton : AWorldButton
 		FlowersHISM.SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 		FlowersHISM.SetGenerateOverlapEvents(true);
 		FlowersHISM.bMultiBodyOverlap = true;
+		// 0 = Fade Out
+		FlowersHISM.NumCustomDataFloats = 1;
 
 		FlowersHISM.OnComponentBeginOverlap.AddUFunction(this, n"OnFlowerOverlap");
+	}
+
+	UFUNCTION(BlueprintOverride)
+	void Tick(float DeltaSeconds)
+	{
+		Super::Tick(DeltaSeconds);
+		for (auto Instance : FadingOutInstances)
+		{
+			if (Instance.Value >= 1.0f) { continue; }
+			Instance.Value = Math::Clamp(Instance.Value + DeltaSeconds * 2.0f, 0.0f, 1.0f);
+			FlowersHISM.SetCustomDataValue(Instance.Key, 0, Instance.Value);
+		}
 	}
 
 	UFUNCTION()
@@ -36,16 +56,28 @@ class AGardenMinigameButton : AWorldButton
 		const FHitResult&in SweepResult)
 	{
 		AScriptedMainCharacter Character = Cast<AScriptedMainCharacter>(OtherActor);
-		if (Character == nullptr)
+		if (Character == nullptr || FadingOutInstances.Contains(SweepResult.Item))
 		{
 			return;
 		}
-		// Print("" + SweepResult.Item);
 
-		FlowersHISM.RemoveInstance(SweepResult.Item);
+		FadingOutInstances.Add(SweepResult.Item, 0.0f);
 		auto Transaction = FWalletTransaction();
 		Transaction.Flowers = 1;
-		Character.Wallet.Add(Transaction);
+		// Character.Wallet.Add(Transaction);
+		FTransform InstanceTransform;
+		FlowersHISM.GetInstanceTransform(SweepResult.Item, InstanceTransform, true);
+		auto Projectile = SpawnActor(
+			PickupProjectile,
+			InstanceTransform.Location + FlowersHISM.StaticMesh.BoundingBox.Center,
+			FRotator::ZeroRotator,
+			n"GardenMinigamePickupProjectile"
+		);
+		Projectile.TargetActor = Character;
+		Projectile.Transaction = Transaction;
+		Projectile.StartDelayRemaining = 0.2f;
+		Projectile.AnimationDuration = 0.7f;
+		Projectile.EndDelayRemaining = 0.5f;
 	}
 
 	void OnInteract() override
@@ -53,6 +85,7 @@ class AGardenMinigameButton : AWorldButton
 		Super::OnInteract();
 
 		FlowersHISM.ClearInstances();
+		FadingOutInstances.Empty();
 
 		FVector Position;
 		FVector Bounds;
@@ -61,7 +94,7 @@ class AGardenMinigameButton : AWorldButton
 		TArray<AActor> SpawnedFlowers = TArray<AActor>();
 		GardeningArea.GetActorBounds(false, Position, Bounds);
 		
-		for (int i = 0; i < 2000; i++)
+		for (int i = 0; i < 500; i++)
 		{
 			FVector TargetPoint = Math::RandomPointInBoundingBox(Position, Bounds);
 
@@ -74,7 +107,8 @@ class AGardenMinigameButton : AWorldButton
 			}
 			FRotator FlowerRotation = FRotator(0, Math::RandRange(0, 360), 0);
 			FTransform InstanceTransform = FTransform(FlowerRotation, TargetPoint, FVector(2, 2, 2));
-			FlowersHISM.AddInstance(InstanceTransform, true);
+			int Index = FlowersHISM.AddInstance(InstanceTransform, true);
+			FlowersHISM.SetCustomDataValue(Index, 0, 0.0f);
 		}
 	}
 }

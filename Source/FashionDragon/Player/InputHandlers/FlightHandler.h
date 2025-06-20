@@ -14,14 +14,15 @@ class FASHIONDRAGON_API UFlightHandler : public UPlayerComponent
 {
 	GENERATED_BODY()
 
-	bool IsInFlight = false;
+protected:
+	UPROPERTY(BlueprintReadOnly) bool IsInFlight = false;
 	FControlledWing* LeftWing = nullptr;
 	FControlledWing* RightWing = nullptr;
 
-	float LastFrameLeftFlap = 0.0f;
-	float LastFrameRightFlap = 0.0f;
-	float LastFrameLeftOpenness = 0.0f;
-	float LastFrameRightOpenness = 0.0f;
+	UPROPERTY(BlueprintReadOnly) float LastFrameLeftFlap = 0.0f;
+	UPROPERTY(BlueprintReadOnly) float LastFrameRightFlap = 0.0f;
+	UPROPERTY(BlueprintReadOnly) float LastFrameLeftOpenness = 0.0f;
+	UPROPERTY(BlueprintReadOnly) float LastFrameRightOpenness = 0.0f;
 
 public:
 	virtual void BeginPlay() override;

@@ -9,6 +9,7 @@ public class FashionDragonEditor : ModuleRules
 			"Core", "CoreUObject", "Engine", "AnimGraph", "BlueprintGraph", "UnrealEd", "FashionDragon",
 		]);
 		PublicIncludePaths.AddRange(["FashionDragonEditor"]);
+		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_6;
 		
 		bUseRTTI = true;
 	}

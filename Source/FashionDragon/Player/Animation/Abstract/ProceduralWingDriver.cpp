@@ -15,26 +15,12 @@ void FProceduralWingDriver::RecalculatePose()
 	if (FMath::Abs(Duration) < 0.001f)
 		Duration = 0.001f;
 
-	DesiredFlap = UE::Curves::BezierInterp(
-			StartedFlapFrom,
-			StartedFlapFrom + StateData.Flap.StartArticulation,
-			StateData.Flap.Value + StateData.Flap.EndArticulation,
-			StateData.Flap.Value,
-			CyclePosition / Duration
-		);
-
-	DesiredOpenness = UE::Curves::BezierInterp(
-			StartedOpennessFrom,
-			StartedOpennessFrom + StateData.Openness.StartArticulation,
-			StateData.Openness.Value + StateData.Openness.EndArticulation,
-			StateData.Openness.Value,
-			CyclePosition / Duration
-		);
-}
-
-FProceduralWingDriver::FProceduralWingDriver(UDragonAnimInstance* AnimInstance, FControlledWing* ControlledWing): 
-	FBaseDriver(AnimInstance), Wing(ControlledWing)
-{
+	DesiredState = FPoseWingEffector(
+		StateData.FlapAngle.CalculateAt(StartingState.FlapAngle, CyclePosition / Duration),
+		StateData.TiltAngle.CalculateAt(StartingState.TiltAngle, CyclePosition / Duration),
+		StateData.FlightFoldState.CalculateAt(StartingState.FlightFoldState, CyclePosition / Duration),
+		StateData.RestFoldState.CalculateAt(StartingState.RestFoldState, CyclePosition / Duration)
+	);
 }
 
 void FProceduralWingDriver::Tick(const float DeltaTime)
@@ -60,7 +46,5 @@ FPoseWingEffector FProceduralWingDriver::ToEffector(const FPoseWingEffector& Bas
 	
 	if (Context.BlendAlpha <= 0.0f) { return BaseEffector; }
 
-	return BaseEffector
-		.SetFlapAngle(FMath::FInterpTo(BaseEffector.FlapAngle, DesiredFlap, Context.DeltaTime, State.TransitionSpeed * Context.BlendAlpha))
-		.SetOpenness(FMath::FInterpTo(BaseEffector.Openness, DesiredOpenness, Context.DeltaTime, State.TransitionSpeed * Context.BlendAlpha));
+	return BaseEffector.InterpTo(DesiredState, Context.DeltaTime, State.TransitionSpeed * Context.BlendAlpha);
 }

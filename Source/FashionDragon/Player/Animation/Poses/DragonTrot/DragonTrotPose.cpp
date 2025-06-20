@@ -29,7 +29,7 @@ FDragonTrotPose::FDragonTrotPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 	RootTurnDriver->SetAxisMask(0.0f, 0.5f, 0.0f);
 	
 	const auto NeckTurnDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledHead.GetBone(EDriverLayer::RotateToMovement));
-	NeckTurnDriver->SetAxisMask(FVector(0, 0.5, -0.3));
+	NeckTurnDriver->SetAxisMask(FVector(0, 1.5, -0.75));
 
 	const auto BodyTurnDriver = new FDragonDriverTurnToMovement(Anim, Anim->ControlledBody.GetBone(EDriverLayer::RotateToMovement));
 	BodyTurnDriver->SetAxisMask(FVector(0, 2.0, -0.75));

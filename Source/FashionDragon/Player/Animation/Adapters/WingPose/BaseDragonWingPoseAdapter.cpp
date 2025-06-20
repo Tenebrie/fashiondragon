@@ -1,20 +1,26 @@
 ﻿#include "BaseDragonWingPoseAdapter.h"
 
-#include "FashionDragon/DebugTools/QuickDebug.h"
-
 enum class EWingMovementAxis
 {
-	Closeness,
 	FlapAngle,
-	TiltAngle
+	TiltAngle,
+	FlightFoldState,
 };
 
 FTransform FBaseDragonWingPoseAdapter::ProcessBone(const FName& FullBoneName, const FPoseWingEffector& Effector)
 {
 	TMap<EWingMovementAxis, TMap<FString, FRotator>> TransformData =
 	{
+		{EWingMovementAxis::FlapAngle,{
+								 
+			}
+		},
+		{EWingMovementAxis::TiltAngle,{
+								 
+			}
+		},
 		{
-			EWingMovementAxis::Closeness,{
+			EWingMovementAxis::FlightFoldState,{
 				{ "Wing_001", FRotator(60.0, -20, -20) },
 				{ "Wing_002", FRotator(-115.0, 0, 0) },
 				{ "Wing_010", FRotator(120.0, 0, 0) },
@@ -23,29 +29,19 @@ FTransform FBaseDragonWingPoseAdapter::ProcessBone(const FName& FullBoneName, co
 				{ "Wing_040", FRotator(60.0, 0, 0) },
 			}
 		},
-		{
-			EWingMovementAxis::FlapAngle,{
-								 
-			}
-		},
-		{
-			EWingMovementAxis::TiltAngle,{
-								 
-			}
-		}
 	};
 	
-	FTransform OutTransform = FTransform();
+	FTransform OutTransform = FTransform::Identity;
 	const FString Name = FullBoneName.ToString().LeftChop(2);
 
-	const float Closeness = 1.0f - Effector.Openness;
 	const float FlapAngle = Effector.FlapAngle;
 	const float TiltAngle = Effector.TiltAngle;
+	const float FlightFoldState = Effector.FlightFoldState;
 
-	if (TransformData[EWingMovementAxis::Closeness].Contains(Name))
+	if (TransformData[EWingMovementAxis::FlightFoldState].Contains(Name))
 	{
-		const FRotator Rotation = TransformData[EWingMovementAxis::Closeness][Name];
-		OutTransform.ConcatenateRotation(Rotation.Quaternion() * Closeness);
+		const FRotator Rotation = TransformData[EWingMovementAxis::FlightFoldState][Name];
+		OutTransform.ConcatenateRotation(Rotation.Quaternion() * FlightFoldState);
 	}
 	if (TransformData[EWingMovementAxis::FlapAngle].Contains(Name))
 	{
@@ -55,6 +51,8 @@ FTransform FBaseDragonWingPoseAdapter::ProcessBone(const FName& FullBoneName, co
 	{
 		OutTransform.ConcatenateRotation(TransformData[EWingMovementAxis::TiltAngle][Name].Quaternion() * TiltAngle);
 	}
+
+	OutTransform.NormalizeRotation();
 
 	if (FullBoneName.ToString().EndsWith("R"))
 	{

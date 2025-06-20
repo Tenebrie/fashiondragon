@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "FashionDragon/Player/Animation/Structs/PoseWingEffector.h"
 #include "FashionDragon/Player/Generics/PlayerComponent.h"
 #include "AnimationDebugReporter.generated.h"
 
@@ -14,10 +15,17 @@ struct FDriverDebugInfo
 	UPROPERTY(BlueprintReadOnly) FName GroupName = TEXT("Unknown Group");
 	UPROPERTY(BlueprintReadOnly) FString LayerName = TEXT("Unknown Layer");
 	UPROPERTY(BlueprintReadOnly) FString StateInfo = TEXT("Unknown Layer");
+
+	// Bone and leg drivers
 	UPROPERTY(BlueprintReadOnly) FVector Position = FVector::ZeroVector;
 	UPROPERTY(BlueprintReadOnly) FRotator Rotation = FRotator::ZeroRotator;
 	UPROPERTY(BlueprintReadOnly) FVector PositionDelta = FVector::ZeroVector;
 	UPROPERTY(BlueprintReadOnly) FRotator RotationDelta = FRotator::ZeroRotator;
+
+	// Wing drivers
+	UPROPERTY(BlueprintReadOnly) bool IsWing = false;
+	UPROPERTY(BlueprintReadOnly) FPoseWingEffector WingState = FPoseWingEffector();
+	UPROPERTY(BlueprintReadOnly) FPoseWingEffector WingDelta = FPoseWingEffector();
 };
 
 USTRUCT(BlueprintType)

@@ -34,16 +34,15 @@ class FASHIONDRAGON_API AMainCharacter : public ACharacter
 public:
 	AMainCharacter();
 
-	FRotator DesiredFacingRotation = FRotator::ZeroRotator;
+	UPROPERTY(BlueprintReadWrite) FRotator DesiredFacingRotation = FRotator::ZeroRotator;
 
 	UPROPERTY(BlueprintReadWrite) EGroundMovementMode MovementMode;
 	UPROPERTY(BlueprintReadWrite) EGroundMovementMode PreferredMovementMode = EGroundMovementMode::Trotting;
 
-	UPROPERTY() UCameraComponent* ActiveCamera;
-	UPROPERTY() UFlightHandler* FlightHandler;
-	UPROPERTY() URotationInputHandler* RotationInputHandler;
-	UPROPERTY(BlueprintReadOnly)
-	UAnimationDebugReporter* AnimationDebugReporter;
+	UPROPERTY(BlueprintReadOnly) UCameraComponent* ActiveCamera;
+	UPROPERTY(BlueprintReadOnly) UFlightHandler* FlightHandler;
+	UPROPERTY(BlueprintReadOnly) URotationInputHandler* RotationInputHandler;
+	UPROPERTY(BlueprintReadOnly) UAnimationDebugReporter* AnimationDebugReporter;
 	
 	UPROPERTY(BlueprintAssignable, Category="Events")
 	FOnLegPlanted OnLegPlanted;

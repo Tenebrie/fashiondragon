@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "FashionDragon/Player/Animation/Abstract/ProceduralLegDriver.h"
 #include "FashionDragon/Player/Animation/Abstract/ProceduralPose.h"
+#include "FashionDragon/Player/Animation/Abstract/ProceduralWingDriver.h"
 
 class FDragonNullPose final : public FProceduralPose
 {
@@ -20,4 +21,10 @@ class FDragonNullDriverLeg final : public FProceduralLegDriver
 {
 public:
 	FDragonNullDriverLeg(UDragonAnimInstance* AnimInstance, FControlledLeg* Leg): FProceduralLegDriver(AnimInstance, Leg) {}
+};
+
+class FDragonNullDriverWing final : public FProceduralWingDriver
+{
+public:
+	FDragonNullDriverWing(UDragonAnimInstance* AnimInstance, FControlledWing* Wing): FProceduralWingDriver(AnimInstance, Wing) {}
 };

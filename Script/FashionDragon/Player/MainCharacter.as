@@ -4,11 +4,11 @@ class AScriptedMainCharacter : AMainCharacter
 	UPlayerWallet Wallet;
 
 	UPROPERTY(DefaultComponent)
-	UDragonFlightHandler FlightHandler;
-
-	// UPROPERTY(DefaultComponent)
-	// USnekComponent Snek;
-
-	UPROPERTY(DefaultComponent)
 	UPlayerInteractablesComponent InteractablesComponent;
+
+	UFUNCTION(BlueprintOverride)
+	void BeginPlay()
+	{
+		FlightHandler = CreateComponent(UScriptedFlightHandler, n"Flight Handler");
+	}
 }

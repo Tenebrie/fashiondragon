@@ -171,9 +171,12 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 		const auto WingGroup = ControlledWings[i];
 		auto WingEffector = WingGroup->MakeWingEffector(StateMachine->PoseDrivers, &FProceduralPose::ToWingEffector, DeltaTime);
 		WingEffector = WingGroup->MakePostProcessWingEffector(WingEffector, StateMachine->PoseDrivers, &FProceduralPose::ToWingEffector, DeltaTime);
-		
+
 		WingEffectors[i] = WingEffector;
 	}
+	const float PhysicsWeight = FMath::Clamp((1.0f - WingEffectors[0].RestFoldState) * 5.0f, 0.0f, 1.0f);
+	GetCharacter()->DragonMesh->SetAllBodiesBelowPhysicsBlendWeight(TEXT("Back_L"), PhysicsWeight, true, true);
+	GetCharacter()->DragonMesh->SetAllBodiesBelowPhysicsBlendWeight(TEXT("Back_R"), PhysicsWeight, true, true);
 
 	ControlledRoot.Tick(DeltaTime);
 	ControlledHead.Tick(DeltaTime);
