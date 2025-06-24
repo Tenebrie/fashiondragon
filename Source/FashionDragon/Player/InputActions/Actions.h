@@ -30,6 +30,8 @@ public:
 	inline static const FInputActionFactory Interact = Action(EInputActionValueType::Boolean);
 
 	inline static const FInputActionFactory Flight_FlapForward = Action(EInputActionValueType::Boolean);
+	inline static const FInputActionFactory Flight_Pitch = Action(EInputActionValueType::Axis1D);
+	inline static const FInputActionFactory Flight_Yaw = Action(EInputActionValueType::Axis1D);
 	inline static const FInputActionFactory Flight_Roll = Action(EInputActionValueType::Axis1D);
 	inline static const FInputActionFactory Flight_FoldWings = Action(EInputActionValueType::Boolean);
 	inline static const FInputActionFactory Flight_Cancel = Action(EInputActionValueType::Boolean);

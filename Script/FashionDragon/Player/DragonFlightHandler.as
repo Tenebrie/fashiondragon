@@ -30,7 +30,7 @@ class UScriptedFlightHandler : UFlightHandler
 
 	void ApplyWingLift()
 	{
-		FVector WorldWindVector = FVector(3, 0, 0); // m/s, doesn't need any conversion
+		FVector WorldWindVector = FVector(3, 0, 0); // m/s
 		FVector Up = GetCharacter().DetachedMeshRoot.GetWorldRotation().UpVector;
 		FVector Right = GetCharacter().DetachedMeshRoot.GetWorldRotation().RightVector;
 		FVector Forward = GetCharacter().DetachedMeshRoot.GetWorldRotation().ForwardVector;
@@ -46,6 +46,7 @@ class UScriptedFlightHandler : UFlightHandler
 		// Print("Vz " + Vz + " Vx " + Vx);
 
 		float AngleOfAttack = Math::RadiansToDegrees(Math::Atan2(Vz, -Vx));
+		Print("AoA = " + Math::RoundFromZero(AngleOfAttack));
 
 		float AirDensity = 1.225f; // kg/m^3
 		float DynamicAccelerationPrefactor = 0.5f * AirDensity * WingAreaFactor * WingArea / Mass;

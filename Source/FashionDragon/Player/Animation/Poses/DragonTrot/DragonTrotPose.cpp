@@ -2,6 +2,7 @@
 
 #include <map>
 
+#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "FashionDragon/Player/Animation/Components/WalkCyclePoseComponent.h"
@@ -13,7 +14,7 @@
 #include "FashionDragon/Player/Animation/Poses/DragonSprint/DragonSprintPose.h"
 #include "FashionDragon/Utils/Utils.h"
 
-constexpr float GTrotStepDuration = 0.9f;
+constexpr float GTrotStepDuration = 0.8f;
 constexpr float GTrotPlantedDuration = GTrotStepDuration * 0.6f;
 constexpr float GTrotInertiaDuration = GTrotStepDuration - GTrotPlantedDuration;
 
@@ -50,12 +51,12 @@ FDragonTrotPose::FDragonTrotPose(UDragonAnimInstance* Anim): FProceduralPose(Ani
 
 	LeftLegDriver->OnWalkStateChanged.AddLambda([this](ELegWalkingState, const ELegWalkingState NewState)
 	{
-		if (NewState == ELegWalkingState::Stepping)
+		if (NewState == ELegWalkingState::Stepping || NewState == ELegWalkingState::FirstStepping)
 			RootDriver->SetLeadingLeg(LeftLegDriver);
 	});
 	RightLegDriver->OnWalkStateChanged.AddLambda([this](ELegWalkingState, const ELegWalkingState NewState)
 	{
-		if (NewState == ELegWalkingState::Stepping)
+		if (NewState == ELegWalkingState::Stepping || NewState == ELegWalkingState::FirstStepping)
 			RootDriver->SetLeadingLeg(RightLegDriver);
 	});
 
@@ -83,7 +84,8 @@ void FDragonTrotPose::SyncStateFrom(const FDragonWalkPose* SourcePose) const
 	LeftLegDriver->SyncStateFrom(SourcePose->LeftLegDriver);
 	RightLegDriver->SyncStateFrom(SourcePose->RightLegDriver);
 
-	const auto LeadingLeg = LeftLegDriver->WalkingState == ELegWalkingState::Stepping ? LeftLegDriver : RightLegDriver;
+	const auto IsLeftStepping = LeftLegDriver->WalkingState == ELegWalkingState::Stepping || LeftLegDriver->WalkingState == ELegWalkingState::FirstStepping;
+	const auto LeadingLeg = IsLeftStepping ? LeftLegDriver : RightLegDriver;
 	const auto OtherLeg = LeadingLeg == LeftLegDriver ? RightLegDriver : LeftLegDriver;
 	if (LeadingLeg->GetCyclePosition() < GTrotPlantedDuration)
 	{
@@ -106,7 +108,8 @@ void FDragonTrotPose::SyncStateFrom(const FDragonSprintPose* SourcePose) const
 	LeftLegDriver->SyncStateFrom(SourcePose->LeftLegDriver);
 	RightLegDriver->SyncStateFrom(SourcePose->RightLegDriver);
 
-	const auto LeadingLeg = LeftLegDriver->WalkingState == ELegWalkingState::Stepping ? LeftLegDriver : RightLegDriver;
+	const auto IsLeftStepping = LeftLegDriver->WalkingState == ELegWalkingState::Stepping || LeftLegDriver->WalkingState == ELegWalkingState::FirstStepping;
+	const auto LeadingLeg = IsLeftStepping ? LeftLegDriver : RightLegDriver;
 	const auto OtherLeg = LeadingLeg == LeftLegDriver ? RightLegDriver : LeftLegDriver;
 	if (LeadingLeg->GetCyclePosition() < GTrotPlantedDuration)
 	{
@@ -149,12 +152,12 @@ void FDragonTrotLegDriver::Tick(const float DeltaTime)
 	const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
 	const auto MovementSpeed = OwningActor->GetVelocity().Size();
 
-	const float AdvanceValue = DeltaTime + MovementSpeed * 0.001f * DeltaTime;
+	const float AdvanceValue = MovementSpeed * 0.002f * DeltaTime;
 	FProceduralLegSteppingDriver::Tick(AdvanceValue);
 
 	// If the leg is stretched too far, disconnect
 	const auto LegReference = RotateVectorToInputRotation(Leg->Position, true);
-	const auto ShouldDisconnect = FMath::Abs(LegReference.Y) > 200.f || LegReference.Z < -150.0f || LegReference.X > 600.0f || LegReference.X < -300.0f
+	const auto ShouldDisconnect = FMath::Abs(LegReference.Y) > 200.f || LegReference.Z < -350.0f || LegReference.X > 600.0f || LegReference.X < -400.0f
 		|| FUtils::GetRotatorDistance(Leg->Rotation) > 50.0f;
 	if (WalkingState == ELegWalkingState::Planted && ShouldDisconnect)
 	{
@@ -179,6 +182,7 @@ void FDragonTrotLegDriver::AdvanceState()
 	case ELegWalkingState::SeekingGround:
 		SetWalkingState(ELegWalkingState::Inertia);
 		break;
+	case ELegWalkingState::FirstStepping:
 	case ELegWalkingState::Stepping:
 		LockToWorldGround();
 		break;
@@ -225,6 +229,19 @@ FDragonWalkStateData FDragonTrotLegDriver::GetRawWalkStateData() const
 				.Duration = GTrotPlantedDuration,
 			}
 		},
+		{ ELegWalkingState::FirstStepping,
+			{
+				.TargetPosition = FVector(200.0f, 0.0f, 0.0f),
+				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
+				.LinearForce = 8000.0f,
+				.AngularForce = 1.0f,
+				.Duration = GTrotStepDuration / 1.15f,
+				.StartArticulationPosition = FVector(0.0f, 0.0f, 50.0f),
+				.StartArticulationRotation = FVector(0.0f, 0.0f, 0.0f),
+				.EndArticulationPosition = FVector(0.0f, 0.0f, 10.0f),
+				.EndArticulationRotation = FVector(0.0f, 0.0f, 10.0f),
+			}
+		},
 		{ ELegWalkingState::Stepping,
 			{
 				.TargetPosition = FVector(280.0f, 0.0f, 0.0f),
@@ -238,13 +255,15 @@ FDragonWalkStateData FDragonTrotLegDriver::GetRawWalkStateData() const
 				.EndArticulationRotation = FVector(0.0f, 0.0f, 10.0f),
 			}
 		},
+		// TODO: Fix this pls
 		{ ELegWalkingState::Inertia,
 			{
-				.TargetPosition = FVector(-500.0f, 0.0f, 100.0f),
+				.TargetPosition = FVector(-600.0f, 0.0f, 100.0f),
 				.TargetRotation = FRotator(-70.0f, 0.0f, 0.0f),
 				.LinearForce = 3.0f,
 				.AngularForce = 0.2f,
 				.Duration = GTrotInertiaDuration,
+				.StartArticulationPosition = FVector(-600.0f, 0.0f, 50.0f),
 			}
 		},
 	};

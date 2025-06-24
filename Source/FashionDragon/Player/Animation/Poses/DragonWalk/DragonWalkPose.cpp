@@ -41,6 +41,7 @@ void FDragonWalkLegDriver::AdvanceState()
 	case ELegWalkingState::SeekingGround:
 		SetWalkingState(ELegWalkingState::Stepping);
 		break;
+	case ELegWalkingState::FirstStepping:
 	case ELegWalkingState::Stepping:
 		LockToWorldGround();
 		break;
@@ -90,6 +91,19 @@ FDragonWalkStateData FDragonWalkLegDriver::GetRawWalkStateData() const
 				.Duration = WALK_STEP_DURATION
 			}
 		},
+		{ ELegWalkingState::FirstStepping,
+			{
+				.TargetPosition = FVector(150.0f, 0.0f, 0.0f),
+				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
+				.LinearForce = 2.0f,
+				.AngularForce = 1.0f,
+				.Duration = WALK_STEP_DURATION / 2.0f,
+				.StartArticulationPosition = FVector(15.0f, 0.0f, 75.0f),
+				.StartArticulationRotation = FVector(-60.0f, 0.0f, 0.0f),
+				.EndArticulationPosition = FVector(15.0f, 0.0f, 30.0f),
+				.EndArticulationRotation = FVector(-10.0f, 0.0f, 0.0f),
+			}
+		},
 		{ ELegWalkingState::Stepping,
 			{
 				.TargetPosition = FVector(300, 0.0f, 0.0f),
@@ -133,7 +147,7 @@ void FDragonWalkLegDriver::Tick(const float DeltaTime)
 	
 	// If the leg is stretched too far, disconnect
 	const auto LegReference = RotateVectorToInputRotation(Leg->Position, true);
-	const auto ShouldDisconnect = FMath::Abs(LegReference.Y) > 200.f || LegReference.Z < -150.0f || LegReference.X > 600.0f || LegReference.X < -300.0f
+	const auto ShouldDisconnect = FMath::Abs(LegReference.Y) > 200.f || LegReference.Z < -150.0f || LegReference.X > 600.0f || LegReference.X < -400.0f
 		|| FUtils::GetRotatorDistance(Leg->Rotation) > 50.0f;
 	if (WalkingState == ELegWalkingState::Planted && ShouldDisconnect)
 	{

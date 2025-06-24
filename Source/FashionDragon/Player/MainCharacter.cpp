@@ -171,6 +171,7 @@ void AMainCharacter::Tick(const float DeltaTime)
         const FQuat TargetQ = DesiredRotation.Quaternion();
         const FQuat  NewQ = FMath::QInterpTo(CurrentQ, TargetQ, DeltaTime, 10.f);
         DetachedMeshRoot->SetWorldRotation(NewQ);
+        DesiredFacingRotation = RotationInputHandler->GetInputForwardWorldRotation();
     }
     else
     {
@@ -241,6 +242,11 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 FRotator AMainCharacter::GetMeshActorRotation() const
 {
     return DetachedMeshRoot->GetComponentRotation();
+}
+
+FVector AMainCharacter::GetMeshActorScale() const
+{
+    return DetachedMeshRoot->GetRelativeScale3D();
 }
 
 void AMainCharacter::GroundMovement(const FInputActionValue& Value)
@@ -326,10 +332,10 @@ void AMainCharacter::SwitchGroundMovementMode(const EGroundMovementMode NewMode)
         WalkSpeed = 600.0f;
         break;
     case EGroundMovementMode::Trotting:
-        WalkSpeed = 1400.0f;
+        WalkSpeed = 1300.0f;
         break;
     case EGroundMovementMode::Sprinting:
-        WalkSpeed = 2400.0f;
+        WalkSpeed = 2000.0f;
         break;
     }
 

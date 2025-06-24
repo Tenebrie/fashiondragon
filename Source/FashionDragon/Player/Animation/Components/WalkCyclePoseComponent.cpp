@@ -27,7 +27,7 @@ void FWalkCyclePoseComponent::Mirror()
 	LeftCyclePosition -= RightCyclePosition;
 }
 
-int FWalkCyclePoseComponent::CheckForBreakpoint(const float Position, const int StateIndex, FProceduralLegSteppingDriver* Driver)
+int FWalkCyclePoseComponent::CheckForBreakpoint(const float Position, const int StateIndex, FProceduralLegSteppingDriver* Driver, const bool bFirstStep)
 {
 	if (CycleBreakpoints.Num() == 0) { return StateIndex; }
 	
@@ -66,7 +66,10 @@ int FWalkCyclePoseComponent::CheckForBreakpoint(const float Position, const int 
 	}
 	else
 	{
-		Driver->SetWalkingState(LastBreakpoint.Value);
+		if (bFirstStep && LastBreakpoint.Value == ELegWalkingState::Stepping)
+			Driver->SetWalkingState(ELegWalkingState::FirstStepping);
+		else
+			Driver->SetWalkingState(LastBreakpoint.Value);
 	}
 	return BreakpointIndex;
 }
@@ -89,8 +92,8 @@ void FWalkCyclePoseComponent::SyncStateFrom(const FWalkCyclePoseComponent* Other
 	if (RightCyclePosition >= CycleDuration)
 		RightCyclePosition -= CycleDuration;
 
-	LeftState = CheckForBreakpoint(LeftCyclePosition, -1, LeftLegDriver);
-	RightState = CheckForBreakpoint(RightCyclePosition, -1, RightLegDriver);
+	LeftState = CheckForBreakpoint(LeftCyclePosition, -1, LeftLegDriver, true);
+	RightState = CheckForBreakpoint(RightCyclePosition, -1, RightLegDriver, true);
 	// LeftLegDriver->SetPositionFrom(Other->LeftLegDriver->GetPositionFrom());
 	// LeftLegDriver->SetRotationFrom(Other->LeftLegDriver->GetRotationFrom());
 	// RightLegDriver->SetPositionFrom(Other->RightLegDriver->GetPositionFrom());
@@ -120,8 +123,8 @@ void FWalkCyclePoseComponent::ResetState()
 	SwitchStartingLeg = !SwitchStartingLeg;
 	TimeSinceLastSync = 0.0f;
 
-	LeftState = CheckForBreakpoint(LeftCyclePosition, -1, LeftLegDriver);
-	RightState = CheckForBreakpoint(RightCyclePosition, -1, RightLegDriver);
+	LeftState = CheckForBreakpoint(LeftCyclePosition, -1, LeftLegDriver, true);
+	RightState = CheckForBreakpoint(RightCyclePosition, -1, RightLegDriver, true);
 }
 
 void FWalkCyclePoseComponent::Tick(const float DeltaTime)
@@ -135,7 +138,11 @@ void FWalkCyclePoseComponent::Tick(const float DeltaTime)
 	const auto OwningActor = Cast<AMainCharacter>(Pose->AnimInstance->GetOwningActor());
 	const auto MovementSpeed = OwningActor->GetVelocity().Size();
 
-	const float AdvanceValue = DeltaTime + MovementSpeed * 0.001f * DeltaTime;
+	float AdvanceValue = DeltaTime + MovementSpeed * 0.001f * DeltaTime;
+	if (LeftLegDriver->WalkingState == ELegWalkingState::FirstStepping || RightLegDriver->WalkingState == ELegWalkingState::FirstStepping)
+	{
+		AdvanceValue *= 1.15f;
+	}
 	LeftCyclePosition += AdvanceValue;
 	RightCyclePosition += AdvanceValue;
 

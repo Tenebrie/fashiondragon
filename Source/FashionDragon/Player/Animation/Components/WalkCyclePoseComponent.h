@@ -29,7 +29,7 @@ public:
 
 	void SetCycleBreakpoints(const TArray<FBreakpoint>& Breakpoints);
 	void Mirror();
-	int CheckForBreakpoint(const float Position, const int StateIndex, FProceduralLegSteppingDriver* Driver);
+	int CheckForBreakpoint(const float Position, const int StateIndex, FProceduralLegSteppingDriver* Driver, bool bFirstStep = false);
 	void SyncStateFrom(const FWalkCyclePoseComponent* Other);
 	void ResetState();
 	

@@ -136,8 +136,10 @@ FDragonWalkStateData FProceduralLegSteppingDriver::AlignPoseToInputDirection(FDr
 	Data.EndArticulationPosition.Y *= Leg->MirrorScalar;
 	
 	Data.TargetPosition = RotateVectorToInputRotation(Data.TargetPosition);
+	Data.StartArticulationPosition = RotateVectorToInputRotation(Data.StartArticulationPosition);
+	Data.EndArticulationPosition = RotateVectorToInputRotation(Data.EndArticulationPosition);
 	
-	if (WalkingState == ELegWalkingState::Stepping || WalkingState == ELegWalkingState::Relaxed || WalkingState == ELegWalkingState::Inertia)
+	if (WalkingState == ELegWalkingState::Stepping || WalkingState == ELegWalkingState::FirstStepping || WalkingState == ELegWalkingState::Relaxed || WalkingState == ELegWalkingState::Inertia)
 	{
 		const auto DesiredHeight = Data.TargetPosition.Z;
 		Data.TargetPosition.Z = 0.0f;

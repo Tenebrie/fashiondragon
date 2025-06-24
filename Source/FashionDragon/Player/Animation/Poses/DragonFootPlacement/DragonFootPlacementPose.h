@@ -4,6 +4,7 @@
 
 class FDragonFootPlacementLegDriver final : public FProceduralLegDriver
 {
+	FRotator LastFrameRotation = FRotator::ZeroRotator;
 public:
 	FDragonFootPlacementLegDriver(UDragonAnimInstance* AnimInstance, FControlledLeg* ControlledLeg)
 		: FProceduralLegDriver(AnimInstance, ControlledLeg) {}

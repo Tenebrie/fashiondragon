@@ -7,6 +7,7 @@
 #include "FashionDragon/Player/MainCharacter.h"
 #include "Limbs/ControlledLeg.h"
 #include "Limbs/ControlledWing.h"
+#include "Poses/CapsuleCompensation/CapsuleCompensationPose.h"
 #include "Poses/DragonFlight/DragonFlightPose.h"
 #include "Poses/DragonFootPlacement/DragonFootPlacementPose.h"
 #include "Poses/DragonIdle/DragonIdlePose.h"
@@ -84,6 +85,7 @@ void UDragonAnimInstance::NativeInitializeAnimation()
 		new FDragonFlightPose(this),
 		new FDragonRandomSwayPose(this),
 		new FDragonMomentumPose(this),
+		new FCapsuleCompensationPose(this),
 		new FDragonFootPlacementPose(this)
 	);
 }
@@ -94,7 +96,8 @@ void UDragonAnimInstance::NativeInitializeAnimation()
 void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 {
 	Super::NativeUpdateAnimation(DeltaTime);
-	
+
+	if (!GetWorld()->IsGameWorld()) { return; }
 	if (DeltaTime <= KINDA_SMALL_NUMBER) { return; }
 
 	const auto OwningActor = Cast<AMainCharacter>(GetOwningActor());
@@ -105,11 +108,13 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 
 	// Apply root driver
 	auto Effector = ControlledRoot.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToBoneEffector, DeltaTime);
+	Effector = ControlledRoot.MakePostProcessEffector(Effector, StateMachine->PoseDrivers, &FProceduralPose::ToBoneEffector, DeltaTime);
 	GetSkelMeshComponent()->SetRelativeLocation(Effector.Position);
 	GetSkelMeshComponent()->SetRelativeRotation(Effector.Rotation);
 
 	// Apply head driver
 	Effector = ControlledHead.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToBoneEffector, DeltaTime);
+	Effector = ControlledHead.MakePostProcessEffector(Effector, StateMachine->PoseDrivers, &FProceduralPose::ToBoneEffector, DeltaTime);
 	const TArray NeckTransforms = FDragonNeckPoseAdapter::EffectorToTransforms(Effector);
 	HeadTransform = NeckTransforms[0];
 	UpperNeckTransform = NeckTransforms[1];
@@ -117,6 +122,7 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 
 	// Apply body driver
 	Effector = ControlledBody.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToBoneEffector, DeltaTime);
+	Effector = ControlledBody.MakePostProcessEffector(Effector, StateMachine->PoseDrivers, &FProceduralPose::ToBoneEffector, DeltaTime);
 	constexpr float FrontTransformFraction = 0.3f;
 	constexpr float BackTransformFraction = 1.0f - FrontTransformFraction;
 	const FRotator FrontRotation = FRotator(
@@ -132,6 +138,7 @@ void UDragonAnimInstance::NativeUpdateAnimation(const float DeltaTime)
 
 	// Apply hips driver
 	Effector = ControlledHips.MakeEffector(StateMachine->PoseDrivers, &FProceduralPose::ToBoneEffector, DeltaTime);
+	Effector = ControlledHips.MakePostProcessEffector(Effector, StateMachine->PoseDrivers, &FProceduralPose::ToBoneEffector, DeltaTime);
 	constexpr float HipTransformFraction = 0.35f;
 	constexpr float TailTransformFraction = 1.0f - HipTransformFraction;
 	const FRotator HipRotation = FRotator(

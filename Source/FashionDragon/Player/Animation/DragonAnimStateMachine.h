@@ -12,6 +12,7 @@ class FDragonJumpPose;
 class FDragonFlightPose;
 class FDragonRandomSwayPose;
 class FDragonMomentumPose;
+class FCapsuleCompensationPose;
 class FDragonFootPlacementPose;
 class AMainCharacter;
 
@@ -37,6 +38,7 @@ public:
 	FDragonFlightPose* FlightPoseDriver;
 	FDragonRandomSwayPose* RandomSwayDriver;
 	FDragonMomentumPose* MomentumDriver;
+	FCapsuleCompensationPose* CapsuleCompensationDriver;
 	FDragonFootPlacementPose* FootPlacementDriver;
 
 	TArray<FProceduralPose*> PoseDrivers;
@@ -52,6 +54,7 @@ public:
 		FDragonFlightPose* FlightPoseDriver,
 		FDragonRandomSwayPose* RandomSwayDriver,
 		FDragonMomentumPose* MomentumDriver,
+		FCapsuleCompensationPose* CapsuleCompensationDriver,
 		FDragonFootPlacementPose* FootPlacementDriver
 	);
 

@@ -46,13 +46,12 @@ FPoseEffector FDragonMomentumDriverBone::ToEffectorBase(const FPoseEffector& Bas
                                                         const FRotator& Rotation, const float Stiffness, const float Damping)
 {
 	const auto WorldPosition = Bone->GetWorldPosition(Position);
-	// const auto WorldRotation = Bone->GetWorldRotation(Rotation.Quaternion());
+	const float TeleportDistance = FDragonMomentumDriverBone::AnimInstance->GetCharacter()->FlightHandler->IsFlying() ? 1500000.0f : 1500000.0f;
 
-	if (FVector::DistSquared(WorldPosition, PreviousWorldPosition) > 150000.0f)
+	if (FVector::DistSquared(WorldPosition, PreviousWorldPosition) > TeleportDistance)
 	{
 		ResetState();
 		PreviousWorldPosition = WorldPosition;
-		// PreviousWorldRotation = WorldRotation;
 	}
 
 	const auto Transform = AnimInstance->GetSkelMeshComponent()->GetAttachParent()->GetComponentTransform().Inverse();
@@ -65,18 +64,8 @@ FPoseEffector FDragonMomentumDriverBone::ToEffectorBase(const FPoseEffector& Bas
 		Damping,
 		Context.DeltaTime
 	);
-	//
-	// const auto OutputRotation = UKismetMathLibrary::QuaternionSpringInterp(
-	// 	PreviousWorldRotation,
-	// 	WorldRotation,
-	// 	RotSpringState,
-	// 	Stiffness,
-	// 	1.0f,
-	// 	Context.DeltaTime
-	// );
 
 	PreviousWorldPosition = OutputPosition;
-	// PreviousWorldRotation = OutputRotation;
 
 	return BaseEffector
 		.SetPosition(Transform.GetRotation().RotateVector(OutputPosition - WorldPosition));
@@ -101,10 +90,10 @@ FPoseEffector FDragonMomentumDriverBone::ToEffector(const FPoseEffector& BaseEff
 	
 	const auto PreProcessEffector = ToEffectorBase(BaseEffector, Context, Position, Rotation, 400.0f, 0.7f);
 
-	float Stiffness = 35.0f;
+	float Stiffness = 75.0f;
 	if (OwningActor->FlightHandler->IsFlying())
 	{
-		Stiffness += 100.0f;
+		Stiffness += 500.0f;
 	}
 	const auto Effector = PreProcessEffector
 		.SetPosition(FVector(PreProcessEffector.Position.X, PreProcessEffector.Position.Y, PreProcessEffector.Position.Z))

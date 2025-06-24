@@ -64,6 +64,7 @@ void FDragonSprintLegDriver::AdvanceState()
 	case ELegWalkingState::SeekingGround:
 		SetWalkingState(ELegWalkingState::Inertia);
 		break;
+	case ELegWalkingState::FirstStepping:
 	case ELegWalkingState::Stepping:
 		LockToWorldGround();
 		break;
@@ -74,7 +75,7 @@ void FDragonSprintLegDriver::AdvanceState()
 // inline constexpr float PlantedDuration = 0.7f;
 // inline constexpr float InertiaDuration = 0.5f;
 #define STEP_DURATION 1.2f
-#define PLANTED_DURATION STEP_DURATION * 0.4f
+#define PLANTED_DURATION STEP_DURATION * 0.45f
 #define INERTIA_DURATION STEP_DURATION - PLANTED_DURATION
 FDragonWalkStateData FDragonSprintLegDriver::GetRawWalkStateData() const
 {
@@ -116,6 +117,19 @@ FDragonWalkStateData FDragonSprintLegDriver::GetRawWalkStateData() const
 				.Duration = PLANTED_DURATION
 			}
 		},
+		{ ELegWalkingState::FirstStepping,
+			{
+				.TargetPosition = FVector(175.0f, 0.0f, 0.0f),
+				.TargetRotation = FRotator(0.0f, 0.0f, 0.0f),
+				.LinearForce = 80.0f,
+				.AngularForce = 1.0f,
+				.Duration = STEP_DURATION / 2.0f,
+				.StartArticulationPosition = FVector(0.0f, 0.0f, 50.0f),
+				.StartArticulationRotation = FVector(0.0f, 0.0f, 0.0f),
+				.EndArticulationPosition = FVector(0.0f, 0.0f, 15.0f),
+				.EndArticulationRotation = FVector(-10.0f, 0.0f, 0.0f),
+			}
+		},
 		{ ELegWalkingState::Stepping,
 			{
 				.TargetPosition = FVector(350.0f, 0.0f, 0.0f),
@@ -123,7 +137,7 @@ FDragonWalkStateData FDragonSprintLegDriver::GetRawWalkStateData() const
 				.LinearForce = 80.0f,
 				.AngularForce = 1.0f,
 				.Duration = STEP_DURATION,
-				.StartArticulationPosition = FVector(0.0f, 0.0f, 100.0f),
+				.StartArticulationPosition = FVector(0.0f, 0.0f, 200.0f),
 				.StartArticulationRotation = FVector(0.0f, 0.0f, 0.0f),
 				.EndArticulationPosition = FVector(0.0f, 0.0f, 30.0f),
 				.EndArticulationRotation = FVector(-10.0f, 0.0f, 0.0f),
@@ -131,7 +145,7 @@ FDragonWalkStateData FDragonSprintLegDriver::GetRawWalkStateData() const
 		},
 		{ ELegWalkingState::Inertia,
 			{
-				.TargetPosition = FVector(-500.0f, 0.0f, 150.0f),
+				.TargetPosition = FVector(-600.0f, 0.0f, 180.0f),
 				.TargetRotation = FRotator(-90.0f, 0.0f, 0.0f),
 				.LinearForce = 15.0f,
 				.AngularForce = 5.0f,

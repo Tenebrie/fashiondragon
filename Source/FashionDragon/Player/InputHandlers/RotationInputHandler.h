@@ -11,11 +11,13 @@ class FASHIONDRAGON_API URotationInputHandler : public UPlayerComponent
 {
 	GENERATED_BODY()
 
+	void HandleGroundRotationInput(const FInputActionValue& Value);
+	void HandleFlightRotationInput(const FInputActionValue& Value);
+
 public:
 	UPROPERTY(BlueprintReadWrite) FVector2D UserInput = FVector2D::ZeroVector;
 	UPROPERTY(BlueprintReadWrite) FVector2D WorldUserInput = FVector2D::ZeroVector;
 	UPROPERTY(BlueprintReadWrite) FRotator MovementRotation = FRotator::ZeroRotator;
-	UPROPERTY(BlueprintReadWrite) FVector SmoothMovementRotation = FVector::ZeroVector;
 
 	UPROPERTY() float HorizontalSensitivity = 1.0f;
 	UPROPERTY() float VerticalSensitivity = 1.0f;
@@ -26,7 +28,6 @@ public:
 	UPROPERTY(BlueprintReadWrite) float CurrentRoll = 0.0f;
 	
 	UFUNCTION(BlueprintCallable) FRotator GetInputForwardWorldRotation() const { return MovementRotation; }
-	UFUNCTION(BlueprintCallable) FVector GetSmoothInputForwardWorldRotation() const { return SmoothMovementRotation; }
 	UFUNCTION(BlueprintCallable) FRotator GetCameraWorldRotation() const { return FRotator(CurrentPitch, CurrentYaw, CurrentRoll); }
 	UFUNCTION(BlueprintCallable) void ResetRotation(const FQuat& Rotation)
 	{
@@ -41,4 +42,6 @@ public:
 	void HandleMovementInput(const FInputActionValue& Value);
 	void HandleRotationInput(const FInputActionValue& Value);
 	void HandleFlightRollInput(const FInputActionValue& Value);
+
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 };

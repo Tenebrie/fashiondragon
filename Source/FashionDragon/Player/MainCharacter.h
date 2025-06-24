@@ -99,4 +99,5 @@ public:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 	FRotator GetMeshActorRotation() const;
+	FVector GetMeshActorScale() const;
 };

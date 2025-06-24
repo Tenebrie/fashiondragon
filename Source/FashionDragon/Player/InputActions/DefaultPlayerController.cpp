@@ -66,10 +66,14 @@ void ADefaultPlayerController::SetupInputMappings()
 		AddMapping(Context, UActions::Flight_Cancel(), EKeys::SpaceBar);
 		AddMapping(Context, UActions::Flight_Cancel(), EKeys::Gamepad_FaceButton_Bottom);
 
-		AddMapping(Context, UActions::Flight_FlapForward(), EKeys::W);
+		AddMapping(Context, UActions::Flight_FlapForward(), EKeys::SpaceBar);
+		AddMapping(Context, UActions::Flight_Pitch(), EKeys::W);
+		AddMapping(Context, UActions::Flight_Pitch(), EKeys::S).Negate();
+		AddMapping(Context, UActions::Flight_Yaw(), EKeys::Q).Negate();
+		AddMapping(Context, UActions::Flight_Yaw(), EKeys::E);
 		AddMapping(Context, UActions::Flight_Roll(), EKeys::A).Negate();
 		AddMapping(Context, UActions::Flight_Roll(), EKeys::D);
-		AddMapping(Context, UActions::Flight_FoldWings(), EKeys::S);
+		AddMapping(Context, UActions::Flight_FoldWings(), EKeys::LeftShift);
 
 		AddMapping(Context, UActions::Flight_Ability_01(), EKeys::One);
 		AddMapping(Context, UActions::Flight_Ability_02(), EKeys::Two);

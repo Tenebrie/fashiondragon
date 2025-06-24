@@ -4,6 +4,7 @@
 #include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "FashionDragon/Player/Animation/Abstract/ProceduralLegDriver.h"
+#include "FashionDragon/Player/InputHandlers/RotationInputHandler.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 void FDragonDriverGroundRootSway::Tick(const float DeltaTime)
@@ -32,17 +33,19 @@ void FDragonDriverGroundRootSway::Tick(const float DeltaTime)
 
 		const auto OwningActor = Cast<AMainCharacter>(AnimInstance->GetOwningActor());
 		const auto HorizontalMovementSpeed = OwningActor->GetVelocity().Size2D();
-		TargetLean += FMath::Clamp(HorizontalMovementSpeed * 0.007f, 0.0f, 20.0f);
-	
+
+		const float RotationDiff = OwningActor->GetVelocity().Rotation().Yaw - AnimInstance->GetCharacter()->GetMeshActorRotation().Yaw;
+		TargetLean += FMath::Clamp(HorizontalMovementSpeed * 0.007f * FMath::Cos(FMath::DegreesToRadians(RotationDiff)), -5.0f, 20.0f);
+
 		DesiredRotation = FRotator(-TargetLean, 0, 0);
 	}
 
 	// Lean into ground gradient
 	{
-		const auto CurLeftPos = LeftLeg->GetPlantedWorldPosition(FVector::ZeroVector, FRotator::ZeroRotator, 300.0f);
-		const auto CurRightPos = RightLeg->GetPlantedWorldPosition(FVector::ZeroVector, FRotator::ZeroRotator, 300.0f);
-		const auto ProbeLeftPos = LeftLeg->GetPlantedWorldPosition(FVector(1000, 0, 0), FRotator::ZeroRotator, 300.0f);
-		const auto ProbeRightPos = RightLeg->GetPlantedWorldPosition(FVector(1000, 0, 0), FRotator::ZeroRotator, 300.0f);
+		const auto CurLeftPos = LeftLeg->GetPlantedWorldPosition(FVector::ZeroVector, FRotator::ZeroRotator, 300.0f, 300.0f);
+		const auto CurRightPos = RightLeg->GetPlantedWorldPosition(FVector::ZeroVector, FRotator::ZeroRotator, 300.0f, 300.0f);
+		const auto ProbeLeftPos = LeftLeg->GetPlantedWorldPosition(FVector(1000, 0, 0), FRotator::ZeroRotator, 300.0f, 300.0f);
+		const auto ProbeRightPos = RightLeg->GetPlantedWorldPosition(FVector(1000, 0, 0), FRotator::ZeroRotator, 300.0f, 300.0f);
 
 		const float CurLeftDepth = CurLeftPos.GroundHit ? CurLeftPos.DeltaPosition.Z : -300.0f;
 		const float CurRightDepth = CurRightPos.GroundHit ? CurRightPos.DeltaPosition.Z : -300.0f;
@@ -57,6 +60,6 @@ void FDragonDriverGroundRootSway::Tick(const float DeltaTime)
 		CurrentGradient = FMath::FInterpTo(CurrentGradient, ForwardGradient, DeltaTime, 2.0f);
 
 		DesiredRotation.Roll += SideGradient / 30.0f;
-		DesiredRotation.Pitch += CurrentGradient / 20.0f;
+		DesiredRotation.Pitch += CurrentGradient / 40.0f;
 	}
 }

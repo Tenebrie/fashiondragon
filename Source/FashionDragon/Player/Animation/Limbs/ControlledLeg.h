@@ -9,6 +9,7 @@ enum class ELegWalkingState
 {
 	Relaxed,
 	Raised,
+	FirstStepping,
 	Stepping,
 	// The leg is moving straight down to the ground
 	SeekingGround,
@@ -37,6 +38,9 @@ private:
 
 	FVector PreviousWorldPosition = FVector::ZeroVector;
 	FQuat PreviousWorldRotation = FQuat::Identity;
+
+	FPlantedPositionData GetSimplePlantedWorldPosition(const FVector& AtPosition, const FRotator& AtRotation, const float SweepDown = 0.00f, const float TraceUp = 50.0f) const;
+	FPlantedPositionData GetDetailedPlantedWorldPosition(const FVector& AtPosition, const FRotator& AtRotation, const float SweepDown = 0.00f, const float TraceUp = 50.0f) const;
 
 public:
 	float MirrorScalar;

@@ -1,5 +1,6 @@
 ﻿#include "DragonFootPlacementPose.h"
 
+#include "FashionDragon/DebugTools/QuickDebug.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 
 /**
@@ -7,18 +8,22 @@
  */
 FPoseEffector FDragonFootPlacementLegDriver::ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context)
 {
-	const auto GroundData = Leg->GetPlantedWorldPosition(BaseEffector, 1.0f, 300.0f);
+	const auto GroundData = Leg->GetPlantedWorldPosition(BaseEffector, 1.0f, FMath::Max(0, -Leg->Position.Z) + 100.0f);
 
 	const auto Effector = BaseEffector
 		.AddPosition(GroundData.DeltaPosition)
 		.AddRotation(GroundData.DeltaRotation.Rotator());
-	
+
 	const auto Mesh = AnimInstance->GetSkelMeshComponent();
 	const auto Transform = Mesh->GetRelativeTransform();
 	const auto SourcePosition = Effector.Position + Leg->BoneOffset;
 	const auto SourceRotation = Effector.Rotation;
+
+	const auto SmoothRotation = FMath::RInterpTo(LastFrameRotation, SourceRotation, Context.DeltaTime, 10.0f);
+	LastFrameRotation = SmoothRotation;
+	
 	const auto LocalPosition = Transform.InverseTransformPosition(SourcePosition) - Leg->BoneOffset;
-	const auto LocalRotation = Transform.InverseTransformRotation(FQuat(SourceRotation)).Rotator();
+	const auto LocalRotation = Transform.InverseTransformRotation(FQuat(SmoothRotation)).Rotator();
 
 	return Effector.SetPosition(LocalPosition).SetRotation(LocalRotation);
 }

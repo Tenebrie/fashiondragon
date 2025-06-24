@@ -11,17 +11,46 @@ FControlledLeg::FControlledLeg(UDragonAnimInstance* AnimInstance, const FVector&
 	FControlledBone::BoneOffset = BoneOffset;
 }
 
-/**
- * @brief Performs a raycast to find the ground position directly under the leg.
- */
-FPlantedPositionData FControlledLeg::GetPlantedWorldPosition(const FVector& AtPosition, const FRotator& AtRotation, const float SweepDown, const float TraceUp) const
+FPlantedPositionData FControlledLeg::GetSimplePlantedWorldPosition(const FVector& AtPosition,
+	const FRotator& AtRotation, const float SweepDown, const float TraceUp) const
 {
-	const auto FootRotation = GetWorldRotation(AtRotation.Quaternion());
 	const auto WorldFootBase = GetWorldPosition(AtPosition);
 
-	// TODO: Fix. As the rotation is not taken into account, this is checking for flat collision.
-	const auto WorldFootTip = WorldFootBase + FootRotation.RotateVector(FVector(20, 0, 0));
-	// const auto WorldFootTip = WorldFootBase + FVector(0, 20, 0);
+	FHitResult HitResult;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(AnimInstance->GetOwningActor());
+
+	const bool bHitOnFootBase = AnimInstance->GetWorld()->LineTraceSingleByChannel(
+		HitResult,
+		WorldFootBase + FVector(0, 0, TraceUp),
+		WorldFootBase - FVector(0, 0, SweepDown),
+		ECC_Visibility,
+		Params
+	);
+	
+	if (bHitOnFootBase)
+	{
+		return {
+			.GroundHit = true,
+			.DeltaPosition = (HitResult.ImpactPoint - WorldFootBase) / AnimInstance->GetCharacter()->GetMeshActorScale().Z,
+			.DeltaRotation = FQuat::Identity,
+		};
+	}
+
+	return {
+		.GroundHit = false,
+		.DeltaPosition = FVector::ZeroVector,
+		.DeltaRotation = FQuat::Identity,
+	};
+}
+
+FPlantedPositionData FControlledLeg::GetDetailedPlantedWorldPosition(const FVector& AtPosition,
+                                                                     const FRotator& AtRotation, const float SweepDown, const float TraceUp) const
+{
+	const auto OldFootRotation = GetWorldRotation(AtRotation.Quaternion());
+	const auto WorldFootBase = GetWorldPosition(AtPosition);
+
+	const auto WorldFootTip = WorldFootBase + OldFootRotation.RotateVector(FVector(40, 0, 0));
 
 	FHitResult HitResultA;
 	FHitResult HitResultB;
@@ -45,36 +74,54 @@ FPlantedPositionData FControlledLeg::GetPlantedWorldPosition(const FVector& AtPo
 	);
 
 	bool GroundHit = true;
-	FVector GroundPosition = FVector::ZeroVector;
-	FVector FootLocation = FVector::ZeroVector;
-	if (bHitOnFootBase && bHitOnFootTip)
-	{
-		GroundPosition = (HitResultA.ImpactPoint + HitResultB.ImpactPoint) / 2.0f;
-		FootLocation = (WorldFootBase + WorldFootTip) / 2.0f;
-	}
-	else if (bHitOnFootBase)
+	FVector GroundPosition;
+	FVector FootLocation;
+	FQuat FootRotation;
+	if (bHitOnFootBase)
 	{
 		GroundPosition = HitResultA.ImpactPoint;
 		FootLocation = WorldFootBase;
+
+		FVector Normal = FVector(HitResultA.Normal.X, HitResultA.Normal.Y, HitResultA.Normal.Z);
+		FVector Forward = OldFootRotation.Vector() - FVector::DotProduct(OldFootRotation.Vector(), Normal) * Normal;
+		FRotator TargetRotator = FRotationMatrix::MakeFromXZ(Forward, Normal).Rotator();
+		FootRotation = TargetRotator.Quaternion();
 	}
 	else if (bHitOnFootTip)
 	{
-		GroundPosition = HitResultB.ImpactPoint;
-		FootLocation = WorldFootTip;
+		GroundHit = false;
+		FVector Normal = FVector(HitResultB.Normal.X, HitResultB.Normal.Y, HitResultB.Normal.Z);
+		FVector Forward = OldFootRotation.Vector() - FVector::DotProduct(OldFootRotation.Vector(), Normal) * Normal;
+		FRotator TargetRotator = FRotationMatrix::MakeFromXZ(Forward, Normal).Rotator();
+		FootRotation = TargetRotator.Quaternion();
+		GroundPosition = FVector::ZeroVector;
+		FootLocation = FVector::ZeroVector;
 	}
 	else
 	{
 		GroundHit = false;
 		GroundPosition = FVector::ZeroVector;
 		FootLocation = FVector::ZeroVector;
+		FootRotation = OldFootRotation;
 	}
-
-	// TODO: Replace `* 2.0f` with actual mesh scale factor/transform multiplication
 	return {
 		.GroundHit = GroundHit,
-		.DeltaPosition = (GroundPosition - FootLocation) * 2.0f,
-		.DeltaRotation = FQuat::Identity,
+		.DeltaPosition = (GroundPosition - FootLocation) / AnimInstance->GetCharacter()->GetMeshActorScale().Z,
+		.DeltaRotation = (FootRotation.Rotator() - OldFootRotation.Rotator()).Quaternion(),
 	};
+}
+
+/**
+ * @brief Performs a raycast to find the ground position directly under the leg.
+ */
+FPlantedPositionData FControlledLeg::GetPlantedWorldPosition(const FVector& AtPosition, const FRotator& AtRotation, const float SweepDown, const float TraceUp) const
+{
+	const auto SimpleHit = GetSimplePlantedWorldPosition(AtPosition, AtRotation, SweepDown + 75.0f, TraceUp);
+	if (!SimpleHit.GroundHit)
+	{
+		return SimpleHit;
+	}
+	return GetDetailedPlantedWorldPosition(AtPosition, AtRotation, SweepDown, TraceUp);
 }
 
 void FControlledLeg::Tick(const float DeltaTime)
@@ -87,7 +134,8 @@ void FControlledLeg::Tick(const float DeltaTime)
 		const auto PlantedPos = GetPlantedWorldPosition(2.0f);
 		if (PlantedPos.GroundHit && !IsGrounded)
 		{
-			AnimInstance->GetCharacter()->OnLegPlanted.Broadcast(GetWorldPosition());
+			const auto ActualPosition = AnimInstance->GetSkelMeshComponent()->GetComponentTransform().TransformPosition(AnimInstance->LegPositions[Idx] + BoneOffset);
+			AnimInstance->GetCharacter()->OnLegPlanted.Broadcast(ActualPosition);
 		}
 		IsGrounded = PlantedPos.GroundHit;
 	}

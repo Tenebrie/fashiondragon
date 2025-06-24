@@ -11,7 +11,8 @@ enum class EDriverLayer: uint8
 	Jump = 2,
 	Sway = 3,
 	Momentum = 4,
-	RotateToMovement = 5,
+	CapsuleCompensation = 5,
+	RotateToMovement = 6,
 
 	// Special - do not use
 	TotalCount = RotateToMovement + 1,

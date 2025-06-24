@@ -5,6 +5,7 @@
 #include "FashionDragon/Player/InputHandlers/FlightHandler.h"
 #include "FashionDragon/Utils/Utils.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Poses/CapsuleCompensation/CapsuleCompensationPose.h"
 #include "Poses/DragonFootPlacement/DragonFootPlacementPose.h"
 #include "Poses/DragonFlight/DragonFlightPose.h"
 #include "Poses/DragonIdle/DragonIdlePose.h"
@@ -26,6 +27,7 @@ FDragonAnimStateMachine::FDragonAnimStateMachine(
 	FDragonFlightPose* FlightPoseDriver,
 	FDragonRandomSwayPose* RandomSwayDriver,
 	FDragonMomentumPose* MomentumDriver,
+	FCapsuleCompensationPose* CapsuleCompensationDriver,
 	FDragonFootPlacementPose* FootPlacementDriver
 ):
 	NullPoseDriver(NullPoseDriver),
@@ -37,6 +39,7 @@ FDragonAnimStateMachine::FDragonAnimStateMachine(
 	FlightPoseDriver(FlightPoseDriver),
 	RandomSwayDriver(RandomSwayDriver),
 	MomentumDriver(MomentumDriver),
+	CapsuleCompensationDriver(CapsuleCompensationDriver),
 	FootPlacementDriver(FootPlacementDriver)
 {
 	PoseDrivers = {
@@ -49,6 +52,7 @@ FDragonAnimStateMachine::FDragonAnimStateMachine(
 		FlightPoseDriver,
 		RandomSwayDriver,
 		MomentumDriver,
+		CapsuleCompensationDriver,
 		FootPlacementDriver,
 	};
 	InitTransitions();
