@@ -1,5 +1,7 @@
 ﻿#include "BaseDragonWingPoseAdapter.h"
 
+#include "FashionDragon/DebugTools/QuickDebug.h"
+
 enum class EWingMovementAxis
 {
 	FlapAngle,
@@ -12,11 +14,11 @@ FTransform FBaseDragonWingPoseAdapter::ProcessBone(const FName& FullBoneName, co
 	TMap<EWingMovementAxis, TMap<FString, FRotator>> TransformData =
 	{
 		{EWingMovementAxis::FlapAngle,{
-								 
+				{ "Wing_001", FRotator(0.0, 90.0f, 0) },
 			}
 		},
 		{EWingMovementAxis::TiltAngle,{
-								 
+				{ "Wing_001", FRotator(0.0, 0, 0) },
 			}
 		},
 		{

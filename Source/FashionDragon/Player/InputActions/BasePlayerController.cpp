@@ -80,6 +80,11 @@ void ABasePlayerController::SetupInputComponent()
 
 	Input->BindAction(UActions::Interact(), ETriggerEvent::Started, this, &ABasePlayerController::OnInteract);
 
+	Input->BindAction(UActions::Flight_Ability_01(), ETriggerEvent::Started, this, &ABasePlayerController::OnFlight_Ability_01);
+	Input->BindAction(UActions::Flight_Ability_02(), ETriggerEvent::Started, this, &ABasePlayerController::OnFlight_Ability_02);
+	Input->BindAction(UActions::Flight_Ability_03(), ETriggerEvent::Started, this, &ABasePlayerController::OnFlight_Ability_03);
+	Input->BindAction(UActions::Flight_Ability_04(), ETriggerEvent::Started, this, &ABasePlayerController::OnFlight_Ability_04);
+
 	Input->BindAction(UActions::ShowAnimDebug(), ETriggerEvent::Started, this, &ABasePlayerController::OnShowAnimDebug);
 	Input->BindAction(UActions::DebugButtonNum2(), ETriggerEvent::Started, this, &ABasePlayerController::OnDebugButton2);
 	Input->BindAction(UActions::DebugButtonNum3(), ETriggerEvent::Started, this, &ABasePlayerController::OnDebugButton3);

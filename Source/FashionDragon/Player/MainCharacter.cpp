@@ -118,6 +118,16 @@ void AMainCharacter::BeginPlay()
 
     DesiredFacingRotation = GetActorRotation();
     RotationInputHandler->ResetRotation(GetActorRotation().Quaternion());
+
+    UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(InputComponent);
+    if (!Input) return;
+    
+    Input->BindAction(UActions::Flight_FlapForward(), ETriggerEvent::Started, FlightHandler, &UFlightHandler::HandleFlapForwardInput);
+    Input->BindAction(UActions::Flight_FlapForward(), ETriggerEvent::Completed, FlightHandler, &UFlightHandler::HandleFlapForwardInput);
+    Input->BindAction(UActions::Flight_FlapForward(), ETriggerEvent::Canceled, FlightHandler, &UFlightHandler::HandleFlapForwardInput);
+    Input->BindAction(UActions::Flight_FoldWings(), ETriggerEvent::Started, FlightHandler, &UFlightHandler::HandleFoldWingsInput);
+    Input->BindAction(UActions::Flight_FoldWings(), ETriggerEvent::Completed, FlightHandler, &UFlightHandler::HandleFoldWingsInput);
+    Input->BindAction(UActions::Flight_FoldWings(), ETriggerEvent::Canceled, FlightHandler, &UFlightHandler::HandleFoldWingsInput);
 }
 
 void AMainCharacter::StartAimDownSights()
@@ -188,8 +198,14 @@ void AMainCharacter::Tick(const float DeltaTime)
             const auto NewRot = FMath::RInterpTo(CurrentRot, FacingRotation, DeltaTime, 10.0f * MovementSpeedScalar);
             DetachedMeshRoot->SetWorldRotation(NewRot);
         }
+
+        if (GetCharacterMovement()->IsMovingOnGround() && JumpCooldown > 0.0f)
+        {
+            JumpCooldown = FMath::Max(0.0f, JumpCooldown - DeltaTime);
+        }
     }
-    SpringArmComponent->SetWorldRotation(FRotator(DesiredRotation.Pitch, DesiredRotation.Yaw, 0.0f));
+    SpringArmComponent->SetWorldRotation(FRotator(DesiredRotation.Pitch, DesiredRotation.Yaw, DesiredRotation.Roll));
+    SpringArmComponent->SetRelativeLocation(DetachedMeshRoot->GetUpVector() * FVector(0, 0, 190.0f));
 }
 
 // Called to bind functionality to input
@@ -208,9 +224,10 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
     
     Input->BindAction(UActions::GroundMovement(), ETriggerEvent::Triggered, RotationInputHandler, &URotationInputHandler::HandleMovementInput);
     Input->BindAction(UActions::CameraMove(), ETriggerEvent::Triggered, RotationInputHandler, &URotationInputHandler::HandleRotationInput);
+    Input->BindAction(UActions::Flight_Roll(), ETriggerEvent::Triggered, RotationInputHandler, &URotationInputHandler::HandleFlightRollInput);
     
     Input->BindAction(UActions::Jump(), ETriggerEvent::Started, this, &AMainCharacter::StartJump);
-    Input->BindAction(UActions::CancelFlight(), ETriggerEvent::Started, this, &AMainCharacter::CancelFlight);
+    Input->BindAction(UActions::Flight_Cancel(), ETriggerEvent::Started, this, &AMainCharacter::CancelFlight);
 
     Input->BindAction(UActions::Sprint(), ETriggerEvent::Started, this, &AMainCharacter::StartSprint);
     Input->BindAction(UActions::Sprint(), ETriggerEvent::Completed, this, &AMainCharacter::StopSprint);
@@ -253,6 +270,9 @@ void AMainCharacter::StartJump()
 {
     if (GetCharacterMovement()->IsMovingOnGround())
     {
+        if (JumpCooldown > 0.0f)
+            return;
+        
         const float JumpZVelocity = GetCharacterMovement()->JumpZVelocity;
         const FVector LaunchDirection = FVector(0, 0, JumpZVelocity);
         const FVector ForwardStrength = GetCharacterMovement()->GetForwardVector() * FVector(250.0f, 250.0f, 0) * FMath::Clamp(GetVelocity().Size() / 600.0f, 0.0f, 1.0f);
@@ -260,6 +280,7 @@ void AMainCharacter::StartJump()
         const auto AnimInstance = Cast<UDragonAnimInstance>(DragonMesh->GetAnimInstance());
         AnimInstance->StateMachine->SetState(EAnimationState::Jumping);
         AnimInstance->StateMachine->AnimationLockout = 0.2f;
+        JumpCooldown = 0.10f;
     }
     else
     {

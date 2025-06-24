@@ -7,7 +7,7 @@
  */
 FPoseEffector FDragonFootPlacementLegDriver::ToEffector(const FPoseEffector& BaseEffector, const FPoseEffectorContext& Context)
 {
-	const auto GroundData = Leg->GetPlantedWorldPosition(BaseEffector, 5.0f, 300.0f);
+	const auto GroundData = Leg->GetPlantedWorldPosition(BaseEffector, 1.0f, 300.0f);
 
 	const auto Effector = BaseEffector
 		.AddPosition(GroundData.DeltaPosition)

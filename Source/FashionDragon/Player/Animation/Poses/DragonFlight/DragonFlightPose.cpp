@@ -2,25 +2,43 @@
 
 #include "DragonFlightDriverLeg.h"
 #include "FashionDragon/DebugTools/QuickDebug.h"
+#include "FashionDragon/Player/MainCharacter.h"
 #include "FashionDragon/Player/Animation/DragonAnimInstance.h"
 #include "FashionDragon/Player/Animation/Enums/DriverLayer.h"
+#include "FashionDragon/Player/InputHandlers/FlightHandler.h"
 
 FDragonWingStateData FDragonFlightWingDriver::GetRawStateData() const
 {
 	const std::map<EDragonFlightState, FDragonWingStateData> AnimData =
 	{
+		{ EDragonFlightState::Gliding,
+			{
+				.Duration = 0.4f,
+				.TransitionSpeed = 10.0f,
+			}
+		},
 		{ EDragonFlightState::Pushing,
 			{
-				.FlapAngle = FArticulatedValue(1.2f),
-				.FlightFoldState = FArticulatedValue(1.0f),
+				.FlapAngle = FArticulatedValue(1.0f),
+				.TiltAngle = FArticulatedValue(0.0f),
+				.FlightFoldState = FArticulatedValue(0.0f),
 				.Duration = 0.4f,
 				.TransitionSpeed = 300.0f,
 			}
 		},
 		{ EDragonFlightState::Retracting,
 			{
-				.FlapAngle = FArticulatedValue(-1.2f),
-				.FlightFoldState = FArticulatedValue(1.0f, -1.2f, -0.5f),
+				.FlapAngle = FArticulatedValue(-1.0f),
+				.TiltAngle = FArticulatedValue(1.0f),
+				.FlightFoldState = FArticulatedValue(0.0f, -1.2f, -0.5f),
+				.Duration = 0.9f,
+				.TransitionSpeed = 8.0f,
+			}
+		},
+		{ EDragonFlightState::WingsFolded,
+			{
+				.FlapAngle = FArticulatedValue(0.0f),
+				.FlightFoldState = FArticulatedValue(1.0f),
 				.Duration = 0.9f,
 				.TransitionSpeed = 8.0f,
 			}
@@ -34,25 +52,52 @@ void FDragonFlightWingDriver::Tick(const float DeltaTime)
 {
 	FProceduralWingDriver::Tick(DeltaTime);
 
+	const auto FlightHandler = AnimInstance->GetCharacter()->FlightHandler;
+
+	if (FlightHandler->IsFoldingWings())
+	{
+		SetFlightState(EDragonFlightState::WingsFolded);
+	}
+	else if ((FlightState == EDragonFlightState::Gliding || FlightState == EDragonFlightState::WingsFolded) && FlightHandler->IsFlapping())
+	{
+		SetFlightState(EDragonFlightState::Pushing);
+	}
+	else if (!FlightHandler->IsFlapping())
+	{
+		SetFlightState(EDragonFlightState::Gliding);
+	}
+
 	if (CyclePosition >= GetRawStateData().Duration)
 	{
-		CyclePosition = 0.0f;
 		AdvanceState();
 	}
+}
+
+void FDragonFlightWingDriver::SetFlightState(const EDragonFlightState State)
+{
+	if (FlightState == State)
+		return;
+	
+	CyclePosition = 0.0f;
+	FlightState = State;
+	StartingState = Wing->State;
 }
 
 void FDragonFlightWingDriver::AdvanceState()
 {
 	switch (FlightState)
 	{
+	case EDragonFlightState::Gliding:
+		break;
 	case EDragonFlightState::Pushing:
-		FlightState = EDragonFlightState::Retracting;
+		SetFlightState(EDragonFlightState::Retracting);
 		break;
 	case EDragonFlightState::Retracting:
-		FlightState = EDragonFlightState::Pushing;
+		SetFlightState(EDragonFlightState::Pushing);
+		break;
+	case EDragonFlightState::WingsFolded:
 		break;
 	}
-	StartingState = Wing->State;
 }
 
 FDragonFlightPose::FDragonFlightPose(UDragonAnimInstance* Anim): FProceduralPose(Anim)
@@ -64,8 +109,8 @@ FDragonFlightPose::FDragonFlightPose(UDragonAnimInstance* Anim): FProceduralPose
 	LeftWingDriver = new FDragonFlightWingDriver(Anim, Anim->LeftWing.GetBone(EDriverLayer::Primary));
 	RightWingDriver = new FDragonFlightWingDriver(Anim, Anim->RightWing.GetBone(EDriverLayer::Primary));
 	WingDrivers = {
-		// LeftWingDriver,
-		// RightWingDriver,
+		LeftWingDriver,
+		RightWingDriver,
 	};
 }
 

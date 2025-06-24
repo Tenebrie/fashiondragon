@@ -72,6 +72,8 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* AimCamera;
 
+	float JumpCooldown = 0.0f;
+
 protected:
 	// Called when the game starts or when spawned
 	UFUNCTION(BlueprintCallable) virtual void BeginPlay() override;

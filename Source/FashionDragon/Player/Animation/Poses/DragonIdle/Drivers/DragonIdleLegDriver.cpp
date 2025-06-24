@@ -45,6 +45,18 @@ void FDragonIdleLegDriver::Tick(const float DeltaTime)
 
 void FDragonIdleLegDriver::SetIdleState(const ELegIdleState NewState, const bool SkipBroadcast)
 {
+	if (NewState == ELegIdleState::NeedsReturn)
+	{
+		const auto LegReference = RotateVectorToInputRotation(Leg->Position, true);
+		const auto FlatVector = FVector(LegReference.X, LegReference.Y, 0.0f);
+		if (FlatVector.Length() < 25.0f)
+		{
+			SetIdleState(ELegIdleState::Planted, true);
+			LockToWorldGround();
+			return;
+		}
+	}
+	
 	if (NewState == ELegIdleState::Planted || NewState == ELegIdleState::NeedsReturn)
 		SetWalkingState(ELegWalkingState::Planted);
 	else

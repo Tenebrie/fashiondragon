@@ -29,7 +29,15 @@ public:
 	inline static const FInputActionFactory CastASpell = Action(EInputActionValueType::Boolean);
 	inline static const FInputActionFactory Interact = Action(EInputActionValueType::Boolean);
 
-	inline static const FInputActionFactory CancelFlight = Action(EInputActionValueType::Boolean);
+	inline static const FInputActionFactory Flight_FlapForward = Action(EInputActionValueType::Boolean);
+	inline static const FInputActionFactory Flight_Roll = Action(EInputActionValueType::Axis1D);
+	inline static const FInputActionFactory Flight_FoldWings = Action(EInputActionValueType::Boolean);
+	inline static const FInputActionFactory Flight_Cancel = Action(EInputActionValueType::Boolean);
+
+	inline static const FInputActionFactory Flight_Ability_01 = Action(EInputActionValueType::Boolean);
+	inline static const FInputActionFactory Flight_Ability_02 = Action(EInputActionValueType::Boolean);
+	inline static const FInputActionFactory Flight_Ability_03 = Action(EInputActionValueType::Boolean);
+	inline static const FInputActionFactory Flight_Ability_04 = Action(EInputActionValueType::Boolean);
 
 	inline static const FInputActionFactory ShowAnimDebug = Action(EInputActionValueType::Boolean);
 	inline static const FInputActionFactory DebugButtonNum2 = Action(EInputActionValueType::Boolean);

@@ -61,10 +61,10 @@ void FDragonIdlePose::Tick(const float DeltaTime)
 	const auto LeftLeg = LeftLegDriver->GetLeg();
 	const auto RightLeg = RightLegDriver->GetLeg();
 
-	const auto IsLeftFar = LeftLeg->Position.Size() > 30.0f || FUtils::GetRotatorDistance(LeftLeg->Rotation) > 20.0f;
-	const auto IsRightFar = RightLeg->Position.Size() > 30 || FUtils::GetRotatorDistance(RightLeg->Rotation) > 20.0f;
-	const auto IsLeftKindaFar = LeftLeg->Position.Size() > 25.0f || FUtils::GetRotatorDistance(LeftLeg->Rotation) > 15.0f;
-	const auto IsRightKindaFar = RightLeg->Position.Size() > 25.0f || FUtils::GetRotatorDistance(RightLeg->Rotation) > 15.0f;
+	const auto IsLeftFar = LeftLeg->GetFlatPosition().Size() > 30.0f || FUtils::GetRotatorDistance(LeftLeg->Rotation) > 20.0f;
+	const auto IsRightFar = RightLeg->GetFlatPosition().Size() > 30 || FUtils::GetRotatorDistance(RightLeg->Rotation) > 20.0f;
+	const auto IsLeftKindaFar = LeftLeg->GetFlatPosition().Size() > 25.0f || FUtils::GetRotatorDistance(LeftLeg->Rotation) > 15.0f;
+	const auto IsRightKindaFar = RightLeg->GetFlatPosition().Size() > 25.0f || FUtils::GetRotatorDistance(RightLeg->Rotation) > 15.0f;
 	const auto CanLeftDisconnect = RightLegDriver->IdleState != ELegIdleState::ArticulatedReturn && LeftLegDriver->IdleState == ELegIdleState::Planted;
 	const auto CanRightDisconnect = LeftLegDriver->IdleState != ELegIdleState::ArticulatedReturn && RightLegDriver->IdleState == ELegIdleState::Planted;
 	if (CanLeftDisconnect && CanRightDisconnect && ((IsLeftFar && IsRightKindaFar) || (IsRightFar && IsLeftKindaFar)))
@@ -110,10 +110,18 @@ void FDragonIdlePose::ResetState()
 	HipsDriver->ResetState();
 
 	LeftLegDriver->LockToWorldGround();
-	LeftLegDriver->SetIdleState(ELegIdleState::NeedsReturn);
+	LeftLegDriver->SetIdleState(ELegIdleState::NeedsReturn, true);
+	
 	RightLegDriver->LockToWorldGround();
-	RightLegDriver->SetIdleState(ELegIdleState::NeedsReturn);
-
-	const auto FurthestLeg = LeftLegDriver->GetLeg()->Position.Size() > RightLegDriver->GetLeg()->Position.Size() ? LeftLegDriver : RightLegDriver;
-	FurthestLeg->SetIdleState(ELegIdleState::ArticulatedReturn);
+	RightLegDriver->SetIdleState(ELegIdleState::NeedsReturn, true);
+	
+	if (LeftLegDriver->IdleState == ELegIdleState::NeedsReturn && RightLegDriver->IdleState == ELegIdleState::NeedsReturn)
+	{
+		const auto FurthestLeg = LeftLegDriver->GetLeg()->Position.Size() > RightLegDriver->GetLeg()->Position.Size() ? LeftLegDriver : RightLegDriver;
+		FurthestLeg->SetIdleState(ELegIdleState::ArticulatedReturn);
+	}
+	else if (LeftLegDriver->IdleState == ELegIdleState::NeedsReturn)
+		LeftLegDriver->SetIdleState(ELegIdleState::ArticulatedReturn);
+	else if (RightLegDriver->IdleState == ELegIdleState::NeedsReturn)
+		RightLegDriver->SetIdleState(ELegIdleState::ArticulatedReturn);
 }

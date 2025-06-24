@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿// ReSharper disable CppUEBlueprintImplementableEventNotImplemented
+#pragma once
 #include "InputMappingContext.h"
 
 #include "BasePlayerController.generated.h"
@@ -37,6 +38,11 @@ protected:
 	static FKeyMappingBuilder AddMapping(UInputMappingContext* Context, const UInputAction* Value, const FKey& Key);
 
 	UFUNCTION(BlueprintImplementableEvent, Category="InputActions") void OnInteract();
+
+	UFUNCTION(BlueprintImplementableEvent, Category="InputActions") void OnFlight_Ability_01();
+	UFUNCTION(BlueprintImplementableEvent, Category="InputActions") void OnFlight_Ability_02();
+	UFUNCTION(BlueprintImplementableEvent, Category="InputActions") void OnFlight_Ability_03();
+	UFUNCTION(BlueprintImplementableEvent, Category="InputActions") void OnFlight_Ability_04();
 	
 	UFUNCTION(BlueprintImplementableEvent, Category="InputActions") void OnShowAnimDebug();
 	UFUNCTION(BlueprintImplementableEvent, Category="InputActions") void OnDebugButton2();

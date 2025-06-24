@@ -1,14 +1,10 @@
 class UScriptedFlightHandler : UFlightHandler
 {
-	// TODO: Move to C++ as this value needs to be read by animations
-	UPROPERTY()
-	float WingAreaFactor = 1.00f;
-
 	UPROPERTY() float BaselineDrag = 0.01f;
 
 	UPROPERTY() float WingSpan = 20.0f; // m
-	UPROPERTY() float WingArea = 80.0f; // m^2
-	UPROPERTY() float Mass = 1000.0f; // kg
+	UPROPERTY() float WingArea = 120.0f; // m^2
+	UPROPERTY() float Mass = 900.0f; // kg
 
 	FVector Velocity;
 	FVector Acceleration;
@@ -30,7 +26,6 @@ class UScriptedFlightHandler : UFlightHandler
 		CheckForGround();
 
 		MovementComponent.Velocity += Acceleration * DeltaTime * 100;
-		Print("Velocity = " + MovementComponent.Velocity);
 	}
 
 	void ApplyWingLift()
@@ -56,17 +51,16 @@ class UScriptedFlightHandler : UFlightHandler
 		float DynamicAccelerationPrefactor = 0.5f * AirDensity * WingAreaFactor * WingArea / Mass;
 		// float DynamicAccelerationPrefactor = 1.0f;
 
-		float LiftCoefficient = GetLiftCurveValue(AngleOfAttack, 0.11f);
-		Print("AoA" + AngleOfAttack + " Cl " + LiftCoefficient);
+		float LiftCoefficient = GetLiftCurveValue(AngleOfAttack, 0.07f);
+		// Print("AoA" + AngleOfAttack);
 		float LiftMagnitude = DynamicAccelerationPrefactor * LiftCoefficient * RelativeVelocity.SizeSquared();
 
 		FVector LiftDirection = Right.CrossProduct(RelativeWind).GetSafeNormal();
-		Print("Lift" + LiftDirection + " Wind " + RelativeWind + " Test " + LiftDirection.DotProduct(Up));
 
 		Acceleration += LiftDirection * LiftMagnitude;
 
 		// Drag
-		float DragCoefficient = GetLiftCurveValue(AngleOfAttack, 0.11f);
+		float DragCoefficient = GetLiftCurveValue(AngleOfAttack, 0.07f);
 		float AR              = (WingSpan * WingSpan) / WingArea;
 		float InducedDrag     = (DragCoefficient * DragCoefficient) / (PI * AR * 0.8f);
 		float StallDragFactor = 0.3f * Math::Clamp((Math::Abs(AngleOfAttack) - 12.f) / 10.f, 0.f, 1.f);
@@ -74,7 +68,6 @@ class UScriptedFlightHandler : UFlightHandler
 
 		float DragMagnitude = DynamicAccelerationPrefactor * RelativeVelocity.SizeSquared() * TotalDrag;
 		FVector DragDirection = -RelativeVelocity.GetSafeNormal();
-		Print("AR " + DynamicAccelerationPrefactor);
 
 		Acceleration += DragDirection * DragMagnitude;
 	}
@@ -93,7 +86,7 @@ class UScriptedFlightHandler : UFlightHandler
 		FCollisionQueryParams QueryParams;
 		QueryParams.AddIgnoredActor(GetCharacter());
 		FHitResult Hit;
-		System::LineTraceSingleByChannel(Hit, CapsuleBottom, CapsuleBottom - FVector(0, 0, 150), ECollisionChannel::ECC_WorldStatic, QueryParams);
+		System::LineTraceSingleByChannel(Hit, CapsuleBottom, CapsuleBottom - FVector(0, 0, 50), ECollisionChannel::ECC_WorldStatic, QueryParams);
 
 		if (Hit.bBlockingHit)
 		{

@@ -49,6 +49,7 @@ public:
 
 	int GetIdx() const { return Idx; }
 
+	FVector GetFlatPosition() const { return FVector(Position.X, Position.Y, 0.0f); }
 	FPlantedPositionData GetPlantedWorldPosition(const FVector& AtPosition, const FRotator& AtRotation, const float SweepDown = 0.00f, const float TraceUp = 50.0f) const;
 	FPlantedPositionData GetPlantedWorldPosition(const float SweepDown = 0.00f, const float TraceUp = 50.0f) const
 	{

@@ -45,7 +45,7 @@ void FDragonJumpBodyDriver::Tick(const float DeltaTime)
 	}
 	else if (JumpingState == ELegJumpState::Impact)
 	{
-		DesiredPosition = FVector(0.0f, 0.0f, -75.0f) * ImpactMultiplier;
+		DesiredPosition = FVector(0.0f, 0.0f, -150.0f) * ImpactMultiplier;
 		DesiredRotation = FRotator(-7.5f, 0.0f, 0.0f) * ImpactMultiplier;
 		DesiredForce = 10.f;
 	}
@@ -199,7 +199,7 @@ void FDragonJumpLegDriver::SetJumpState(const ELegJumpState NewJumpState)
 void FDragonJumpLegDriver::UpdateRandomness(const bool LagBehind)
 {
 	if (LagBehind)
-		JumpLagBehind = FMath::FRand() * 0.05f + 0.075f;
+		JumpLagBehind = FMath::FRand() * 0.05f + 0.025f;
 	else
 		JumpLagBehind = 0.0f;
 	JumpPositionOffset = FVector(FMath::FRand() * 50.0f, FMath::FRand() * 50.0f, FMath::FRand() * 50.0f) - FVector(25.0f, 25.0f, 25.0f);
@@ -278,7 +278,6 @@ void FDragonJumpPose::ResetState()
 template<typename SourcePoseT>
 void FDragonJumpPose::SyncStateFrom(const SourcePoseT* SourcePose)
 {
-	// TODO: Set dominant driver by height (lower one)
 	const auto LeftLegPosition = LeftLegDriver->GetLeg()->Position.Z;
 	const auto RightLegPosition = RightLegDriver->GetLeg()->Position.Z;
 	if (FMath::Abs(LeftLegPosition - RightLegPosition) < 25)
@@ -287,6 +286,7 @@ void FDragonJumpPose::SyncStateFrom(const SourcePoseT* SourcePose)
 		RightLegDriver->UpdateRandomness(!SwitchJumpingLeg);
 		LeftLegDriver->SetJumpState(ELegJumpState::Pushing);
 		RightLegDriver->SetJumpState(ELegJumpState::Pushing);
+		SwitchJumpingLeg = !SwitchJumpingLeg;
 		return;
 	}
 

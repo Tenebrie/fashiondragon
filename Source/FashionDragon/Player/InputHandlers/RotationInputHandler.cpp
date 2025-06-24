@@ -33,3 +33,10 @@ void URotationInputHandler::HandleRotationInput(const FInputActionValue& Value)
 	CurrentPitch += DeltaPitch;
 	CurrentYaw += DeltaYaw;
 }
+
+void URotationInputHandler::HandleFlightRollInput(const FInputActionValue& Value)
+{
+	const float DeltaValue = Value.Get<float>();
+
+	CurrentRoll += DeltaValue * RollSensitivity;
+}

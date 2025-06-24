@@ -1,7 +1,9 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "InputActionValue.h"
 #include "Components/ActorComponent.h"
+#include "FashionDragon/Player/Animation/Structs/PoseWingEffector.h"
 #include "FashionDragon/Player/Generics/PlayerComponent.h"
 #include "FlightHandler.generated.h"
 
@@ -19,10 +21,9 @@ protected:
 	FControlledWing* LeftWing = nullptr;
 	FControlledWing* RightWing = nullptr;
 
-	UPROPERTY(BlueprintReadOnly) float LastFrameLeftFlap = 0.0f;
-	UPROPERTY(BlueprintReadOnly) float LastFrameRightFlap = 0.0f;
-	UPROPERTY(BlueprintReadOnly) float LastFrameLeftOpenness = 0.0f;
-	UPROPERTY(BlueprintReadOnly) float LastFrameRightOpenness = 0.0f;
+	UPROPERTY(BlueprintReadWrite) bool bIsFlapping = false;
+	UPROPERTY(BlueprintReadWrite) bool bIsFoldingWings = false;
+	UPROPERTY(BlueprintReadWrite) float WingAreaFactor = 1.0f;
 
 public:
 	virtual void BeginPlay() override;
@@ -31,4 +32,9 @@ public:
 	void StartFlight();
 	void CancelFlight();
 	bool IsFlying() const { return IsInFlight; }
+	bool IsFlapping() const { return bIsFlapping; }
+	bool IsFoldingWings() const { return bIsFoldingWings; }
+
+	void HandleFlapForwardInput(const FInputActionValue& Value);
+	void HandleFoldWingsInput(const FInputActionValue& Value);
 };

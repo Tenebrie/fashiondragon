@@ -21,4 +21,10 @@ class AScriptedPlayerController : ADefaultPlayerController
 		Widget.AddToViewport();
 		GetCharacter().GetComponent(UPlayerWallet).Widget = Widget;
 	}
+
+	UFUNCTION(BlueprintOverride)
+	void OnFlight_Ability_01()
+	{
+		GetCharacter().GetMovementComponent().Velocity += GetCharacter().DetachedMeshRoot.ForwardVector.GetSafeNormal() * 5000.0f;
+	}
 }

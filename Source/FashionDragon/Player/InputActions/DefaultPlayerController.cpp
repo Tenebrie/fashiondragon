@@ -63,8 +63,18 @@ void ADefaultPlayerController::SetupInputMappings()
 	{
 		const auto Context = DragonFlyingInputContext;
 
-		AddMapping(Context, UActions::CancelFlight(), EKeys::SpaceBar);
-		AddMapping(Context, UActions::CancelFlight(), EKeys::Gamepad_FaceButton_Bottom);
+		AddMapping(Context, UActions::Flight_Cancel(), EKeys::SpaceBar);
+		AddMapping(Context, UActions::Flight_Cancel(), EKeys::Gamepad_FaceButton_Bottom);
+
+		AddMapping(Context, UActions::Flight_FlapForward(), EKeys::W);
+		AddMapping(Context, UActions::Flight_Roll(), EKeys::A).Negate();
+		AddMapping(Context, UActions::Flight_Roll(), EKeys::D);
+		AddMapping(Context, UActions::Flight_FoldWings(), EKeys::S);
+
+		AddMapping(Context, UActions::Flight_Ability_01(), EKeys::One);
+		AddMapping(Context, UActions::Flight_Ability_02(), EKeys::Two);
+		AddMapping(Context, UActions::Flight_Ability_03(), EKeys::Three);
+		AddMapping(Context, UActions::Flight_Ability_04(), EKeys::Four);
 	}
 
 	DebugInputContext = MakeInputContext();

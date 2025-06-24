@@ -19,6 +19,7 @@ public:
 
 	UPROPERTY() float HorizontalSensitivity = 1.0f;
 	UPROPERTY() float VerticalSensitivity = 1.0f;
+	UPROPERTY() float RollSensitivity = 1.0f;
 
 	UPROPERTY(BlueprintReadWrite) float CurrentPitch = 0.0f;
 	UPROPERTY(BlueprintReadWrite) float CurrentYaw = 0.0f;
@@ -39,4 +40,5 @@ public:
 
 	void HandleMovementInput(const FInputActionValue& Value);
 	void HandleRotationInput(const FInputActionValue& Value);
+	void HandleFlightRollInput(const FInputActionValue& Value);
 };
